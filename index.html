@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoramento de Processos no STF</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Monitoramento de Processos no STF</h1>
+  </header>
+
+  <main>
+    <!-- Seção para entrada dos dados -->
+    <section id="upload-section">
+      <h2>Inserir Dados</h2>
+      <form id="uploadForm">
+        <div>
+          <label for="csvFile">Upload de CSV:</label>
+          <input type="file" id="csvFile" name="csvFile" accept=".csv">
+        </div>
+        <div>
+          <label for="processoManual">Ou digite o número do processo:</label>
+          <input type="text" id="processoManual" name="processoManual" placeholder="Ex: 1234567-89.2020.8.26.0100">
+        </div>
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+
+    <!-- Seção para exibição dos processos -->
+    <section id="processes-section">
+      <h2>Processos Monitorados</h2>
+      <table id="processesTable">
+        <thead>
+          <tr>
+            <th>Número do Processo</th>
+            <th>Status</th>
+            <th>Última Pesquisa</th>
+            <th>Última Movimentação</th>
+            <th>Teor da Última Movimentação</th>
+            <th>Último Despacho</th>
+            <th>Teor do Último Despacho</th>
+            <th>Novo Despacho?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- As linhas dos processos serão inseridas aqui dinamicamente pelo app.js -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
