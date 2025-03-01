@@ -1,8 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import { Pool } from 'pg';
+import dotenv from 'dotenv';
+import pkg from 'pg';
 
-env.config();
+const { Pool } = pkg;
+
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;

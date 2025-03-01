@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Backend para monitoramento de processos",
     "main": "server.js",
+    "type": "module",
     "scripts": {
       "start": "node server.js"
     },
@@ -15,5 +16,4 @@
     "engines": {
       "node": ">=16"
     }
-  }
-  
+}
