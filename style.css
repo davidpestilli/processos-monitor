@@ -38,7 +38,7 @@
     margin-bottom: 20px;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   /* Formulário de inserção de dados */
@@ -58,13 +58,16 @@
   }
   
   form input[type="text"],
-  form input[type="file"] {
+  form input[type="file"],
+  form input[type="email"],
+  form input[type="password"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
   
+  /* Botões com efeito de click */
   form button {
     padding: 10px;
     background-color: #0073e6;
@@ -72,11 +75,15 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.1s ease;
   }
   
   form button:hover {
     background-color: #005bb5;
+  }
+  
+  form button:active {
+    transform: scale(0.98);
   }
   
   /* Estilos para a tabela de processos */
@@ -104,7 +111,12 @@
   
   /* Responsividade para a tabela */
   @media (max-width: 768px) {
-    table, thead, tbody, th, td, tr {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
       display: block;
     }
   
@@ -132,4 +144,5 @@
       text-align: left;
     }
   }
+  
   
