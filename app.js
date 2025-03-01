@@ -1,5 +1,5 @@
 // URL do backend no Railway
-const BACKEND_URL = "https://seu-backend-railway.app";
+const BACKEND_URL = "processos-monitor-production.up.railway.app";
 
 // Evento para registro do usuário
 document.getElementById("registerForm").addEventListener("submit", async function(event) {
