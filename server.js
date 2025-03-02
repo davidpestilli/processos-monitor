@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pkg from 'pg';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const { Pool } = pkg;
 
@@ -9,6 +11,18 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Caminho correto para arquivos estáticos (para compatibilidade com ES Modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir index.html na rota raiz "/"
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Configuração do banco de dados PostgreSQL
 const pool = new Pool({
