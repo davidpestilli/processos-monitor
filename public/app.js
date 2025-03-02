@@ -18,20 +18,21 @@ function carregarProcessosDoBackend() {
             processos.forEach(processo => {
                 const row = document.createElement("tr");
 
-                row.innerHTML = `
-                    <td>${processo.numero}</td>
-                    <td>${processo.status || "N/A"}</td>
-                    <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A"}</td>
-                    <td>${processo.ultima_movimentacao || "N/A"}</td>
-                    <td>${processo.teor_ultima_movimentacao || "N/A"}</td>
-                    <td>${processo.ultimo_despacho || "N/A"}</td>
-                    <td>${processo.teor_ultimo_despacho || "N/A"}</td>
-                    <td>
-                        ${processo.novo_despacho === "Sim" ? 
-                            '<button class="btn-sim">✔ Sim</button>' : 
-                            '<button class="btn-nao">❌ Não</button>'}
-                    </td>
-                `;
+            // Exemplo na montagem da linha:
+            row.innerHTML = `
+                <td>${processo.numero}</td>
+                <td>${processo.status || "N/A"}</td>
+                <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A"}</td>
+                <td>${processo.ultima_movimentacao || "N/A"}</td>
+                <td class="fixed">${processo.teor_ultima_movimentacao || "N/A"}</td>
+                <td>${processo.ultimo_despacho || "N/A"}</td>
+                <td class="fixed">
+                ${processo.teor_ultimo_despacho || "N/A"}
+                </td>
+                <td>
+                    ${processo.novo_despacho === "Sim" ? '<button class="btn-sim">✔ Sim</button>' : '<button class="btn-nao">❌ Não</button>'}
+                </td>
+            `;
 
                 tabelaBody.appendChild(row);
             });
