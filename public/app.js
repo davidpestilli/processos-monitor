@@ -45,7 +45,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
 async function salvarProcessoNoBackend(processos) {
     try {
-        const response = await fetch(`${BACKEND_URL}/processos`, {
+        const response = await fetch("http://localhost:3000/processos", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ processos }),
@@ -53,11 +53,13 @@ async function salvarProcessoNoBackend(processos) {
 
         if (!response.ok) throw new Error("Erro ao enviar processos.");
         console.log("Processos salvos com sucesso.");
-        carregarProcessosDoBackend();
+
+        carregarProcessosDoBackend(); // <-- Isso garante que a tabela será atualizada após um novo processo ser adicionado
     } catch (error) {
         console.error("Erro:", error);
     }
 }
+
 
 
 // Listener do formulário de upload e inserção manual
@@ -103,20 +105,22 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
 // Função para buscar processos no backend e atualizar a tabela
 async function carregarProcessosDoBackend() {
     try {
-        const response = await fetch(`${BACKEND_URL}/processos`);
+        const response = await fetch("http://localhost:3000/processos");
         if (!response.ok) throw new Error("Erro ao carregar processos.");
 
         const processos = await response.json();
+        console.log("Processos carregados do backend:", processos); // <-- Adicione este console.log para verificar os dados recebidos
         atualizarTabela(processos);
     } catch (error) {
         console.error("Erro ao buscar processos:", error);
     }
 }
 
+
 // Atualizar a tabela com os processos do backend
 function atualizarTabela(processos) {
     const tabela = document.getElementById("processesTable").getElementsByTagName("tbody")[0];
-    tabela.innerHTML = "";
+    tabela.innerHTML = ""; // Limpa a tabela antes de preencher
 
     processos.forEach(processo => {
         const row = tabela.insertRow();
@@ -124,9 +128,9 @@ function atualizarTabela(processos) {
             <td>${processo.numero}</td>
             <td>${processo.status}</td>
             <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
-            <td>${processo.ultima_movimentacao || "-"}</td>
+            <td>${processo.ultima_movimentacao ? new Date(processo.ultima_movimentacao).toLocaleDateString() : "-"}</td>
             <td>${processo.teor_ultima_movimentacao || "-"}</td>
-            <td>${processo.ultimo_despacho || "-"}</td>
+            <td>${processo.ultimo_despacho ? new Date(processo.ultimo_despacho).toLocaleDateString() : "-"}</td>
             <td>${processo.teor_ultimo_despacho || "-"}</td>
             <td>
                 <button onclick="toggleNovoDespacho(this, '${processo.numero}')" class="${processo.novo_despacho === 'Sim' ? 'btn-sim' : 'btn-nao'}">
@@ -136,6 +140,7 @@ function atualizarTabela(processos) {
         `;
     });
 }
+
 
 
 // Alternar "Novo Despacho?"

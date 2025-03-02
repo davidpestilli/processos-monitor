@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 const { Pool } = pkg;
 
 dotenv.config();
+console.log("DATABASE_URL carregado:", process.env.DATABASE_URL);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,9 +27,17 @@ app.get('/', (req, res) => {
 
 // Configuração do banco de dados PostgreSQL
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL, // Railway fornece essa variável automaticamente
-    ssl: {
-        rejectUnauthorized: false
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes("railway.app") ? { rejectUnauthorized: false } : false
+});
+
+
+// Testar conexão ao iniciar
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+        console.error("Erro ao conectar ao PostgreSQL:", err);
+    } else {
+        console.log("Conexão bem-sucedida com PostgreSQL:", res.rows);
     }
 });
 
@@ -44,7 +53,6 @@ app.post('/processos/atualizar', async (req, res) => {
             return res.status(400).json({ error: "Dados incompletos." });
         }
 
-        // Determinar o status com base no teor da movimentação
         let novoStatus = 'Em trâmite';
         if (teor_ultima_movimentacao.includes("Decurso")) {
             novoStatus = "Decurso";
@@ -52,40 +60,28 @@ app.post('/processos/atualizar', async (req, res) => {
             novoStatus = "Trânsito";
         }
 
-        // Buscar último despacho salvo
-        const result = await pool.query("SELECT teor_ultimo_despacho FROM processos WHERE numero = $1", [numero]);
-        let novoDespacho = "Sim"; 
-
-        if (result.rows.length > 0) {
-            const despachoAnterior = result.rows[0].teor_ultimo_despacho || "";
-            if (despachoAnterior && teor_ultimo_despacho) {
-                const similaridade = calcularSimilaridade(despachoAnterior, teor_ultimo_despacho);
-                if (similaridade >= 95) {
-                    novoDespacho = "Não";
-                }
-            }
-        }
-
-        // Atualizar o processo no banco
-        await pool.query(`
-            UPDATE processos 
+        const result = await pool.query(`
+            INSERT INTO processos (numero, status, ultima_pesquisa, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novo_despacho)
+            VALUES ($1, $2, NOW(), $3, $4, $5, $6, 'Sim')
+            ON CONFLICT (numero) DO UPDATE 
             SET 
-                status = $1,
+                status = $2,
                 ultima_pesquisa = NOW(),
-                ultima_movimentacao = $2,
-                teor_ultima_movimentacao = $3,
-                ultimo_despacho = $4,
-                teor_ultimo_despacho = $5,
-                novo_despacho = $6
-            WHERE numero = $7
-        `, [novoStatus, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novoDespacho, numero]);
+                ultima_movimentacao = $3,
+                teor_ultima_movimentacao = $4,
+                ultimo_despacho = $5,
+                teor_ultimo_despacho = $6,
+                novo_despacho = 'Sim'
+            RETURNING *;
+        `, [numero, novoStatus, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho]);
 
-        res.json({ message: "Processo atualizado com sucesso!", numero, novoDespacho });
+        res.json({ message: "Processo atualizado com sucesso!", numero, novoDespacho: "Sim" });
     } catch (error) {
         console.error("Erro ao atualizar processo:", error);
         res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
+
 
 
 function calcularSimilaridade(texto1, texto2) {
@@ -150,4 +146,5 @@ app.get('/processos', async (req, res) => {
         res.status(500).json({ error: "Erro ao buscar processos." });
     }
 });
+
 
