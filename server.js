@@ -47,41 +47,52 @@ app.use(express.json());
 // Endpoint para salvar processos
 app.post('/processos/atualizar', async (req, res) => {
     try {
-        const { numero, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho } = req.body;
+        let { processos } = req.body;
 
-        if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
-            return res.status(400).json({ error: "Dados incompletos." });
+        // Se o usuário enviou um único objeto em vez de um array, transforma em array
+        if (!Array.isArray(processos)) {
+            processos = [processos];
         }
 
-        let novoStatus = 'Em trâmite';
-        if (teor_ultima_movimentacao.includes("Decurso")) {
-            novoStatus = "Decurso";
-        } else if (teor_ultima_movimentacao.includes("Trânsito")) {
-            novoStatus = "Trânsito";
+        // Verifica se todos os processos possuem os campos obrigatórios
+        for (const p of processos) {
+            if (!p.numero || !p.ultima_movimentacao || !p.teor_ultima_movimentacao) {
+                return res.status(400).json({ error: "Dados incompletos. Todos os campos são obrigatórios." });
+            }
         }
 
-        const result = await pool.query(`
-            INSERT INTO processos (numero, status, ultima_pesquisa, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novo_despacho)
-            VALUES ($1, $2, NOW(), $3, $4, $5, $6, 'Sim')
-            ON CONFLICT (numero) DO UPDATE 
-            SET 
-                status = $2,
-                ultima_pesquisa = NOW(),
-                ultima_movimentacao = $3,
-                teor_ultima_movimentacao = $4,
-                ultimo_despacho = $5,
-                teor_ultimo_despacho = $6,
-                novo_despacho = 'Sim'
-            RETURNING *;
-        `, [numero, novoStatus, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho]);
+        // Inserir ou atualizar processos no banco de dados
+        for (const p of processos) {
+            let novoStatus = 'Em trâmite';
+            if (p.teor_ultima_movimentacao.includes("Decurso")) {
+                novoStatus = "Decurso";
+            } else if (p.teor_ultima_movimentacao.includes("Trânsito")) {
+                novoStatus = "Trânsito";
+            }
 
-        res.json({ message: "Processo atualizado com sucesso!", numero, novoDespacho: "Sim" });
+            await pool.query(`
+                INSERT INTO processos (numero, status, ultima_pesquisa, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novo_despacho)
+                VALUES ($1, $2, NOW(), $3, $4, $5, $6, 'Sim')
+                ON CONFLICT (numero) DO UPDATE 
+                SET 
+                    status = $2,
+                    ultima_pesquisa = NOW(),
+                    ultima_movimentacao = $3,
+                    teor_ultima_movimentacao = $4,
+                    ultimo_despacho = $5,
+                    teor_ultimo_despacho = $6,
+                    novo_despacho = 'Sim'
+                RETURNING *;
+            `, [p.numero, novoStatus, p.ultima_movimentacao, p.teor_ultima_movimentacao, p.ultimo_despacho, p.teor_ultimo_despacho]);
+        }
+
+        res.json({ message: "Processos atualizados com sucesso!", processos });
+
     } catch (error) {
         console.error("Erro ao atualizar processo:", error);
         res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
-
 
 
 function calcularSimilaridade(texto1, texto2) {
