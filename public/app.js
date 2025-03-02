@@ -1,169 +1,105 @@
-// URL do backend no Railway
-const BACKEND_URL = "https://processos-monitor-production.up.railway.app";
+const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
-// Evento para registro do usuário
-document.getElementById("registerForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
-    const email = document.getElementById("registerEmail").value;
-    const password = document.getElementById("registerPassword").value;
-
-    try {
-        const response = await fetch(`${BACKEND_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) throw new Error("Erro ao registrar usuário.");
-        console.log("Usuário registrado com sucesso:", email);
-    } catch (error) {
-        console.error("Erro ao registrar usuário:", error);
-    }
-});
-
-// Evento para login do usuário
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    try {
-        const response = await fetch(`${BACKEND_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) throw new Error("Login ou senha inválidos.");
-        console.log("Usuário logado:", email);
-        document.getElementById("loginError").textContent = "";
-    } catch (error) {
-        console.error("Erro de login:", error);
-        document.getElementById("loginError").textContent = "Login ou senha inválidos. Por favor, tente novamente.";
-    }
-});
-
-async function salvarProcessoNoBackend(processos) {
-    try {
-        const response = await fetch("http://localhost:3000/processos", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ processos }),
-        });
-
-        if (!response.ok) throw new Error("Erro ao enviar processos.");
-        console.log("Processos salvos com sucesso.");
-
-        carregarProcessosDoBackend(); // <-- Isso garante que a tabela será atualizada após um novo processo ser adicionado
-    } catch (error) {
-        console.error("Erro:", error);
-    }
-}
-
-
-
-// Listener do formulário de upload e inserção manual
-document.getElementById("uploadForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
-    const fileInput = document.getElementById("csvFile");
-    const manualInput = document.getElementById("processoManual");
-
-    let processos = [];
-
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-
-        reader.onload = async function(e) {
-            const text = e.target.result;
-            const linhas = text.split(/\r?\n/);
-
-            processos = linhas
-                .flatMap(linha => linha.split(/[;,]+/))
-                .map(valor => valor.trim())
-                .filter(valor => valor)
-                .map(processNumber => ({ processNumber }));
-
-            if (processos.length > 0) {
-                await salvarProcessoNoBackend(processos);
-            }
-
-            fileInput.value = "";
-        };
-
-        reader.readAsText(file);
-    } else if (manualInput.value.trim()) {
-        processos.push({ processNumber: manualInput.value.trim() });
-
-        await salvarProcessoNoBackend(processos);
-        manualInput.value = "";
-    } else {
-        console.log("Nenhum dado foi inserido.");
-    }
-});
-
-// Função para buscar processos no backend e atualizar a tabela
+// Função para carregar os processos do backend
 async function carregarProcessosDoBackend() {
     try {
-        const response = await fetch("http://localhost:3000/processos");
+        const response = await fetch(API_URL);
         if (!response.ok) throw new Error("Erro ao carregar processos.");
-
+        
         const processos = await response.json();
-        console.log("Processos carregados do backend:", processos); // <-- Adicione este console.log para verificar os dados recebidos
-        atualizarTabela(processos);
+        console.log("📌 Processos carregados:", processos);
+        
+        const tabela = document.getElementById("tabelaProcessos");
+        tabela.innerHTML = ""; // Limpa a tabela antes de adicionar os novos dados
+        
+        processos.forEach(processo => {
+            const row = tabela.insertRow();
+            row.insertCell(0).textContent = processo.numero;
+            row.insertCell(1).textContent = processo.status || "N/A";
+            row.insertCell(2).textContent = processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A";
+            row.insertCell(3).textContent = processo.ultima_movimentacao || "N/A";
+            row.insertCell(4).textContent = processo.teor_ultima_movimentacao || "N/A";
+            row.insertCell(5).textContent = processo.ultimo_despacho || "N/A";
+            row.insertCell(6).textContent = processo.teor_ultimo_despacho || "N/A";
+            
+            // Criando o botão interativo para "Novo Despacho"
+            const cellNovoDespacho = row.insertCell(7);
+            const botao = document.createElement("button");
+            botao.textContent = processo.novo_despacho === "Sim" ? "✔ Sim" : "❌ Não";
+            botao.className = processo.novo_despacho === "Sim" ? "btn-sim" : "btn-nao";
+            botao.onclick = () => alternarNovoDespacho(processo.numero, botao);
+            cellNovoDespacho.appendChild(botao);
+        });
     } catch (error) {
         console.error("Erro ao buscar processos:", error);
     }
 }
 
-
-// Atualizar a tabela com os processos do backend
-function atualizarTabela(processos) {
-    const tabela = document.getElementById("processesTable").getElementsByTagName("tbody")[0];
-    tabela.innerHTML = ""; // Limpa a tabela antes de preencher
-
-    processos.forEach(processo => {
-        const row = tabela.insertRow();
-        row.innerHTML = `
-            <td>${processo.numero}</td>
-            <td>${processo.status}</td>
-            <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
-            <td>${processo.ultima_movimentacao ? new Date(processo.ultima_movimentacao).toLocaleDateString() : "-"}</td>
-            <td>${processo.teor_ultima_movimentacao || "-"}</td>
-            <td>${processo.ultimo_despacho ? new Date(processo.ultimo_despacho).toLocaleDateString() : "-"}</td>
-            <td>${processo.teor_ultimo_despacho || "-"}</td>
-            <td>
-                <button onclick="toggleNovoDespacho(this, '${processo.numero}')" class="${processo.novo_despacho === 'Sim' ? 'btn-sim' : 'btn-nao'}">
-                    ${processo.novo_despacho === 'Sim' ? '✔ Sim' : '✖ Não'}
-                </button>
-            </td>
-        `;
-    });
-}
-
-
-
-// Alternar "Novo Despacho?"
-async function toggleNovoDespacho(button, numero) {
-    const novoValor = button.innerText.includes("Sim") ? "Não" : "Sim";
-    button.innerHTML = novoValor === "Sim" ? "✔ Sim" : "✖ Não";
-    button.classList.toggle("btn-sim");
-    button.classList.toggle("btn-nao");
-
+// Função para alternar o campo "Novo Despacho"
+async function alternarNovoDespacho(numero, botao) {
     try {
-        const response = await fetch(`${BACKEND_URL}/processos/atualizar`, {
+        const novoValor = botao.textContent.includes("Sim") ? "Não" : "Sim";
+        const response = await fetch(`${API_URL}/atualizar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ numero, novo_despacho: novoValor }),
+            body: JSON.stringify({
+                processos: [{ numero, novo_despacho: novoValor }]
+            })
         });
 
         if (!response.ok) throw new Error("Erro ao atualizar despacho.");
-        console.log(`Despacho atualizado para ${novoValor} para o processo ${numero}`);
+        
+        botao.textContent = novoValor === "Sim" ? "✔ Sim" : "❌ Não";
+        botao.className = novoValor === "Sim" ? "btn-sim" : "btn-nao";
     } catch (error) {
         console.error("Erro ao atualizar despacho:", error);
     }
 }
 
+// Função para enviar um novo processo ao backend
+async function salvarProcessoNoBackend(processo) {
+    try {
+        const response = await fetch(API_URL + "/atualizar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ processos: [processo] })
+        });
 
-// Chamar a função ao carregar a página
+        if (!response.ok) throw new Error("Erro ao enviar processo.");
+
+        console.log("✅ Processo enviado com sucesso!");
+        carregarProcessosDoBackend(); // Atualiza a tabela após o envio
+    } catch (error) {
+        console.error("Erro ao enviar processo:", error);
+    }
+}
+
+// Adicionar evento para capturar submissão de novo processo
+document.getElementById("formProcesso").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const numero = document.getElementById("numeroProcesso").value;
+    const ultima_movimentacao = document.getElementById("ultimaMovimentacao").value;
+    const teor_ultima_movimentacao = document.getElementById("teorUltimaMovimentacao").value;
+    const ultimo_despacho = document.getElementById("ultimoDespacho").value;
+    const teor_ultimo_despacho = document.getElementById("teorUltimoDespacho").value;
+
+    if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
+        alert("Preencha os campos obrigatórios.");
+        return;
+    }
+
+    const novoProcesso = {
+        numero,
+        ultima_movimentacao,
+        teor_ultima_movimentacao,
+        ultimo_despacho,
+        teor_ultimo_despacho
+    };
+
+    await salvarProcessoNoBackend(novoProcesso);
+    document.getElementById("formProcesso").reset(); // Limpa o formulário após envio
+});
+
+// Carregar os processos ao iniciar
 document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
