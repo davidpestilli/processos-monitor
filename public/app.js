@@ -9,46 +9,89 @@ function carregarProcessosDoBackend() {
         tabelaBody.innerHTML = "";
   
         processos.forEach(processo => {
-          // Se houver histórico, use o último item (assumindo ordem cronológica)
+          // Usa o último registro do histórico para dados atuais
           const ultimoHistorico =
             processo.historico && processo.historico.length
               ? processo.historico[processo.historico.length - 1]
               : {};
   
           const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>
-              <a href="#" onclick='abrirModalHistorico(${JSON.stringify(
-                processo
-              )})'>
-                ${processo.numero}
-              </a>
-            </td>
-            <td>${processo.status || "N/A"}</td>
-            <td>${
-              processo.ultima_pesquisa
-                ? new Date(processo.ultima_pesquisa).toLocaleDateString()
-                : "N/A"
-            }</td>
-            <td>${ultimoHistorico.ultima_movimentacao || "N/A"}</td>
-            <td class="fixed">${ultimoHistorico.teor_ultima_movimentacao || "N/A"}</td>
-            <td>${ultimoHistorico.ultimo_despacho || "N/A"}</td>
-            <td class="fixed">
-              <a href="#" onclick='abrirModalDespacho(${JSON.stringify(
-                ultimoHistorico
-              )})'>
-                ${ultimoHistorico.teor_ultimo_despacho || "N/A"}
-              </a>
-            </td>
-            <td>
-              ${
-                processo.novo_despacho === "Sim"
-                  ? `<button class="btn-sim" onclick="alternarNovoDespacho('${processo.numero}', this)">✔ Sim</button>`
-                  : `<button class="btn-nao" onclick="alternarNovoDespacho('${processo.numero}', this)">❌ Não</button>`
-              }
-            </td>
-          `;
+  
+          // Cria a célula do número do processo com data-attribute
+          const numeroCell = document.createElement("td");
+          const numeroLink = document.createElement("a");
+          numeroLink.href = "#";
+          numeroLink.textContent = processo.numero;
+          // Armazena o objeto processo como string JSON para usar no modal
+          numeroLink.dataset.processo = JSON.stringify(processo);
+          numeroLink.classList.add("numeroLink");
+          numeroCell.appendChild(numeroLink);
+          row.appendChild(numeroCell);
+  
+          // Outras células
+          const statusCell = document.createElement("td");
+          statusCell.textContent = processo.status || "N/A";
+          row.appendChild(statusCell);
+  
+          const pesquisaCell = document.createElement("td");
+          pesquisaCell.textContent = processo.ultima_pesquisa
+            ? new Date(processo.ultima_pesquisa).toLocaleDateString()
+            : "N/A";
+          row.appendChild(pesquisaCell);
+  
+          const movCell = document.createElement("td");
+          movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
+          row.appendChild(movCell);
+  
+          const teorMovCell = document.createElement("td");
+          teorMovCell.classList.add("fixed");
+          teorMovCell.textContent = ultimoHistorico.teor_ultima_movimentacao || "N/A";
+          row.appendChild(teorMovCell);
+  
+          const despachoCell = document.createElement("td");
+          despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
+          row.appendChild(despachoCell);
+  
+          const teorDespachoCell = document.createElement("td");
+          teorDespachoCell.classList.add("fixed");
+          const despachoLink = document.createElement("a");
+          despachoLink.href = "#";
+          despachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+          // Armazena o objeto do histórico para uso no modal
+          despachoLink.dataset.historico = JSON.stringify(ultimoHistorico);
+          despachoLink.classList.add("despachoLink");
+          teorDespachoCell.appendChild(despachoLink);
+          row.appendChild(teorDespachoCell);
+  
+          // Célula com botão para alternar "Novo Despacho"
+          const novoDespachoCell = document.createElement("td");
+          const btn = document.createElement("button");
+          btn.textContent = processo.novo_despacho === "Sim" ? "✔ Sim" : "❌ Não";
+          btn.className = processo.novo_despacho === "Sim" ? "btn-sim" : "btn-nao";
+          btn.addEventListener("click", function () {
+            alternarNovoDespacho(processo.numero, btn);
+          });
+          novoDespachoCell.appendChild(btn);
+          row.appendChild(novoDespachoCell);
+  
           tabelaBody.appendChild(row);
+        });
+  
+        // Adiciona event listeners para os links criados
+        document.querySelectorAll(".numeroLink").forEach(link => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const processo = JSON.parse(this.dataset.processo);
+            abrirModalHistorico(processo);
+          });
+        });
+  
+        document.querySelectorAll(".despachoLink").forEach(link => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const historico = JSON.parse(this.dataset.historico);
+            abrirModalDespacho(historico);
+          });
         });
       })
       .catch(error => {
@@ -56,7 +99,6 @@ function carregarProcessosDoBackend() {
       });
   }
   
-
 
 // Função para alternar o campo "Novo Despacho"
 async function alternarNovoDespacho(numero, botao) {
@@ -203,7 +245,6 @@ document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
 
 window.processarCSV = processarCSV;
 
-// Modal para exibir o teor completo do despacho (último registro)
 function abrirModalDespacho(item) {
     document.getElementById("modalTextoDespacho").textContent =
       item.teor_ultimo_despacho || "N/A";
@@ -221,7 +262,6 @@ function abrirModalDespacho(item) {
     document.getElementById("modalDespacho").style.display = "none";
   }
   
-  // Modal para exibir o histórico completo do processo
   function abrirModalHistorico(processo) {
     const modalConteudo = document.getElementById("modalConteudoHistorico");
     modalConteudo.innerHTML = "";
