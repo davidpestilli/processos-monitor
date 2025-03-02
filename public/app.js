@@ -75,31 +75,39 @@ async function salvarProcessoNoBackend(processo) {
 }
 
 // Adicionar evento para capturar submissão de novo processo
-document.getElementById("formProcesso").addEventListener("submit", async function (event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
+    const formProcesso = document.getElementById("formProcesso");
+    if (formProcesso) {
+        formProcesso.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-    const numero = document.getElementById("numeroProcesso").value;
-    const ultima_movimentacao = document.getElementById("ultimaMovimentacao").value;
-    const teor_ultima_movimentacao = document.getElementById("teorUltimaMovimentacao").value;
-    const ultimo_despacho = document.getElementById("ultimoDespacho").value;
-    const teor_ultimo_despacho = document.getElementById("teorUltimoDespacho").value;
+            const numero = document.getElementById("numeroProcesso").value;
+            const ultima_movimentacao = document.getElementById("ultimaMovimentacao").value;
+            const teor_ultima_movimentacao = document.getElementById("teorUltimaMovimentacao").value;
+            const ultimo_despacho = document.getElementById("ultimoDespacho").value;
+            const teor_ultimo_despacho = document.getElementById("teorUltimoDespacho").value;
 
-    if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
-        alert("Preencha os campos obrigatórios.");
-        return;
+            if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
+                alert("Preencha os campos obrigatórios.");
+                return;
+            }
+
+            const novoProcesso = {
+                numero,
+                ultima_movimentacao,
+                teor_ultima_movimentacao,
+                ultimo_despacho,
+                teor_ultimo_despacho
+            };
+
+            await salvarProcessoNoBackend(novoProcesso);
+            formProcesso.reset();
+        });
+    } else {
+        console.error("❌ O formulário 'formProcesso' não foi encontrado no HTML.");
     }
-
-    const novoProcesso = {
-        numero,
-        ultima_movimentacao,
-        teor_ultima_movimentacao,
-        ultimo_despacho,
-        teor_ultimo_despacho
-    };
-
-    await salvarProcessoNoBackend(novoProcesso);
-    document.getElementById("formProcesso").reset(); // Limpa o formulário após envio
 });
+
 
 // Carregar os processos ao iniciar
 document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
