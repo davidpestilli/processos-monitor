@@ -38,37 +38,35 @@ app.use(express.json());
 // Endpoint para salvar processos
 app.post('/processos/atualizar', async (req, res) => {
     try {
-        const { numero, ultima_movimentacao, teor_movimentacao, ultimo_despacho, teor_despacho } = req.body;
+        const { numero, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho } = req.body;
 
-        if (!numero || !ultima_movimentacao || !teor_movimentacao) {
+        if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
             return res.status(400).json({ error: "Dados incompletos." });
         }
 
-        // Atualiza status para "Decurso" ou "Trânsito" se for encontrado no teor da movimentação
+        // Determinar o status com base no teor da movimentação
         let novoStatus = 'Em trâmite';
-        if (teor_movimentacao.includes("Decurso")) {
+        if (teor_ultima_movimentacao.includes("Decurso")) {
             novoStatus = "Decurso";
-        } else if (teor_movimentacao.includes("Trânsito")) {
+        } else if (teor_ultima_movimentacao.includes("Trânsito")) {
             novoStatus = "Trânsito";
         }
 
         // Buscar último despacho salvo
         const result = await pool.query("SELECT teor_ultimo_despacho FROM processos WHERE numero = $1", [numero]);
-        let novoDespacho = "Sim"; // Padrão: assume-se que é um novo despacho
+        let novoDespacho = "Sim"; 
 
         if (result.rows.length > 0) {
             const despachoAnterior = result.rows[0].teor_ultimo_despacho || "";
-
-            // Comparar similaridade entre o despacho anterior e o novo (simplificação)
-            if (despachoAnterior && teor_despacho) {
-                const similaridade = calcularSimilaridade(despachoAnterior, teor_despacho);
+            if (despachoAnterior && teor_ultimo_despacho) {
+                const similaridade = calcularSimilaridade(despachoAnterior, teor_ultimo_despacho);
                 if (similaridade >= 95) {
                     novoDespacho = "Não";
                 }
             }
         }
 
-        // Atualiza os dados do processo no banco
+        // Atualizar o processo no banco
         await pool.query(`
             UPDATE processos 
             SET 
@@ -80,14 +78,15 @@ app.post('/processos/atualizar', async (req, res) => {
                 teor_ultimo_despacho = $5,
                 novo_despacho = $6
             WHERE numero = $7
-        `, [novoStatus, ultima_movimentacao, teor_movimentacao, ultimo_despacho, teor_despacho, novoDespacho, numero]);
+        `, [novoStatus, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novoDespacho, numero]);
 
         res.json({ message: "Processo atualizado com sucesso!", numero, novoDespacho });
     } catch (error) {
-        console.error(error);
+        console.error("Erro ao atualizar processo:", error);
         res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
+
 
 function calcularSimilaridade(texto1, texto2) {
     // Algoritmo de similaridade básico (substituir por um melhor se necessário)
@@ -127,23 +126,28 @@ app.post('/processos', async (req, res) => {
             return res.status(400).json({ error: "Formato inválido. Envie um array de processos." });
         }
 
-        const values = processos.map(p => `('${p.processNumber}', 'Em trâmite', NOW())`).join(',');
-        const query = `INSERT INTO processos (numero, status, criado_em) VALUES ${values} RETURNING *;`;
+        const values = processos.map(p => `('${p.processNumber}', 'Em trâmite')`).join(',');
+        const query = `
+            INSERT INTO processos (numero, status) 
+            VALUES ${values} RETURNING *;
+        `;
 
         const result = await pool.query(query);
         res.status(201).json(result.rows);
     } catch (error) {
-        console.error(error);
+        console.error("Erro ao salvar processos:", error);
         res.status(500).json({ error: "Erro ao salvar processos." });
     }
 });
 
+
 app.get('/processos', async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM processos ORDER BY criado_em DESC");
+        const result = await pool.query("SELECT * FROM processos ORDER BY ultima_pesquisa DESC");
         res.json(result.rows);
     } catch (error) {
-        console.error(error);
+        console.error("Erro ao buscar processos:", error);
         res.status(500).json({ error: "Erro ao buscar processos." });
     }
 });
+

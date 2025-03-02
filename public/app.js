@@ -43,7 +43,6 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     }
 });
 
-// Função para salvar processos no backend
 async function salvarProcessoNoBackend(processos) {
     try {
         const response = await fetch(`${BACKEND_URL}/processos`, {
@@ -54,11 +53,12 @@ async function salvarProcessoNoBackend(processos) {
 
         if (!response.ok) throw new Error("Erro ao enviar processos.");
         console.log("Processos salvos com sucesso.");
-        carregarProcessosDoBackend(); // Atualiza a tabela após salvar
+        carregarProcessosDoBackend();
     } catch (error) {
         console.error("Erro:", error);
     }
 }
+
 
 // Listener do formulário de upload e inserção manual
 document.getElementById("uploadForm").addEventListener("submit", async function(event) {
@@ -123,11 +123,11 @@ function atualizarTabela(processos) {
         row.innerHTML = `
             <td>${processo.numero}</td>
             <td>${processo.status}</td>
+            <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
             <td>${processo.ultima_movimentacao || "-"}</td>
             <td>${processo.teor_ultima_movimentacao || "-"}</td>
             <td>${processo.ultimo_despacho || "-"}</td>
             <td>${processo.teor_ultimo_despacho || "-"}</td>
-            <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
             <td>
                 <button onclick="toggleNovoDespacho(this, '${processo.numero}')" class="${processo.novo_despacho === 'Sim' ? 'btn-sim' : 'btn-nao'}">
                     ${processo.novo_despacho === 'Sim' ? '✔ Sim' : '✖ Não'}
@@ -136,6 +136,7 @@ function atualizarTabela(processos) {
         `;
     });
 }
+
 
 // Alternar "Novo Despacho?"
 async function toggleNovoDespacho(button, numero) {
