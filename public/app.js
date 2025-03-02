@@ -141,8 +141,15 @@ function processarCSV() {
 
     leitor.onload = async function (event) {
         const conteudo = event.target.result;
-        const linhas = conteudo.split("\n").map(linha => linha.trim()).filter(linha => linha); // Remove espaços e linhas vazias
-        const processos = linhas.map(numero => ({ numero })); // Cria um array de objetos, cada um com um número de processo
+        const linhas = conteudo
+            .split("\n") // Quebra o CSV por linha
+            .map(linha => linha.trim()) // Remove espaços em branco
+            .filter(linha => linha); // Remove linhas vazias
+
+        // 🔹 Garante que cada número de processo seja um objeto separado
+        const processos = linhas.flatMap(linha => 
+            linha.split(";").map(numero => ({ numero: numero.trim() }))
+        );
 
         if (processos.length === 0) {
             alert("O arquivo CSV está vazio ou mal formatado.");
@@ -155,7 +162,7 @@ function processarCSV() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ processos }), // Enviar corretamente os processos no formato esperado pelo backend
+                body: JSON.stringify({ processos }), // Agora os processos são enviados corretamente
             });
 
             if (!response.ok) {
@@ -163,7 +170,7 @@ function processarCSV() {
             }
 
             alert("Processos enviados com sucesso!");
-            carregarProcessosDoBackend(); // Atualiza a tabela após envio bem-sucedido
+            carregarProcessosDoBackend(); // Atualiza a tabela após o envio
         } catch (error) {
             console.error("Erro ao enviar o CSV:", error);
             alert("Erro ao enviar o arquivo CSV.");
