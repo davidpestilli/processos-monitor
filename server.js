@@ -33,12 +33,13 @@ function normalizeNumero(numero) {
   // Remove quebras de linha e espaços extras, além de normalizar aspas duplicadas
   function normalizeText(text) {
     if (typeof text !== "string") return text;
-    // Remove quebras de linha (substitui por espaço) e espaços em branco extras
+    // Substitui quebras de linha por espaço
     let normalized = text.replace(/[\r\n]+/g, " ").trim();
-    // Se houver aspas duplicadas, converte para aspas simples (opcional)
-    normalized = normalized.replace(/"+/g, '"');
+    // Corrige escapes inválidos:
+    // Isso substitui uma barra invertida que não é seguida por uma das sequências válidas
+    normalized = normalized.replace(/\\(?![\\\/"bfnrt])/g, "\\\\");
     return normalized;
-  }
+  }  
   
 
 // Servir arquivos estáticos
