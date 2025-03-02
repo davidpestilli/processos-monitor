@@ -145,43 +145,6 @@ app.post('/processos/atualizar', async (req, res) => {
 });
 
 
-// Dentro do endpoint que atualiza processos
-const bulkOps = processos.map(p => {
-    const historicoItem = {
-        data: new Date(),
-        ultima_movimentacao: p.ultima_movimentacao || null,
-        teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-        ultimo_despacho: p.ultimo_despacho || null,
-        teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-        link: p.link || null
-    };
-
-    return {
-        updateOne: {
-            filter: { numero: p.numero },
-            update: {
-                $setOnInsert: { numero: p.numero, status: "Em trâmite" },
-                $push: { historico: historicoItem },
-                $set: { ultima_pesquisa: new Date(), novo_despacho: p.novo_despacho || null }
-            },
-            upsert: true
-        }
-    };
-});
-
-
-        
-
-        await db.collection('processos').bulkWrite(bulkOps);
-
-        res.json({ message: "Processos atualizados com sucesso!", processos });
-    } catch (error) {
-        console.error("❌ Erro ao atualizar processos:", error);
-        res.status(500).json({ error: "Erro ao atualizar os processos." });
-    }
-});
-
-
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
