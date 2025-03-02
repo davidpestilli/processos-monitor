@@ -45,6 +45,19 @@ app.get('/processos', async (req, res) => {
     }
 });
 
+app.get('/processos/numeros', async (req, res) => {
+    try {
+      const processos = await db
+        .collection('processos')
+        .find({ status: "Em trâmite" }, { projection: { numero: 1, _id: 0 } })
+        .toArray();
+      res.json(processos);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+
 // Rota para atualizar ou inserir processos
 app.post('/processos/atualizar', async (req, res) => {
     try {
@@ -63,7 +76,7 @@ app.post('/processos/atualizar', async (req, res) => {
                 return res.status(400).json({ error: "Número do processo é obrigatório." });
             }
         }
-        
+
 // Dentro do endpoint que atualiza processos
 const bulkOps = processos.map(p => {
     const historicoItem = {
