@@ -14,6 +14,33 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Função para limpar o campo "numero"
+// Se o valor vier com estruturas extras (como [{"numero":"..."}), extrai apenas o número correto.
+function normalizeNumero(numero) {
+    if (typeof numero !== "string") return numero;
+    // Se o número iniciar com '[{' é sinal de que há conteúdo extra
+    if (numero.trim().startsWith('[{')) {
+      // Tenta extrair com regex o valor entre "numero":" e "
+      const match = numero.match(/"numero":"([^"]+)"/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return numero.trim();
+  }
+  
+  // Função para normalizar os textos (movimentações e despachos)
+  // Remove quebras de linha e espaços extras, além de normalizar aspas duplicadas
+  function normalizeText(text) {
+    if (typeof text !== "string") return text;
+    // Remove quebras de linha (substitui por espaço) e espaços em branco extras
+    let normalized = text.replace(/[\r\n]+/g, " ").trim();
+    // Se houver aspas duplicadas, converte para aspas simples (opcional)
+    normalized = normalized.replace(/"+/g, '"');
+    return normalized;
+  }
+  
+
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -63,7 +90,7 @@ app.post('/processos/atualizar', async (req, res) => {
     try {
         let { processos } = req.body;
 
-        console.log("🚀 Dados recebidos no Railway:", JSON.stringify(req.body, null, 2)); // <-- Debug para ver os dados no Railway
+        console.log("🚀 Dados recebidos no Railway:", JSON.stringify(req.body, null, 2)); // <-- Debug
 
         // Se o usuário enviou um único objeto em vez de um array, transforma em array
         if (!Array.isArray(processos)) {
@@ -76,6 +103,47 @@ app.post('/processos/atualizar', async (req, res) => {
                 return res.status(400).json({ error: "Número do processo é obrigatório." });
             }
         }
+
+        // Aqui aplicamos as funções de normalização para cada processo
+        const bulkOps = processos.map(p => {
+            // Normaliza os campos usando as funções que você inseriu anteriormente
+            p.numero = normalizeNumero(p.numero);
+            p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
+            p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
+            p.ultimo_despacho = normalizeText(p.ultimo_despacho);
+            p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
+            p.link = normalizeText(p.link);
+
+            // Cria o registro para o histórico
+            const historicoItem = {
+                data: new Date(),
+                ultima_movimentacao: p.ultima_movimentacao || null,
+                teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+                ultimo_despacho: p.ultimo_despacho || null,
+                teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+                link: p.link || null
+            };
+
+            return {
+                updateOne: {
+                    filter: { numero: p.numero },
+                    update: {
+                        $setOnInsert: { numero: p.numero, status: "Em trâmite" },
+                        $push: { historico: historicoItem },
+                        $set: { ultima_pesquisa: new Date(), novo_despacho: p.novo_despacho || null }
+                    },
+                    upsert: true
+                }
+            };
+        });
+
+        await db.collection('processos').bulkWrite(bulkOps);
+        res.json({ message: "Processos atualizados com sucesso" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 // Dentro do endpoint que atualiza processos
 const bulkOps = processos.map(p => {
