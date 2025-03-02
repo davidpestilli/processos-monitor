@@ -119,3 +119,31 @@ app.get('/processos/em-tramite', async (req, res) => {
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
+
+app.post('/processos', async (req, res) => {
+    try {
+        const { processos } = req.body;
+        if (!Array.isArray(processos)) {
+            return res.status(400).json({ error: "Formato inválido. Envie um array de processos." });
+        }
+
+        const values = processos.map(p => `('${p.processNumber}', 'Em trâmite', NOW())`).join(',');
+        const query = `INSERT INTO processos (numero, status, criado_em) VALUES ${values} RETURNING *;`;
+
+        const result = await pool.query(query);
+        res.status(201).json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao salvar processos." });
+    }
+});
+
+app.get('/processos', async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM processos ORDER BY criado_em DESC");
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao buscar processos." });
+    }
+});
