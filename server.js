@@ -49,6 +49,8 @@ app.post('/processos/atualizar', async (req, res) => {
     try {
         let { processos } = req.body;
 
+        console.log("Dados recebidos:", req.body); // <-- Log para verificar os dados enviados
+
         // Se o usuário enviou um único objeto em vez de um array, transforma em array
         if (!Array.isArray(processos)) {
             processos = [processos];
@@ -57,6 +59,7 @@ app.post('/processos/atualizar', async (req, res) => {
         // Verifica se todos os processos possuem os campos obrigatórios
         for (const p of processos) {
             if (!p.numero || !p.ultima_movimentacao || !p.teor_ultima_movimentacao) {
+                console.error("Erro: Dados incompletos recebidos:", p);
                 return res.status(400).json({ error: "Dados incompletos. Todos os campos são obrigatórios." });
             }
         }
@@ -69,6 +72,8 @@ app.post('/processos/atualizar', async (req, res) => {
             } else if (p.teor_ultima_movimentacao.includes("Trânsito")) {
                 novoStatus = "Trânsito";
             }
+
+            console.log("Inserindo/Atualizando processo:", p.numero); // <-- Log para verificar se numero está correto
 
             await pool.query(`
                 INSERT INTO processos (numero, status, ultima_pesquisa, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novo_despacho)
@@ -93,6 +98,7 @@ app.post('/processos/atualizar', async (req, res) => {
         res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
+
 
 
 function calcularSimilaridade(texto1, texto2) {
