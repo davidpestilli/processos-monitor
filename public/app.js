@@ -1,39 +1,46 @@
 const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 // Função para carregar os processos do backend
-async function carregarProcessosDoBackend() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Erro ao carregar processos.");
-        
-        const processos = await response.json();
-        console.log("📌 Processos carregados:", processos);
-        
-        const tabela = document.getElementById("tabelaProcessos");
-        tabela.innerHTML = ""; // Limpa a tabela antes de adicionar os novos dados
-        
-        processos.forEach(processo => {
-            const row = tabela.insertRow();
-            row.insertCell(0).textContent = processo.numero;
-            row.insertCell(1).textContent = processo.status || "N/A";
-            row.insertCell(2).textContent = processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A";
-            row.insertCell(3).textContent = processo.ultima_movimentacao || "N/A";
-            row.insertCell(4).textContent = processo.teor_ultima_movimentacao || "N/A";
-            row.insertCell(5).textContent = processo.ultimo_despacho || "N/A";
-            row.insertCell(6).textContent = processo.teor_ultimo_despacho || "N/A";
-            
-            // Criando o botão interativo para "Novo Despacho"
-            const cellNovoDespacho = row.insertCell(7);
-            const botao = document.createElement("button");
-            botao.textContent = processo.novo_despacho === "Sim" ? "✔ Sim" : "❌ Não";
-            botao.className = processo.novo_despacho === "Sim" ? "btn-sim" : "btn-nao";
-            botao.onclick = () => alternarNovoDespacho(processo.numero, botao);
-            cellNovoDespacho.appendChild(botao);
+function carregarProcessosDoBackend() {
+    fetch("https://processos-monitor-production.up.railway.app/processos")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao carregar processos.");
+            }
+            return response.json();
+        })
+        .then(processos => {
+            const tabelaBody = document.querySelector("#tabelaProcessos tbody");
+
+            // Limpa apenas as linhas existentes, sem remover o cabeçalho
+            tabelaBody.innerHTML = "";
+
+            processos.forEach(processo => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${processo.numero}</td>
+                    <td>${processo.status || "N/A"}</td>
+                    <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A"}</td>
+                    <td>${processo.ultima_movimentacao || "N/A"}</td>
+                    <td>${processo.teor_ultima_movimentacao || "N/A"}</td>
+                    <td>${processo.ultimo_despacho || "N/A"}</td>
+                    <td>${processo.teor_ultimo_despacho || "N/A"}</td>
+                    <td>
+                        ${processo.novo_despacho === "Sim" ? 
+                            '<button class="btn-sim">✔ Sim</button>' : 
+                            '<button class="btn-nao">❌ Não</button>'}
+                    </td>
+                `;
+
+                tabelaBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Erro ao buscar processos:", error);
         });
-    } catch (error) {
-        console.error("Erro ao buscar processos:", error);
-    }
 }
+
 
 // Função para alternar o campo "Novo Despacho"
 async function alternarNovoDespacho(numero, botao) {
