@@ -122,11 +122,11 @@ function atualizarTabela(processos) {
         const row = tabela.insertRow();
         row.innerHTML = `
             <td>${processo.numero}</td>
+            <td>${processo.status}</td>
             <td>${processo.ultima_movimentacao || "-"}</td>
             <td>${processo.teor_ultima_movimentacao || "-"}</td>
             <td>${processo.ultimo_despacho || "-"}</td>
             <td>${processo.teor_ultimo_despacho || "-"}</td>
-            <td>${processo.status}</td>
             <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
             <td>
                 <button onclick="toggleNovoDespacho(this, '${processo.numero}')" class="${processo.novo_despacho === 'Sim' ? 'btn-sim' : 'btn-nao'}">
@@ -161,4 +161,3 @@ async function toggleNovoDespacho(button, numero) {
 
 // Chamar a função ao carregar a página
 document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
-
