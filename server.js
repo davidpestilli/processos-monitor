@@ -49,22 +49,22 @@ app.post('/processos/atualizar', async (req, res) => {
     try {
         let { processos } = req.body;
 
-        console.log("Dados recebidos:", req.body); // <-- Log para verificar os dados enviados
+        console.log("🚀 Dados recebidos no Railway:", JSON.stringify(req.body, null, 2)); // <-- LOG IMPORTANTE
 
         // Se o usuário enviou um único objeto em vez de um array, transforma em array
         if (!Array.isArray(processos)) {
             processos = [processos];
         }
 
-        // Verifica se todos os processos possuem os campos obrigatórios
         for (const p of processos) {
+            console.log("📌 Processo recebido:", p); // <-- Verifica se `numero` está correto
+
             if (!p.numero || !p.ultima_movimentacao || !p.teor_ultima_movimentacao) {
-                console.error("Erro: Dados incompletos recebidos:", p);
+                console.error("❌ Erro: Dados incompletos recebidos:", p);
                 return res.status(400).json({ error: "Dados incompletos. Todos os campos são obrigatórios." });
             }
         }
 
-        // Inserir ou atualizar processos no banco de dados
         for (const p of processos) {
             let novoStatus = 'Em trâmite';
             if (p.teor_ultima_movimentacao.includes("Decurso")) {
@@ -73,7 +73,7 @@ app.post('/processos/atualizar', async (req, res) => {
                 novoStatus = "Trânsito";
             }
 
-            console.log("Inserindo/Atualizando processo:", p.numero); // <-- Log para verificar se numero está correto
+            console.log("✅ Inserindo/Atualizando processo:", p.numero); // <-- Verifica se `numero` está correto
 
             await pool.query(`
                 INSERT INTO processos (numero, status, ultima_pesquisa, ultima_movimentacao, teor_ultima_movimentacao, ultimo_despacho, teor_ultimo_despacho, novo_despacho)
@@ -94,7 +94,7 @@ app.post('/processos/atualizar', async (req, res) => {
         res.json({ message: "Processos atualizados com sucesso!", processos });
 
     } catch (error) {
-        console.error("Erro ao atualizar processo:", error);
+        console.error("❌ Erro ao atualizar processo:", error);
         res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
