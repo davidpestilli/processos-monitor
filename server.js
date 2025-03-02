@@ -50,13 +50,17 @@ app.post('/processos/atualizar', async (req, res) => {
     try {
         let { processos } = req.body;
 
+        console.log("🚀 Dados recebidos no Railway:", JSON.stringify(req.body, null, 2)); // <-- Debug para ver os dados no Railway
+
+        // Se o usuário enviou um único objeto em vez de um array, transforma em array
         if (!Array.isArray(processos)) {
             processos = [processos];
         }
 
         for (const p of processos) {
-            if (!p.numero || !p.ultima_movimentacao || !p.teor_ultima_movimentacao) {
-                return res.status(400).json({ error: "Dados incompletos." });
+            if (!p.numero) {
+                console.error("❌ Erro: Número do processo não informado.");
+                return res.status(400).json({ error: "Número do processo é obrigatório." });
             }
         }
 
@@ -64,13 +68,14 @@ app.post('/processos/atualizar', async (req, res) => {
             updateOne: {
                 filter: { numero: p.numero },
                 update: {
+                    $setOnInsert: { status: "Em trâmite" }, // Define o status como "Em trâmite" na criação
                     $set: {
-                        ultima_movimentacao: p.ultima_movimentacao,
-                        teor_ultima_movimentacao: p.teor_ultima_movimentacao,
-                        ultimo_despacho: p.ultimo_despacho,
-                        teor_ultimo_despacho: p.teor_ultimo_despacho,
-                        novo_despacho: "Sim",
-                        ultima_pesquisa: new Date()
+                        ultima_pesquisa: new Date(),
+                        ultima_movimentacao: null,
+                        teor_ultima_movimentacao: null,
+                        ultimo_despacho: null,
+                        teor_ultimo_despacho: null,
+                        novo_despacho: null
                     }
                 },
                 upsert: true
@@ -78,12 +83,14 @@ app.post('/processos/atualizar', async (req, res) => {
         }));
 
         await db.collection('processos').bulkWrite(bulkOps);
+
         res.json({ message: "Processos atualizados com sucesso!", processos });
     } catch (error) {
-        console.error("Erro ao atualizar processos:", error);
+        console.error("❌ Erro ao atualizar processos:", error);
         res.status(500).json({ error: "Erro ao atualizar os processos." });
     }
 });
+
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
