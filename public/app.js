@@ -264,33 +264,69 @@ function abrirModalDespacho(item) {
   
   function abrirModalHistorico(processo) {
     const modalConteudo = document.getElementById("modalConteudoHistorico");
-    modalConteudo.innerHTML = "";
+    modalConteudo.innerHTML = ""; // limpa conteúdo antigo
+  
+    // Cria um título com o número do processo
+    const modalTitulo = document.createElement("h3");
+    modalTitulo.textContent = "Histórico do Processo: " + processo.numero;
+    modalConteudo.appendChild(modalTitulo);
+  
+    // Cria a tabela
+    const table = document.createElement("table");
+    table.classList.add("historico-table");
+  
+    // Cabeçalho da tabela
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr>
+        <th>Data</th>
+        <th>Movimentação</th>
+        <th>Teor Movimentação</th>
+        <th>Despacho</th>
+        <th>Teor Despacho</th>
+        <th>Link</th>
+      </tr>
+    `;
+    table.appendChild(thead);
+  
+    // Corpo da tabela
+    const tbody = document.createElement("tbody");
+  
     if (processo.historico && processo.historico.length > 0) {
       processo.historico.forEach(item => {
-        const divItem = document.createElement("div");
-        divItem.style.borderBottom = "1px solid #ccc";
-        divItem.style.marginBottom = "10px";
-        divItem.innerHTML = `
-          <p><strong>Data:</strong> ${new Date(item.data).toLocaleDateString()}</p>
-          <p><strong>Última Movimentação:</strong> ${item.ultima_movimentacao || "N/A"}</p>
-          <p><strong>Teor Movimentação:</strong> ${item.teor_ultima_movimentacao || "N/A"}</p>
-          <p><strong>Último Despacho:</strong> ${item.ultimo_despacho || "N/A"}</p>
-          <p><strong>Teor Despacho:</strong> ${item.teor_ultimo_despacho || "N/A"}</p>
-          ${
-            item.link
-              ? `<p><a href="${item.link}" target="_blank">Ver despacho no STF</a></p>`
-              : ""
-          }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${new Date(item.data).toLocaleDateString()}</td>
+          <td>${item.ultima_movimentacao || "N/A"}</td>
+          <td class="fixed">${item.teor_ultima_movimentacao || "N/A"}</td>
+          <td>${item.ultimo_despacho || "N/A"}</td>
+          <td class="fixed">${item.teor_ultimo_despacho || "N/A"}</td>
+          <td>${
+            item.link ? `<a href="${item.link}" target="_blank">Ver</a>` : "N/A"
+          }</td>
         `;
-        modalConteudo.appendChild(divItem);
+        tbody.appendChild(tr);
       });
     } else {
-      modalConteudo.innerHTML = "<p>Nenhum histórico encontrado.</p>";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="6">Nenhum histórico encontrado.</td>`;
+      tbody.appendChild(tr);
     }
+    table.appendChild(tbody);
+  
+    modalConteudo.appendChild(table);
     document.getElementById("modalHistorico").style.display = "block";
   }
+  
   
   function fecharModalHistorico() {
     document.getElementById("modalHistorico").style.display = "none";
   }
   
+  document.getElementById("fecharDespacho").addEventListener("click", () => {
+    document.getElementById("modalDespacho").style.display = "none";
+  });
+  
+  document.getElementById("fecharHistorico").addEventListener("click", () => {
+    document.getElementById("modalHistorico").style.display = "none";
+  });

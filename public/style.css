@@ -180,5 +180,9 @@ td.fixed {
   cursor: pointer;
 }
 
+.modal-content {
+  max-height: 80vh; /* 80% da altura da viewport */
+  overflow-y: auto;
+}
 
   
