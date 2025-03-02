@@ -181,7 +181,13 @@ td.fixed {
 }
 
 .modal-content {
-  max-height: 80vh; /* 80% da altura da viewport */
+  background-color: #fff;
+  margin: 10% auto; /* diminui a margem superior para usar mais espaço vertical */
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;        /* aumenta a largura */
+  max-width: 800px;  /* aumenta o tamanho máximo */
+  max-height: 90vh;  /* permite que o modal use até 90% da altura da viewport com rolagem se necessário */
   overflow-y: auto;
 }
 
