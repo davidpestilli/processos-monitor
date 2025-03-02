@@ -83,37 +83,51 @@ async function salvarProcessoNoBackend(processo) {
 
 // Adicionar evento para capturar submissão de novo processo
 document.addEventListener("DOMContentLoaded", function () {
-    const formProcesso = document.getElementById("formProcesso");
+    const formProcesso = document.querySelector("#formProcesso");
+
     if (formProcesso) {
         formProcesso.addEventListener("submit", async function (event) {
-            event.preventDefault();
+            event.preventDefault(); // Evita que a página recarregue
 
-            const numero = document.getElementById("numeroProcesso").value;
-            const ultima_movimentacao = document.getElementById("ultimaMovimentacao").value;
-            const teor_ultima_movimentacao = document.getElementById("teorUltimaMovimentacao").value;
-            const ultimo_despacho = document.getElementById("ultimoDespacho").value;
-            const teor_ultimo_despacho = document.getElementById("teorUltimoDespacho").value;
+            const inputNumeroProcesso = document.querySelector("#numeroProcesso");
 
-            if (!numero || !ultima_movimentacao || !teor_ultima_movimentacao) {
-                alert("Preencha os campos obrigatórios.");
+            if (!inputNumeroProcesso || !inputNumeroProcesso.value.trim()) {
+                alert("Por favor, insira um número de processo válido.");
                 return;
             }
 
-            const novoProcesso = {
-                numero,
-                ultima_movimentacao,
-                teor_ultima_movimentacao,
-                ultimo_despacho,
-                teor_ultimo_despacho
-            };
+            const numeroProcesso = inputNumeroProcesso.value.trim();
 
-            await salvarProcessoNoBackend(novoProcesso);
-            formProcesso.reset();
+            try {
+                const response = await fetch("https://processos-monitor-production.up.railway.app/processos/atualizar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        processos: [{ numero: numeroProcesso }],
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao adicionar o processo.");
+                }
+
+                alert("Processo adicionado com sucesso!");
+
+                // Recarregar a lista de processos após adicionar um novo
+                carregarProcessosDoBackend();
+
+                // Limpar o campo de entrada
+                inputNumeroProcesso.value = "";
+            } catch (error) {
+                console.error("Erro ao adicionar o processo:", error);
+                alert("Erro ao adicionar o processo. Verifique o console para mais detalhes.");
+            }
         });
-    } else {
-        console.error("❌ O formulário 'formProcesso' não foi encontrado no HTML.");
     }
 });
+
 
 
 // Carregar os processos ao iniciar
