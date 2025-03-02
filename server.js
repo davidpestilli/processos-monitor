@@ -36,23 +36,73 @@ app.use(cors());
 app.use(express.json());
 
 // Endpoint para salvar processos
-app.post('/processos', async (req, res) => {
+app.post('/processos/atualizar', async (req, res) => {
     try {
-        const { processos } = req.body; // Espera um array de objetos { processNumber }
-        if (!Array.isArray(processos)) {
-            return res.status(400).json({ error: 'Formato inválido. Envie um array de processos.' });
+        const { numero, ultima_movimentacao, teor_movimentacao, ultimo_despacho, teor_despacho } = req.body;
+
+        if (!numero || !ultima_movimentacao || !teor_movimentacao) {
+            return res.status(400).json({ error: "Dados incompletos." });
         }
 
-        const values = processos.map(p => `('${p.processNumber}', 'Em trâmite', NOW())`).join(',');
-        const query = `INSERT INTO processos (numero, status, criado_em) VALUES ${values} RETURNING *;`;
+        // Atualiza status para "Decurso" ou "Trânsito" se for encontrado no teor da movimentação
+        let novoStatus = 'Em trâmite';
+        if (teor_movimentacao.includes("Decurso")) {
+            novoStatus = "Decurso";
+        } else if (teor_movimentacao.includes("Trânsito")) {
+            novoStatus = "Trânsito";
+        }
 
-        const result = await pool.query(query);
-        res.status(201).json(result.rows);
+        // Buscar último despacho salvo
+        const result = await pool.query("SELECT teor_ultimo_despacho FROM processos WHERE numero = $1", [numero]);
+        let novoDespacho = "Sim"; // Padrão: assume-se que é um novo despacho
+
+        if (result.rows.length > 0) {
+            const despachoAnterior = result.rows[0].teor_ultimo_despacho || "";
+
+            // Comparar similaridade entre o despacho anterior e o novo (simplificação)
+            if (despachoAnterior && teor_despacho) {
+                const similaridade = calcularSimilaridade(despachoAnterior, teor_despacho);
+                if (similaridade >= 95) {
+                    novoDespacho = "Não";
+                }
+            }
+        }
+
+        // Atualiza os dados do processo no banco
+        await pool.query(`
+            UPDATE processos 
+            SET 
+                status = $1,
+                ultima_pesquisa = NOW(),
+                ultima_movimentacao = $2,
+                teor_ultima_movimentacao = $3,
+                ultimo_despacho = $4,
+                teor_ultimo_despacho = $5,
+                novo_despacho = $6
+            WHERE numero = $7
+        `, [novoStatus, ultima_movimentacao, teor_movimentacao, ultimo_despacho, teor_despacho, novoDespacho, numero]);
+
+        res.json({ message: "Processo atualizado com sucesso!", numero, novoDespacho });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao salvar processos.' });
+        res.status(500).json({ error: "Erro ao atualizar o processo." });
     }
 });
+
+function calcularSimilaridade(texto1, texto2) {
+    // Algoritmo de similaridade básico (substituir por um melhor se necessário)
+    let maxLen = Math.max(texto1.length, texto2.length);
+    let sameChars = 0;
+
+    for (let i = 0; i < Math.min(texto1.length, texto2.length); i++) {
+        if (texto1[i] === texto2[i]) {
+            sameChars++;
+        }
+    }
+
+    return (sameChars / maxLen) * 100;
+}
+
 
 // Endpoint para obter processos
 app.get('/processos/em-tramite', async (req, res) => {

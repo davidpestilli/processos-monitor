@@ -113,7 +113,7 @@ async function carregarProcessosDoBackend() {
     }
 }
 
-// Função para atualizar a tabela de processos no frontend
+// Atualizar a tabela com os processos do backend
 function atualizarTabela(processos) {
     const tabela = document.getElementById("processesTable").getElementsByTagName("tbody")[0];
     tabela.innerHTML = "";
@@ -122,16 +122,43 @@ function atualizarTabela(processos) {
         const row = tabela.insertRow();
         row.innerHTML = `
             <td>${processo.numero}</td>
+            <td>${processo.ultima_movimentacao || "-"}</td>
+            <td>${processo.teor_ultima_movimentacao || "-"}</td>
+            <td>${processo.ultimo_despacho || "-"}</td>
+            <td>${processo.teor_ultimo_despacho || "-"}</td>
             <td>${processo.status}</td>
-            <td>${new Date(processo.criado_em).toLocaleString()}</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "-"}</td>
+            <td>
+                <button onclick="toggleNovoDespacho(this, '${processo.numero}')" class="${processo.novo_despacho === 'Sim' ? 'btn-sim' : 'btn-nao'}">
+                    ${processo.novo_despacho === 'Sim' ? '✔ Sim' : '✖ Não'}
+                </button>
+            </td>
         `;
     });
 }
 
+// Alternar "Novo Despacho?"
+async function toggleNovoDespacho(button, numero) {
+    const novoValor = button.innerText.includes("Sim") ? "Não" : "Sim";
+    button.innerHTML = novoValor === "Sim" ? "✔ Sim" : "✖ Não";
+    button.classList.toggle("btn-sim");
+    button.classList.toggle("btn-nao");
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/processos/atualizar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ numero, novo_despacho: novoValor }),
+        });
+
+        if (!response.ok) throw new Error("Erro ao atualizar despacho.");
+        console.log(`Despacho atualizado para ${novoValor} para o processo ${numero}`);
+    } catch (error) {
+        console.error("Erro ao atualizar despacho:", error);
+    }
+}
+
+
 // Chamar a função ao carregar a página
 document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
+
