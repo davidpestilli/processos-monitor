@@ -63,24 +63,33 @@ app.post('/processos/atualizar', async (req, res) => {
                 return res.status(400).json({ error: "Número do processo é obrigatório." });
             }
         }
+        
+// Dentro do endpoint que atualiza processos
+const bulkOps = processos.map(p => {
+    const historicoItem = {
+        data: new Date(),
+        ultima_movimentacao: p.ultima_movimentacao || null,
+        teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+        ultimo_despacho: p.ultimo_despacho || null,
+        teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+        link: p.link || null
+    };
 
-        const bulkOps = processos.map(p => ({
-            updateOne: {
-                filter: { numero: p.numero },
-                update: {
-                    $setOnInsert: { status: "Em trâmite" }, // Define o status como "Em trâmite" na criação
-                    $set: {
-                        ultima_pesquisa: new Date(),
-                        ultima_movimentacao: null,
-                        teor_ultima_movimentacao: null,
-                        ultimo_despacho: null,
-                        teor_ultimo_despacho: null,
-                        novo_despacho: null
-                    }
-                },
-                upsert: true
-            }
-        }));
+    return {
+        updateOne: {
+            filter: { numero: p.numero },
+            update: {
+                $setOnInsert: { numero: p.numero, status: "Em trâmite" },
+                $push: { historico: historicoItem },
+                $set: { ultima_pesquisa: new Date(), novo_despacho: p.novo_despacho || null }
+            },
+            upsert: true
+        }
+    };
+});
+
+
+        
 
         await db.collection('processos').bulkWrite(bulkOps);
 
