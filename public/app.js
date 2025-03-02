@@ -128,6 +128,57 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+function processarCSV() {
+    const inputCSV = document.querySelector("#inputCSV");
+
+    if (!inputCSV.files.length) {
+        alert("Por favor, selecione um arquivo CSV.");
+        return;
+    }
+
+    const arquivo = inputCSV.files[0];
+    const leitor = new FileReader();
+
+    leitor.onload = async function (event) {
+        const conteudo = event.target.result;
+        const linhas = conteudo.split("\n");
+        const processos = [];
+
+        for (let i = 0; i < linhas.length; i++) {
+            const linha = linhas[i].trim();
+            if (linha) {
+                processos.push({ numero: linha });
+            }
+        }
+
+        if (processos.length === 0) {
+            alert("O arquivo CSV está vazio ou mal formatado.");
+            return;
+        }
+
+        try {
+            const response = await fetch("https://processos-monitor-production.up.railway.app/processos/atualizar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ processos }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Erro ao enviar os processos.");
+            }
+
+            alert("Processos enviados com sucesso!");
+            carregarProcessosDoBackend();
+        } catch (error) {
+            console.error("Erro ao enviar o CSV:", error);
+            alert("Erro ao enviar o arquivo CSV.");
+        }
+    };
+
+    leitor.readAsText(arquivo);
+}
 
 
 // Carregar os processos ao iniciar
