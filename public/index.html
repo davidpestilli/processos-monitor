@@ -49,6 +49,25 @@
   </section>
 
   <script type="module" src="app.js"></script>
+
+<!-- Modal para exibir o despacho -->
+<div id="modalDespacho" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModalDespacho()">&times;</span>
+    <p id="modalTextoDespacho"></p>
+    <a id="modalLinkDespacho" href="#" target="_blank">Ver despacho no STF</a>
+  </div>
+</div>
+
+<!-- Modal para exibir o histórico do processo -->
+<div id="modalHistorico" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModalHistorico()">&times;</span>
+    <h3>Histórico do Processo</h3>
+    <div id="modalConteudoHistorico"></div>
+  </div>
+</div>
+
 </body>
 </html>
 

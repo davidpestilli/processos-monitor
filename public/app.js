@@ -2,45 +2,60 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 // Função para carregar os processos do backend
 function carregarProcessosDoBackend() {
-    fetch("https://processos-monitor-production.up.railway.app/processos")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Erro ao carregar processos.");
-            }
-            return response.json();
-        })
-        .then(processos => {
-            const tabelaBody = document.querySelector("#tabelaProcessos tbody");
-
-            // Limpa apenas as linhas existentes, sem remover o cabeçalho
-            tabelaBody.innerHTML = "";
-
-            processos.forEach(processo => {
-                const row = document.createElement("tr");
-
-            // Exemplo na montagem da linha:
-            row.innerHTML = `
-                <td>${processo.numero}</td>
-                <td>${processo.status || "N/A"}</td>
-                <td>${processo.ultima_pesquisa ? new Date(processo.ultima_pesquisa).toLocaleDateString() : "N/A"}</td>
-                <td>${processo.ultima_movimentacao || "N/A"}</td>
-                <td class="fixed">${processo.teor_ultima_movimentacao || "N/A"}</td>
-                <td>${processo.ultimo_despacho || "N/A"}</td>
-                <td class="fixed">
-                ${processo.teor_ultimo_despacho || "N/A"}
-                </td>
-                <td>
-                    ${processo.novo_despacho === "Sim" ? '<button class="btn-sim">✔ Sim</button>' : '<button class="btn-nao">❌ Não</button>'}
-                </td>
-            `;
-
-                tabelaBody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error("Erro ao buscar processos:", error);
+    fetch(API_URL)
+      .then(response => response.json())
+      .then(processos => {
+        const tabelaBody = document.querySelector("#tabelaProcessos tbody");
+        tabelaBody.innerHTML = "";
+  
+        processos.forEach(processo => {
+          // Se houver histórico, use o último item (assumindo ordem cronológica)
+          const ultimoHistorico =
+            processo.historico && processo.historico.length
+              ? processo.historico[processo.historico.length - 1]
+              : {};
+  
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>
+              <a href="#" onclick='abrirModalHistorico(${JSON.stringify(
+                processo
+              )})'>
+                ${processo.numero}
+              </a>
+            </td>
+            <td>${processo.status || "N/A"}</td>
+            <td>${
+              processo.ultima_pesquisa
+                ? new Date(processo.ultima_pesquisa).toLocaleDateString()
+                : "N/A"
+            }</td>
+            <td>${ultimoHistorico.ultima_movimentacao || "N/A"}</td>
+            <td class="fixed">${ultimoHistorico.teor_ultima_movimentacao || "N/A"}</td>
+            <td>${ultimoHistorico.ultimo_despacho || "N/A"}</td>
+            <td class="fixed">
+              <a href="#" onclick='abrirModalDespacho(${JSON.stringify(
+                ultimoHistorico
+              )})'>
+                ${ultimoHistorico.teor_ultimo_despacho || "N/A"}
+              </a>
+            </td>
+            <td>
+              ${
+                processo.novo_despacho === "Sim"
+                  ? `<button class="btn-sim" onclick="alternarNovoDespacho('${processo.numero}', this)">✔ Sim</button>`
+                  : `<button class="btn-nao" onclick="alternarNovoDespacho('${processo.numero}', this)">❌ Não</button>`
+              }
+            </td>
+          `;
+          tabelaBody.appendChild(row);
         });
-}
+      })
+      .catch(error => {
+        console.error("Erro ao buscar processos:", error);
+      });
+  }
+  
 
 
 // Função para alternar o campo "Novo Despacho"
@@ -188,3 +203,54 @@ document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
 
 window.processarCSV = processarCSV;
 
+// Modal para exibir o teor completo do despacho (último registro)
+function abrirModalDespacho(item) {
+    document.getElementById("modalTextoDespacho").textContent =
+      item.teor_ultimo_despacho || "N/A";
+    const linkEl = document.getElementById("modalLinkDespacho");
+    if (item.link) {
+      linkEl.href = item.link;
+      linkEl.style.display = "block";
+    } else {
+      linkEl.style.display = "none";
+    }
+    document.getElementById("modalDespacho").style.display = "block";
+  }
+  
+  function fecharModalDespacho() {
+    document.getElementById("modalDespacho").style.display = "none";
+  }
+  
+  // Modal para exibir o histórico completo do processo
+  function abrirModalHistorico(processo) {
+    const modalConteudo = document.getElementById("modalConteudoHistorico");
+    modalConteudo.innerHTML = "";
+    if (processo.historico && processo.historico.length > 0) {
+      processo.historico.forEach(item => {
+        const divItem = document.createElement("div");
+        divItem.style.borderBottom = "1px solid #ccc";
+        divItem.style.marginBottom = "10px";
+        divItem.innerHTML = `
+          <p><strong>Data:</strong> ${new Date(item.data).toLocaleDateString()}</p>
+          <p><strong>Última Movimentação:</strong> ${item.ultima_movimentacao || "N/A"}</p>
+          <p><strong>Teor Movimentação:</strong> ${item.teor_ultima_movimentacao || "N/A"}</p>
+          <p><strong>Último Despacho:</strong> ${item.ultimo_despacho || "N/A"}</p>
+          <p><strong>Teor Despacho:</strong> ${item.teor_ultimo_despacho || "N/A"}</p>
+          ${
+            item.link
+              ? `<p><a href="${item.link}" target="_blank">Ver despacho no STF</a></p>`
+              : ""
+          }
+        `;
+        modalConteudo.appendChild(divItem);
+      });
+    } else {
+      modalConteudo.innerHTML = "<p>Nenhum histórico encontrado.</p>";
+    }
+    document.getElementById("modalHistorico").style.display = "block";
+  }
+  
+  function fecharModalHistorico() {
+    document.getElementById("modalHistorico").style.display = "none";
+  }
+  
