@@ -55,16 +55,13 @@ app.post('/processos', async (req, res) => {
 });
 
 // Endpoint para obter processos
-app.get('/processos', async (req, res) => {
+app.get('/processos/em-tramite', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM processos ORDER BY criado_em DESC');
-        res.json(result.rows);
+        const result = await pool.query("SELECT numero FROM processos WHERE status = 'Em trâmite'");
+        const numerosDosProcessos = result.rows.map(row => row.numero);
+        res.json(numerosDosProcessos);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao buscar processos.' });
+        res.status(500).json({ error: 'Erro ao buscar processos em trâmite.' });
     }
-});
-
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
 });
