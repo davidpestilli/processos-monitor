@@ -41,6 +41,47 @@ function normalizeNumero(numero) {
     return normalized;
   }  
   
+// Função para calcular a distância de Levenshtein entre duas strings
+function levenshtein(a, b) {
+    const matrix = [];
+  
+    // Inicializa a primeira coluna
+    for (let i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+  
+    // Inicializa a primeira linha
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+  
+    // Preenche o restante da matriz
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substituição
+            matrix[i][j - 1] + 1,     // inserção
+            matrix[i - 1][j] + 1      // deleção
+          );
+        }
+      }
+    }
+  
+    return matrix[b.length][a.length];
+  }
+  
+  // Função que calcula a porcentagem de diferença entre duas strings
+  function computeDifferencePercentage(a, b) {
+    if (!a || !b) return 100;
+    const distance = levenshtein(a, b);
+    const maxLength = Math.max(a.length, b.length);
+    return (distance / maxLength) * 100;
+  }
+  
+
 
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -89,61 +130,98 @@ app.get('/processos/numeros', async (req, res) => {
 // Rota para atualizar ou inserir processos
 app.post('/processos/atualizar', async (req, res) => {
     try {
-        let { processos } = req.body;
-
-        console.log("🚀 Dados recebidos no Railway:", JSON.stringify(req.body, null, 2)); // <-- Debug
-
-        // Se o usuário enviou um único objeto em vez de um array, transforma em array
-        if (!Array.isArray(processos)) {
-            processos = [processos];
+      let { processos } = req.body;
+  
+      // Se o payload não for um array, transforma em array
+      if (!Array.isArray(processos)) {
+        processos = [processos];
+      }
+  
+      // Verifica se cada processo tem o número informado
+      for (const p of processos) {
+        if (!p.numero) {
+          console.error("❌ Erro: Número do processo não informado.");
+          return res.status(400).json({ error: "Número do processo é obrigatório." });
         }
-
-        for (const p of processos) {
-            if (!p.numero) {
-                console.error("❌ Erro: Número do processo não informado.");
-                return res.status(400).json({ error: "Número do processo é obrigatório." });
-            }
-        }
-
-        // Aqui aplicamos as funções de normalização para cada processo
-        const bulkOps = processos.map(p => {
-            // Normaliza os campos usando as funções que você inseriu anteriormente
-            p.numero = normalizeNumero(p.numero);
-            p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
-            p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
-            p.ultimo_despacho = normalizeText(p.ultimo_despacho);
-            p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
-            p.link = normalizeText(p.link);
-
-            // Cria o registro para o histórico
-            const historicoItem = {
-                data: new Date(),
-                ultima_movimentacao: p.ultima_movimentacao || null,
-                teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-                ultimo_despacho: p.ultimo_despacho || null,
-                teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-                link: p.link || null
-            };
-
-            return {
-                updateOne: {
-                    filter: { numero: p.numero },
-                    update: {
-                        $setOnInsert: { numero: p.numero, status: "Em trâmite" },
-                        $push: { historico: historicoItem },
-                        $set: { ultima_pesquisa: new Date(), novo_despacho: p.novo_despacho || null }
-                    },
-                    upsert: true
+      }
+  
+      // Processa cada processo individualmente
+      for (const p of processos) {
+        // Aplica as funções de normalização
+        p.numero = normalizeNumero(p.numero);
+        p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
+        p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
+        p.ultimo_despacho = normalizeText(p.ultimo_despacho);
+        p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
+        p.link = normalizeText(p.link);
+  
+        // Determina o valor de novo_despacho conforme a lógica:
+        // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
+        let novoDespacho;
+        if (p.novo_despacho) {
+          novoDespacho = p.novo_despacho;
+        } else {
+          if (p.teor_ultimo_despacho && p.teor_ultimo_despacho.trim() !== "") {
+            // Busca o processo existente no banco
+            const processoExistente = await db.collection('processos').findOne({ numero: p.numero });
+            if (!processoExistente || !processoExistente.historico || processoExistente.historico.length === 0) {
+              // Primeira vez: registra "Sim"
+              novoDespacho = "Sim";
+            } else {
+              // Procura o último despacho não vazio
+              let lastDespacho = "";
+              for (let i = processoExistente.historico.length - 1; i >= 0; i--) {
+                if (
+                  processoExistente.historico[i].teor_ultimo_despacho &&
+                  processoExistente.historico[i].teor_ultimo_despacho.trim() !== ""
+                ) {
+                  lastDespacho = processoExistente.historico[i].teor_ultimo_despacho;
+                  break;
                 }
-            };
-        });
-
-        await db.collection('processos').bulkWrite(bulkOps);
-        res.json({ message: "Processos atualizados com sucesso" });
+              }
+              if (lastDespacho === "") {
+                novoDespacho = "Sim";
+              } else {
+                // Calcula a diferença percentual entre o último despacho e o novo
+                const diffPercent = computeDifferencePercentage(lastDespacho, p.teor_ultimo_despacho);
+                novoDespacho = diffPercent >= 5 ? "Sim" : "Não";
+              }
+            }
+          } else {
+            // Se o novo despacho estiver vazio, marca "Não"
+            novoDespacho = "Não";
+          }
+        }
+  
+        // Cria o registro do histórico para esse processo
+        const historicoItem = {
+          data: new Date(),
+          ultima_movimentacao: p.ultima_movimentacao || null,
+          teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+          ultimo_despacho: p.ultimo_despacho || null,
+          teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+          link: p.link || null
+        };
+  
+        // Atualiza (ou insere) o documento no MongoDB
+        await db.collection('processos').findOneAndUpdate(
+          { numero: p.numero },
+          {
+            $setOnInsert: { numero: p.numero, status: "Em trâmite" },
+            $push: { historico: historicoItem },
+            $set: { ultima_pesquisa: new Date(), novo_despacho: novoDespacho }
+          },
+          { upsert: true }
+        );
+      }
+  
+      res.json({ message: "Processos atualizados com sucesso" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      console.error("❌ Erro ao atualizar processos:", error);
+      res.status(500).json({ error: error.message });
     }
-});
+  });
+  
 
 
 const PORT = process.env.PORT || 8080;
