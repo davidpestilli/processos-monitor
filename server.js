@@ -158,62 +158,68 @@ app.post('/processos/atualizar', async (req, res) => {
   
         // Determina o valor de novo_despacho conforme a lógica:
         // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
+        // Determina o valor de novoDespacho conforme sua lógica existente...
         let novoDespacho;
         if (p.novo_despacho) {
-          novoDespacho = p.novo_despacho;
+        novoDespacho = p.novo_despacho;
         } else {
-          if (p.teor_ultimo_despacho && p.teor_ultimo_despacho.trim() !== "") {
+        if (p.teor_ultimo_despacho && p.teor_ultimo_despacho.trim() !== "") {
             // Busca o processo existente no banco
             const processoExistente = await db.collection('processos').findOne({ numero: p.numero });
             if (!processoExistente || !processoExistente.historico || processoExistente.historico.length === 0) {
-              // Primeira vez: registra "Sim"
-              novoDespacho = "Sim";
+            novoDespacho = "Sim";
             } else {
-              // Procura o último despacho não vazio
-              let lastDespacho = "";
-              for (let i = processoExistente.historico.length - 1; i >= 0; i--) {
+            let lastDespacho = "";
+            for (let i = processoExistente.historico.length - 1; i >= 0; i--) {
                 if (
-                  processoExistente.historico[i].teor_ultimo_despacho &&
-                  processoExistente.historico[i].teor_ultimo_despacho.trim() !== ""
+                processoExistente.historico[i].teor_ultimo_despacho &&
+                processoExistente.historico[i].teor_ultimo_despacho.trim() !== ""
                 ) {
-                  lastDespacho = processoExistente.historico[i].teor_ultimo_despacho;
-                  break;
+                lastDespacho = processoExistente.historico[i].teor_ultimo_despacho;
+                break;
                 }
-              }
-              if (lastDespacho === "") {
+            }
+            if (lastDespacho === "") {
                 novoDespacho = "Sim";
-              } else {
-                // Calcula a diferença percentual entre o último despacho e o novo
+            } else {
                 const diffPercent = computeDifferencePercentage(lastDespacho, p.teor_ultimo_despacho);
                 novoDespacho = diffPercent >= 5 ? "Sim" : "Não";
-              }
             }
-          } else {
-            // Se o novo despacho estiver vazio, marca "Não"
+            }
+        } else {
             novoDespacho = "Não";
-          }
         }
-  
-        // Cria o registro do histórico para esse processo
+        }
+
+        // Verifica se há dados relevantes para registrar no histórico
+        const temDadosHistorico = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho || p.link;
+
+        // Se não houver dados relevantes, considera que é uma pesquisa fantasma e não faz nada.
+        if (!temDadosHistorico) {
+        console.log(`Pesquisa fantasma para o processo ${p.numero} descartada.`);
+        continue; // pula para o próximo processo
+        }
+
+        // Se houver dados, então cria o registro do histórico e atualiza o documento:
         const historicoItem = {
-          data: new Date(),
-          ultima_movimentacao: p.ultima_movimentacao || null,
-          teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-          ultimo_despacho: p.ultimo_despacho || null,
-          teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-          link: p.link || null
+        data: new Date(),
+        ultima_movimentacao: p.ultima_movimentacao || null,
+        teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+        ultimo_despacho: p.ultimo_despacho || null,
+        teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+        link: p.link || null
         };
-  
-        // Atualiza (ou insere) o documento no MongoDB
+
         await db.collection('processos').findOneAndUpdate(
-          { numero: p.numero },
-          {
+        { numero: p.numero },
+        {
             $setOnInsert: { numero: p.numero, status: "Em trâmite" },
             $push: { historico: historicoItem },
             $set: { ultima_pesquisa: new Date(), novo_despacho: novoDespacho }
-          },
-          { upsert: true }
+        },
+        { upsert: true }
         );
+
       }
   
       res.json({ message: "Processos atualizados com sucesso" });
