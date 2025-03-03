@@ -191,4 +191,30 @@ td.fixed {
   overflow-y: auto;
 }
 
-  
+.btn-sim {
+  background-color: #28a745;  /* Verde */
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-nao {
+  background-color: #dc3545;  /* Vermelho */
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Opcional: estilos para os ícones */
+.icon-check {
+  margin-right: 4px;
+}
+.icon-cross {
+  margin-right: 4px;
+}

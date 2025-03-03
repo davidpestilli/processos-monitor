@@ -63,16 +63,26 @@ function carregarProcessosDoBackend() {
           teorDespachoCell.appendChild(despachoLink);
           row.appendChild(teorDespachoCell);
   
-          // Célula com botão para alternar "Novo Despacho"
-          const novoDespachoCell = document.createElement("td");
-          const btn = document.createElement("button");
-          btn.textContent = processo.novo_despacho === "Sim" ? "✔ Sim" : "❌ Não";
-          btn.className = processo.novo_despacho === "Sim" ? "btn-sim" : "btn-nao";
-          btn.addEventListener("click", function () {
+            // Cria a célula com botão para alternar "Novo Despacho"
+            const novoDespachoCell = document.createElement("td");
+            const btn = document.createElement("button");
+
+            if (processo.novo_despacho === "Sim") {
+            btn.innerHTML = `<span class="icon-check">✔</span> Sim`;
+            btn.className = "btn-sim";
+            } else {
+            btn.innerHTML = `<span class="icon-cross">✖</span> Não`;
+            btn.className = "btn-nao";
+            }
+
+            btn.addEventListener("click", function () {
             alternarNovoDespacho(processo.numero, btn);
-          });
-          novoDespachoCell.appendChild(btn);
-          row.appendChild(novoDespachoCell);
+            });
+
+        novoDespachoCell.appendChild(btn);
+        row.appendChild(novoDespachoCell);
+
+
   
           tabelaBody.appendChild(row);
         });
