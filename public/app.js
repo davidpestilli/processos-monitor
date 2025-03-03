@@ -268,9 +268,14 @@ function processarCSV() {
             .filter(linha => linha); // Remove linhas vazias
 
         // 🔹 Garante que cada número de processo seja um objeto separado
+        // Modificado para marcar como inserção manual:
         const processos = linhas.flatMap(linha => 
-            linha.split(";").map(numero => ({ numero: numero.trim() }))
+            linha.split(";").map(numero => ({
+            numero: numero.trim(),
+            manual: true
+            }))
         );
+
 
         if (processos.length === 0) {
             alert("O arquivo CSV está vazio ou mal formatado.");
