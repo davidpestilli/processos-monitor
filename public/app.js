@@ -19,93 +19,89 @@ function carregarProcessosDoBackend() {
         tabelaBody.innerHTML = "";
   
         processos.forEach(processo => {
-          // Usa o último registro do histórico para dados atuais
-          const ultimoHistorico =
-            processo.historico && processo.historico.length
-              ? processo.historico[processo.historico.length - 1]
-              : {};
+            // Usa o último registro do histórico para dados atuais
+            const ultimoHistorico =
+                processo.historico && processo.historico.length
+                ? processo.historico[processo.historico.length - 1]
+                : {};
+    
+            const row = document.createElement("tr");
   
-          const row = document.createElement("tr");
-  
-          // Cria a célula do número do processo com data-attribute
-          const numeroCell = document.createElement("td");
-          const numeroLink = document.createElement("a");
-          numeroLink.href = "#";
-          numeroLink.textContent = processo.numero;
-          // Armazena o objeto processo como string JSON para usar no modal
-          numeroLink.dataset.processo = JSON.stringify(processo);
-          numeroLink.classList.add("numeroLink");
-          numeroCell.appendChild(numeroLink);
-          row.appendChild(numeroCell);
-  
-          // Outras células
-          const statusCell = document.createElement("td");
-          statusCell.textContent = processo.status || "N/A";
-          row.appendChild(statusCell);
-  
-          const pesquisaCell = document.createElement("td");
-          pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "N/A";
-          row.appendChild(pesquisaCell);
-          
-  
-          const movCell = document.createElement("td");
-          movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
-          row.appendChild(movCell);
-  
-          const teorMovCell = document.createElement("td");
-          teorMovCell.classList.add("fixed");
-          teorMovCell.textContent = ultimoHistorico.teor_ultima_movimentacao || "N/A";
-          row.appendChild(teorMovCell);
-  
-          const despachoCell = document.createElement("td");
-          despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
-          row.appendChild(despachoCell);
-  
-          const teorDespachoCell = document.createElement("td");
-          teorDespachoCell.classList.add("fixed");
-          const despachoLink = document.createElement("a");
-          despachoLink.href = "#";
-          despachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+            // Cria a célula do número do processo com data-attribute
+            // Criação das células já existentes:
+            const numeroCell = document.createElement("td");
+            const numeroLink = document.createElement("a");
+            numeroLink.href = "#";
+            numeroLink.textContent = processo.numero;
+            numeroLink.dataset.processo = JSON.stringify(processo);
+            numeroLink.classList.add("numeroLink");
+            numeroCell.appendChild(numeroLink);
 
-        // Botão para excluir o processo
-        const acoesCell = document.createElement("td");
-        const btnExcluir = document.createElement("button");
-        btnExcluir.textContent = "Excluir";
-        btnExcluir.className = "btn-excluir"; // Você pode definir estilos específicos no CSS
-        btnExcluir.addEventListener("click", () => {
-            if (confirm("Tem certeza que quer excluir este processo?")) {
-                excluirProcesso(processo.numero);
-            }
-        });
-        acoesCell.appendChild(btnExcluir);
-        row.appendChild(acoesCell);
+            const statusCell = document.createElement("td");
+            statusCell.textContent = processo.status || "N/A";
 
+            const pesquisaCell = document.createElement("td");
+            pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "N/A";
 
-          // Armazena o objeto do histórico para uso no modal
-          despachoLink.dataset.historico = JSON.stringify(ultimoHistorico);
-          despachoLink.classList.add("despachoLink");
-          teorDespachoCell.appendChild(despachoLink);
-          row.appendChild(teorDespachoCell);
-  
-            // Cria a célula com botão para alternar "Novo Despacho"
+            const movCell = document.createElement("td");
+            movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
+
+            const teorMovCell = document.createElement("td");
+            teorMovCell.classList.add("fixed");
+            teorMovCell.textContent = ultimoHistorico.teor_ultima_movimentacao || "N/A";
+
+            const despachoCell = document.createElement("td");
+            despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
+
+            const teorDespachoCell = document.createElement("td");
+            teorDespachoCell.classList.add("fixed");
+            const despachoLink = document.createElement("a");
+            despachoLink.href = "#";
+            despachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+            // Armazena o objeto do histórico para uso no modal
+            despachoLink.dataset.historico = JSON.stringify(ultimoHistorico);
+            despachoLink.classList.add("despachoLink");
+            teorDespachoCell.appendChild(despachoLink);
+
+            // Célula para "Novo Despacho"
             const novoDespachoCell = document.createElement("td");
-            const btn = document.createElement("button");
-
+            const btnNovoDespacho = document.createElement("button");
             if (processo.novo_despacho === "Sim") {
-            btn.innerHTML = `<span class="icon-check">✔</span> Sim`;
-            btn.className = "btn-sim";
+                btnNovoDespacho.innerHTML = `<span class="icon-check">✔</span> Sim`;
+                btnNovoDespacho.className = "btn-sim";
             } else {
-            btn.innerHTML = `<span class="icon-cross">✖</span> Não`;
-            btn.className = "btn-nao";
+                btnNovoDespacho.innerHTML = `<span class="icon-cross">✖</span> Não`;
+                btnNovoDespacho.className = "btn-nao";
             }
-
-            btn.addEventListener("click", function () {
-            alternarNovoDespacho(processo.numero, btn);
+            btnNovoDespacho.addEventListener("click", function () {
+                alternarNovoDespacho(processo.numero, btnNovoDespacho);
             });
+            novoDespachoCell.appendChild(btnNovoDespacho);
 
-        novoDespachoCell.appendChild(btn);
-        row.appendChild(novoDespachoCell);
-          tabelaBody.appendChild(row);
+            // Célula para "Ações" (exclusão)
+            const acoesCell = document.createElement("td");
+            const btnExcluir = document.createElement("button");
+            btnExcluir.textContent = "Excluir";
+            btnExcluir.className = "btn-excluir";
+            btnExcluir.addEventListener("click", () => {
+                if (confirm("Tem certeza que quer excluir este processo?")) {
+                    excluirProcesso(processo.numero);
+                }
+            });
+            acoesCell.appendChild(btnExcluir);
+
+            // Agora, adicione as células na ordem correta:
+            row.appendChild(numeroCell);         // Coluna 1: Número
+            row.appendChild(statusCell);           // Coluna 2: Status
+            row.appendChild(pesquisaCell);         // Coluna 3: Última Pesquisa
+            row.appendChild(movCell);              // Coluna 4: Última Movimentação
+            row.appendChild(teorMovCell);          // Coluna 5: Teor da Última Movimentação
+            row.appendChild(despachoCell);         // Coluna 6: Último Despacho
+            row.appendChild(teorDespachoCell);     // Coluna 7: Teor do Último Despacho
+            row.appendChild(novoDespachoCell);     // Coluna 8: Novo Despacho?
+            row.appendChild(acoesCell);            // Coluna 9: Ações (Excluir)
+
+            tabelaBody.appendChild(row);
         });
   
         // Adiciona event listeners para os links criados
