@@ -260,7 +260,7 @@ function processarCSV() {
 
 
 // Carregar os processos ao iniciar
-document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
+//document.addEventListener("DOMContentLoaded", carregarProcessosDoBackend);
 
 window.processarCSV = processarCSV;
 
