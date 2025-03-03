@@ -66,6 +66,21 @@ function carregarProcessosDoBackend() {
           const despachoLink = document.createElement("a");
           despachoLink.href = "#";
           despachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+
+        // Botão para excluir o processo
+        const acoesCell = document.createElement("td");
+        const btnExcluir = document.createElement("button");
+        btnExcluir.textContent = "Excluir";
+        btnExcluir.className = "btn-excluir"; // Você pode definir estilos específicos no CSS
+        btnExcluir.addEventListener("click", () => {
+            if (confirm("Tem certeza que quer excluir este processo?")) {
+                excluirProcesso(processo.numero);
+            }
+        });
+        acoesCell.appendChild(btnExcluir);
+        row.appendChild(acoesCell);
+
+
           // Armazena o objeto do histórico para uso no modal
           despachoLink.dataset.historico = JSON.stringify(ultimoHistorico);
           despachoLink.classList.add("despachoLink");
@@ -90,9 +105,6 @@ function carregarProcessosDoBackend() {
 
         novoDespachoCell.appendChild(btn);
         row.appendChild(novoDespachoCell);
-
-
-  
           tabelaBody.appendChild(row);
         });
   
@@ -157,6 +169,40 @@ async function salvarProcessoNoBackend(processo) {
         console.error("Erro ao enviar processo:", error);
     }
 }
+
+// Função para chamar o endpoint de exclusão do processo
+async function excluirProcesso(numero) {
+    try {
+        const response = await fetch(`${API_URL}/${numero}`, { method: "DELETE" });
+        if (!response.ok) throw new Error("Erro ao excluir processo.");
+        alert("Processo excluído com sucesso.");
+        carregarProcessosDoBackend(); // Atualiza a tabela após a exclusão
+    } catch (error) {
+        console.error("Erro ao excluir processo:", error);
+        alert("Erro ao excluir processo. Verifique o console para mais detalhes.");
+    }
+}
+
+
+async function excluirHistorico(numero, data) {
+    try {
+        const response = await fetch(`${API_URL}/${numero}/historico`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data })
+        });
+        if (!response.ok) throw new Error("Erro ao excluir entrada do histórico.");
+        alert("Entrada do histórico excluída com sucesso.");
+        // Após excluir, recarregue a tabela ou reabra o modal para refletir a mudança
+        carregarProcessosDoBackend();
+        fecharModalHistorico();
+    } catch (error) {
+        console.error("Erro ao excluir entrada do histórico:", error);
+        alert("Erro ao excluir entrada do histórico.");
+    }
+}
+
+
 
 // Adicionar evento para capturar submissão de novo processo
 document.addEventListener("DOMContentLoaded", function () {
@@ -280,12 +326,13 @@ function abrirModalDespacho(item) {
   function fecharModalDespacho() {
     document.getElementById("modalDespacho").style.display = "none";
   }
+
   
   function abrirModalHistorico(processo) {
     const modalConteudo = document.getElementById("modalConteudoHistorico");
-    modalConteudo.innerHTML = ""; // limpa conteúdo antigo
+    modalConteudo.innerHTML = ""; // Limpa conteúdo antigo
   
-    // Cria um título com o número do processo
+    // Cria o título com o número do processo
     const modalTitulo = document.createElement("h3");
     modalTitulo.textContent = "Histórico do Processo: " + processo.numero;
     modalConteudo.appendChild(modalTitulo);
@@ -294,45 +341,97 @@ function abrirModalDespacho(item) {
     const table = document.createElement("table");
     table.classList.add("historico-table");
   
-    // Cabeçalho da tabela
+    // Cria o cabeçalho com a nova coluna "Ações"
     const thead = document.createElement("thead");
-    thead.innerHTML = `
-      <tr>
-        <th>Última Pesquisa</th>
-        <th>Movimentação</th>
-        <th>Teor Movimentação</th>
-        <th>Despacho</th>
-        <th>Teor Despacho</th>
-        <th>Link</th>
-      </tr>
-    `;
+    const headerRow = document.createElement("tr");
+    const headers = [
+      "Última Pesquisa",
+      "Movimentação",
+      "Teor Movimentação",
+      "Despacho",
+      "Teor Despacho",
+      "Link",
+      "Ações"
+    ];
+    headers.forEach(text => {
+      const th = document.createElement("th");
+      th.textContent = text;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
     table.appendChild(thead);
   
-    // Corpo da tabela
+    // Cria o corpo da tabela
     const tbody = document.createElement("tbody");
   
     if (processo.historico && processo.historico.length > 0) {
       processo.historico.forEach(item => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatDate(item.data)}</td>
-          <td>${item.ultima_movimentacao || "N/A"}</td>
-          <td class="fixed">${item.teor_ultima_movimentacao || "N/A"}</td>
-          <td>${item.ultimo_despacho || "N/A"}</td>
-          <td class="fixed">${item.teor_ultimo_despacho || "N/A"}</td>
-          <td>${
-            item.link ? `<a href="${item.link}" target="_blank">Ver</a>` : "N/A"
-          }</td>
-        `;
+  
+        // Coluna: Última Pesquisa
+        const tdData = document.createElement("td");
+        tdData.textContent = formatDate(item.data);
+        tr.appendChild(tdData);
+  
+        // Coluna: Movimentação
+        const tdMov = document.createElement("td");
+        tdMov.textContent = item.ultima_movimentacao || "N/A";
+        tr.appendChild(tdMov);
+  
+        // Coluna: Teor Movimentação
+        const tdTeorMov = document.createElement("td");
+        tdTeorMov.textContent = item.teor_ultima_movimentacao || "N/A";
+        tdTeorMov.classList.add("fixed");
+        tr.appendChild(tdTeorMov);
+  
+        // Coluna: Despacho
+        const tdDespacho = document.createElement("td");
+        tdDespacho.textContent = item.ultimo_despacho || "N/A";
+        tr.appendChild(tdDespacho);
+  
+        // Coluna: Teor Despacho
+        const tdTeorDespacho = document.createElement("td");
+        tdTeorDespacho.textContent = item.teor_ultimo_despacho || "N/A";
+        tdTeorDespacho.classList.add("fixed");
+        tr.appendChild(tdTeorDespacho);
+  
+        // Coluna: Link
+        const tdLink = document.createElement("td");
+        if (item.link) {
+          const a = document.createElement("a");
+          a.href = item.link;
+          a.target = "_blank";
+          a.textContent = "Ver";
+          tdLink.appendChild(a);
+        } else {
+          tdLink.textContent = "N/A";
+        }
+        tr.appendChild(tdLink);
+  
+        // Coluna: Ações (botão excluir)
+        const tdAcoes = document.createElement("td");
+        const btnExcluir = document.createElement("button");
+        btnExcluir.textContent = "Excluir";
+        btnExcluir.classList.add("btn-excluir-historico");
+        btnExcluir.addEventListener("click", function() {
+          if (confirm("Tem certeza que quer excluir esta entrada do histórico?")) {
+            excluirHistorico(processo.numero, item.data);
+          }
+        });
+        tdAcoes.appendChild(btnExcluir);
+        tr.appendChild(tdAcoes);
+  
         tbody.appendChild(tr);
       });
     } else {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td colspan="6">Nenhum histórico encontrado.</td>`;
+      const td = document.createElement("td");
+      td.colSpan = 7;
+      td.textContent = "Nenhum histórico encontrado.";
+      tr.appendChild(td);
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
-  
     modalConteudo.appendChild(table);
     document.getElementById("modalHistorico").style.display = "block";
   }
