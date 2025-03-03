@@ -271,9 +271,9 @@ function processarCSV() {
         // Modificado para marcar como inserção manual:
         const processos = linhas.flatMap(linha => 
             linha.split(";").map(numero => ({
-            numero: numero.trim(),
-            manual: true
-            }))
+                numero: numero.trim().replace(/,$/, ''),
+                manual: true
+              }))              
         );
 
 
