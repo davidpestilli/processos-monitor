@@ -128,8 +128,6 @@ app.get('/processos/numeros', async (req, res) => {
 
 // Rota para atualizar ou inserir processos
 app.post('/processos/atualizar', async (req, res) => {
-    console.log("📌 Requisição recebida em /processos/atualizar");
-    console.log("🔍 Dados recebidos:", JSON.stringify(req.body, null, 2));
     try {
       let { processos } = req.body;
   
