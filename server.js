@@ -191,16 +191,18 @@ app.post('/processos/atualizar', async (req, res) => {
         }
         }
 
+        // Verifica se o processo é manualmente inserido (campo manual: true)
+        const insercaoManual = p.manual === true;
+
         // Verifica se há dados relevantes para registrar no histórico
         const temDadosHistorico = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho || p.link;
 
-        // Se não houver dados relevantes, considera que é uma pesquisa fantasma e não faz nada.
-        if (!temDadosHistorico) {
+        if (!insercaoManual && !temDadosHistorico) {
         console.log(`Pesquisa fantasma para o processo ${p.numero} descartada.`);
-        continue; // pula para o próximo processo
+        continue; // Pula para o próximo processo, sem atualizar nada
         }
 
-        // Se houver dados, então cria o registro do histórico e atualiza o documento:
+        // Caso seja manual ou haja dados relevantes, registra o processo
         const historicoItem = {
         data: new Date(),
         ultima_movimentacao: p.ultima_movimentacao || null,
@@ -219,6 +221,7 @@ app.post('/processos/atualizar', async (req, res) => {
         },
         { upsert: true }
         );
+
 
       }
   

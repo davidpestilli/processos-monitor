@@ -207,36 +207,37 @@ document.addEventListener("DOMContentLoaded", function () {
     if (formProcesso) {
         formProcesso.addEventListener("submit", async function (event) {
             event.preventDefault(); // Evita que a página recarregue
-
+        
             const inputNumeroProcesso = document.querySelector("#numeroProcesso");
-
+        
             if (!inputNumeroProcesso || !inputNumeroProcesso.value.trim()) {
                 alert("Por favor, insira um número de processo válido.");
                 return;
             }
-
+        
             const numeroProcesso = inputNumeroProcesso.value.trim();
-
+        
             try {
-                const response = await fetch("https://processos-monitor-production.up.railway.app/processos/atualizar", {
+                const response = await fetch(API_URL + "/atualizar", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
+                    // Aqui adicionamos "manual": true no objeto do processo
                     body: JSON.stringify({
-                        processos: [{ numero: numeroProcesso }],
+                        processos: [{ numero: numeroProcesso, manual: true }]
                     }),
                 });
-
+        
                 if (!response.ok) {
                     throw new Error("Erro ao adicionar o processo.");
                 }
-
+        
                 alert("Processo adicionado com sucesso!");
-
+        
                 // Recarregar a lista de processos após adicionar um novo
                 carregarProcessosDoBackend();
-
+        
                 // Limpar o campo de entrada
                 inputNumeroProcesso.value = "";
             } catch (error) {
@@ -244,6 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Erro ao adicionar o processo. Verifique o console para mais detalhes.");
             }
         });
+        
     }
 });
 
