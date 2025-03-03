@@ -82,7 +82,6 @@ function levenshtein(a, b) {
   }
   
 
-
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -1,5 +1,15 @@
 const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
+  function formatDate(date) {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day}/${month} ${hours}:${minutes}`;
+  }
+
 // Função para carregar os processos do backend
 function carregarProcessosDoBackend() {
     fetch(API_URL)
@@ -34,10 +44,9 @@ function carregarProcessosDoBackend() {
           row.appendChild(statusCell);
   
           const pesquisaCell = document.createElement("td");
-          pesquisaCell.textContent = processo.ultima_pesquisa
-            ? new Date(processo.ultima_pesquisa).toLocaleDateString()
-            : "N/A";
+          pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "N/A";
           row.appendChild(pesquisaCell);
+          
   
           const movCell = document.createElement("td");
           movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
@@ -289,7 +298,7 @@ function abrirModalDespacho(item) {
     const thead = document.createElement("thead");
     thead.innerHTML = `
       <tr>
-        <th>Data</th>
+        <th>Última Pesquisa</th>
         <th>Movimentação</th>
         <th>Teor Movimentação</th>
         <th>Despacho</th>
@@ -306,7 +315,7 @@ function abrirModalDespacho(item) {
       processo.historico.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${new Date(item.data).toLocaleDateString()}</td>
+          <td>${formatDate(item.data)}</td>
           <td>${item.ultima_movimentacao || "N/A"}</td>
           <td class="fixed">${item.teor_ultima_movimentacao || "N/A"}</td>
           <td>${item.ultimo_despacho || "N/A"}</td>
