@@ -46,12 +46,15 @@ function carregarProcessosDoBackend() {
             numeroCell.appendChild(numeroLink);
 
             const statusCell = document.createElement("td");
-            statusCell.textContent = processo.status || "-";
+            statusCell.textContent = processo.status ? processo.status : "-"; // 🔹 Agora garante que o status atualizado seja exibido
             
             // Aplica cor de fundo verde claro se o status NÃO for "Em trâmite"
-            if (processo.status && processo.status.toLowerCase() !== "em trâmite") {
+            if (processo.status && ["baixa", "decurso", "trânsito", "origem"].includes(processo.status.toLowerCase())) {
                 statusCell.classList.add("status-alerta");
-            }            
+            }
+            
+            console.log(`🔄 Status carregado no frontend para ${processo.numero}: ${processo.status}`);
+                       
 
             const pesquisaCell = document.createElement("td");
             pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "-";

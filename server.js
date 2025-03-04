@@ -181,7 +181,6 @@ app.post('/processos/atualizar', async (req, res) => {
                 }
             }
 
-
             console.log(`📝 Status calculado para ${p.numero}: ${status}`);
 
             // Criar o objeto do histórico
@@ -201,7 +200,7 @@ app.post('/processos/atualizar', async (req, res) => {
                 { numero: p.numero }, // Encontrar pelo número do processo
                 {
                     $set: {
-                        status,
+                        status: status,  // 🔹 Agora garante que o status atualizado seja salvo!
                         ultima_pesquisa: new Date()
                     },
                     $push: { historico: historicoItem }, // Adiciona ao histórico
@@ -209,8 +208,9 @@ app.post('/processos/atualizar', async (req, res) => {
                 },
                 { upsert: true, returnDocument: 'after' } // Se não existir, cria
             );
-
-            console.log(`✅ Processo salvo/atualizado no MongoDB:`, result);
+            
+            console.log(`✅ Status atualizado no MongoDB para ${p.numero}: ${status}`);
+            
         }
 
         res.json({ message: "Processos atualizados com sucesso" });
