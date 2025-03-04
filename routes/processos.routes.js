@@ -99,10 +99,13 @@ export function createProcessosRouter(db) {
                   console.log(`🆕 Novo: "${teorNovo}"`);
                   console.log(`📊 Diferença: ${diferenca}%`);
               
-                  if (diferenca >= 5 && novoDespachoStatus === "Não") {
-                      novoDespachoStatus = "Sim";
-                      console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim"`);
-                  }
+                  if (diferenca >= 5 && processoExistente.novo_despacho === "Não") {
+                    novoDespachoStatus = "Sim";
+                    console.log(`✅ Diferença >= 5% e estava "Não". Atualizando novo_despacho para "Sim"`);
+                } else {
+                    console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
+                }
+                
               }
               
             
