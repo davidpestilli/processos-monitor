@@ -155,6 +155,12 @@ function carregarProcessosDoBackend() {
       .catch(error => {
         console.error("Erro ao buscar processos:", error);
       });
+
+      document.getElementById("selecionarTodosProcessos").addEventListener("change", function () {
+        const checkboxes = document.querySelectorAll(".processo-checkbox");
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    });
+    
 }
 
   
@@ -462,25 +468,43 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
     const table = document.createElement("table");
     table.classList.add("historico-table");
   
-    // Cria o cabeçalho com a nova coluna "Ações"
+
+    // Cria o cabeçalho com a nova coluna de seleção
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
+
+    // Criar o cabeçalho para o checkbox "Selecionar Todos"
+    const thCheckbox = document.createElement("th");
+    const selectAllCheckbox = document.createElement("input");
+    selectAllCheckbox.type = "checkbox";
+    selectAllCheckbox.id = "selecionarTodosHistorico";
+    thCheckbox.appendChild(selectAllCheckbox);
+    headerRow.appendChild(thCheckbox);
+
+    // Criar os demais cabeçalhos
     const headers = [
-      "Última Pesquisa",
-      "Movimentação",
-      "Teor Movimentação",
-      "Despacho",
-      "Teor Despacho",
-      "Link",
+    "Última Pesquisa",
+    "Movimentação",
+    "Teor Movimentação",
+    "Despacho",
+    "Teor Despacho",
+    "Link"
     ];
+
     headers.forEach(text => {
-      const th = document.createElement("th");
-      th.textContent = text;
-      headerRow.appendChild(th);
+    const th = document.createElement("th");
+    th.textContent = text;
+    headerRow.appendChild(th);
     });
+
     thead.appendChild(headerRow);
     table.appendChild(thead);
-  
+
+    document.getElementById("selecionarTodosHistorico").addEventListener("change", function () {
+        const checkboxes = document.querySelectorAll(".historico-checkbox");
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    });
+    
     // Cria o corpo da tabela
     const tbody = document.createElement("tbody");
   
@@ -584,6 +608,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
   document.getElementById("fecharHistorico").addEventListener("click", () => {
     document.getElementById("modalHistorico").style.display = "none";
   });
+
 
   // Torna a função acessível no console do navegador
 window.carregarProcessosDoBackend = carregarProcessosDoBackend;
