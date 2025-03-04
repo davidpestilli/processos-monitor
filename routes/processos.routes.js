@@ -89,19 +89,22 @@ export function createProcessosRouter(db) {
             if (teorAnterior) {
               const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
 
+              let diferenca = 0; // Inicializa a variável antes de usá-la
+
               if (teorNovo) {
-                diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
-            
-                console.log(`🔍 Comparando despachos para ${p.numero}`);
-                console.log(`📝 Anterior: "${teorAnterior}"`);
-                console.log(`🆕 Novo: "${teorNovo}"`);
-                console.log(`📊 Diferença: ${diferenca}%`);
-            
-                if (diferenca >= 5 && novoDespachoStatus === "Não") {
-                    novoDespachoStatus = "Sim";
-                    console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim"`);
-                }
-            }
+                  diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
+              
+                  console.log(`🔍 Comparando despachos para ${p.numero}`);
+                  console.log(`📝 Anterior: "${teorAnterior}"`);
+                  console.log(`🆕 Novo: "${teorNovo}"`);
+                  console.log(`📊 Diferença: ${diferenca}%`);
+              
+                  if (diferenca >= 5 && novoDespachoStatus === "Não") {
+                      novoDespachoStatus = "Sim";
+                      console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim"`);
+                  }
+              }
+              
             
             }
 
