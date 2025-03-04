@@ -147,6 +147,8 @@ app.post('/processos/atualizar', async (req, res) => {
           return res.status(400).json({ error: "Número do processo é obrigatório." });
         }
       }
+
+      
   
       // Processa cada processo individualmente
       for (const p of processos) {
@@ -215,6 +217,24 @@ app.post('/processos/atualizar', async (req, res) => {
         };
 
 
+        console.log(`📝 Tentando salvar/atualizar o processo ${p.numero} no MongoDB...`);
+
+        // **Usa findOneAndUpdate para inserir ou atualizar o processo**
+        const result = await db.collection('processos').findOneAndUpdate(
+            { numero: p.numero }, // Encontrar pelo número do processo
+            {
+                $set: {
+                    status,
+                    ultima_pesquisa: new Date()
+                },
+                $push: { historico: historicoItem }, // Adiciona ao histórico
+                $setOnInsert: { numero: p.numero } // Apenas na primeira inserção
+            },
+            { upsert: true, returnDocument: 'after' } // Se não existir, cria
+        );
+
+
+
         function removeAccents(str) {
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         }
@@ -254,8 +274,6 @@ console.log(`Status calculado para ${p.numero}: ${status}`);
             },
             { upsert: true }
         );
-
-    
 
 
     }
