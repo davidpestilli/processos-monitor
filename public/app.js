@@ -452,3 +452,6 @@ function abrirModalDespacho(item) {
   document.getElementById("fecharHistorico").addEventListener("click", () => {
     document.getElementById("modalHistorico").style.display = "none";
   });
+
+  // Torna a função acessível no console do navegador
+window.carregarProcessosDoBackend = carregarProcessosDoBackend;
