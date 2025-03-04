@@ -1,175 +1,171 @@
-/* Reset de estilos e configurações básicas */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Estilo base para o body */
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    padding: 20px;
-  }
-  
-  /* Cabeçalho */
-  header {
-    background-color: #0073e6;
-    color: #fff;
-    padding: 20px 0;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  header h1 {
-    font-size: 2rem;
-  }
-  
-  /* Conteúdo principal */
-  main {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  /* Estilos para as seções */
-  section {
-    background: #fff;
-    margin-bottom: 20px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Formulário de inserção de dados */
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  form div {
-    margin-bottom: 15px;
-  }
-  
-  form label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-  }
-  
-  form input[type="text"],
-  form input[type="file"],
-  form input[type="email"],
-  form input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  /* Botões com efeito de click */
-  form button {
-    padding: 10px;
-    background-color: #0073e6;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-  }
-  
-  form button:hover {
-    background-color: #005bb5;
-  }
-  
-  form button:active {
-    transform: scale(0.98);
-  }
-  
-  /* Estilos para a tabela de processos */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  table th,
-  table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-  }
+/* Importação das variáveis */
+@import 'variables.css';
 
-  /* Para as células de largura fixa com texto em 1 linha */
-  td.fixed {
+/* Reset e configurações básicas */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilo base para o body */
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: 20px;
+}
+
+/* Cabeçalho */
+header {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 20px 0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 2rem;
+}
+
+/* Conteúdo principal */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Estilos para as seções */
+section {
+  background: var(--white);
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px var(--box-shadow-color);
+}
+
+/* Formulário de inserção de dados */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+form input[type="text"],
+form input[type="file"],
+form input[type="email"],
+form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+/* Botões com efeito de click */
+form button {
+  padding: 10px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+form button:hover {
+  background-color: var(--secondary-color);
+}
+
+form button:active {
+  transform: scale(0.98);
+}
+
+/* Estilos para a tabela de processos */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th,
+table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Para as células de largura fixa */
+td.fixed {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px; /* Ajuste conforme necessário */
-  }
+  max-width: 150px;
+}
 
-  /* Garante que o texto das células ocupe apenas uma linha e adicione "..." quando necessário */
+/* Agrupando classes com regras idênticas */
 .teor-movimentacao,
 .teor-despacho {
-  white-space: nowrap; /* Mantém o texto em uma única linha */
-  overflow: hidden; /* Esconde o excesso de texto */
-  text-overflow: ellipsis; /* Adiciona "..." ao final se o texto for muito longo */
-  max-width: 150px; /* Define uma largura máxima */
-  display: inline-block; /* Garante que a largura seja aplicada corretamente */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  display: inline-block;
 }
 
-/* Aplica um fundo verde claro para células de status diferentes de "Em trâmite" */
+/* Fundo verde claro para status alerta */
 .status-alerta {
-  background-color: #c8f7c5; /* Verde claro */
-  font-weight: bold; /* Destaca o status */
+  background-color: #c8f7c5;
+  font-weight: bold;
 }
 
+table thead {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Responsividade para a tabela */
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
   
   table thead {
-    background-color: #0073e6;
-    color: #fff;
+    display: none;
   }
   
-  table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+  table tr {
+    margin-bottom: 15px;
   }
   
-  /* Responsividade para a tabela */
-  @media (max-width: 768px) {
-    table,
-    thead,
-    tbody,
-    th,
-    td,
-    tr {
-      display: block;
-    }
-  
-    table thead {
-      display: none;
-    }
-  
-    table tr {
-      margin-bottom: 15px;
-    }
-  
-    table td {
-      position: relative;
-      padding-left: 50%;
-      text-align: right;
-    }
-  
-    table td::before {
-      content: attr(data-label);
-      position: absolute;
-      left: 10px;
-      width: 45%;
-      padding-right: 10px;
-      font-weight: bold;
-      text-align: left;
-    }
+  table td {
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
   }
   
+  table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    font-weight: bold;
+    text-align: left;
+  }
+}
 
 /* Estilos para os modais */
 .modal {
@@ -184,12 +180,14 @@
 }
 
 .modal-content {
-  background-color: #fff;
-  margin: 15% auto;
+  background-color: var(--white);
+  margin: 10% auto;
   padding: 20px;
   border-radius: 8px;
-  width: 80%;
-  max-width: 500px;
+  width: 110%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .close {
@@ -198,17 +196,7 @@
   cursor: pointer;
 }
 
-.modal-content {
-  background-color: #fff;
-  margin: 10% auto; /* diminui a margem superior para usar mais espaço vertical */
-  padding: 20px;
-  border-radius: 8px;
-  width: 110%;        /* aumenta a largura */
-  max-width: 1000px;  /* aumenta o tamanho máximo */
-  max-height: 90vh;  /* permite que o modal use até 90% da altura da viewport com rolagem se necessário */
-  overflow-y: auto;
-}
-
+/* Estilos específicos para o modal genérico */
 #modalGenerico {
   display: none;
   position: fixed;
@@ -221,7 +209,7 @@
 }
 
 #modalGenerico .modal-content {
-  background-color: #fff;
+  background-color: var(--white);
   margin: 15% auto;
   padding: 20px;
   border-radius: 8px;
@@ -229,16 +217,10 @@
   max-width: 600px;
 }
 
-#fecharModalGenerico {
-  float: right;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-
+/* Botões de ação (Sim/Não) */
 .btn-sim {
-  background-color: #28a745;  /* Verde */
-  color: #fff;
+  background-color: #28a745;
+  color: var(--white);
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
@@ -247,8 +229,8 @@
 }
 
 .btn-nao {
-  background-color: #dc3545;  /* Vermelho */
-  color: #fff;
+  background-color: #dc3545;
+  color: var(--white);
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
@@ -256,32 +238,30 @@
   font-weight: bold;
 }
 
-/* Opcional: estilos para os ícones */
-.icon-check {
-  margin-right: 4px;
-}
+/* Estilos para ícones */
+.icon-check,
 .icon-cross {
   margin-right: 4px;
 }
 
-/* Estiliza os links dentro da tabela para parecerem interativos */
+/* Links interativos na tabela */
 .numeroLink,
 .teor-movimentacao,
 .teor-despacho {
   cursor: pointer;
   text-decoration: underline;
-  color: #0073e6; /* Azul para indicar que é clicável */
+  color: var(--primary-color);
 }
 
 .numeroLink:hover,
 .teor-movimentacao:hover,
 .teor-despacho:hover {
-  color: #005bb5; /* Azul mais escuro ao passar o mouse */
+  color: var(--secondary-color);
 }
 
 .btn-excluir-multiplo {
   background-color: #dc3545;
-  color: white;
+  color: var(--white);
   padding: 10px 15px;
   border: none;
   cursor: pointer;
