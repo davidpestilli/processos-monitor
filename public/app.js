@@ -112,17 +112,6 @@ function carregarProcessosDoBackend() {
             });
             novoDespachoCell.appendChild(btnNovoDespacho);
 
-            const acoesCell = document.createElement("td");
-            const btnExcluir = document.createElement("button");
-            btnExcluir.textContent = "Excluir";
-            btnExcluir.className = "btn-excluir";
-            btnExcluir.addEventListener("click", () => {
-                if (confirm("Tem certeza que quer excluir este processo?")) {
-                    excluirProcesso(processo.numero);
-                }
-            });
-            acoesCell.appendChild(btnExcluir);
-
             const checkboxCell = document.createElement("td");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -210,40 +199,6 @@ async function salvarProcessoNoBackend(processo) {
 
     } catch (error) {
         console.error("Erro ao enviar processo:", error);
-    }
-}
-
-
-
-// Função para chamar o endpoint de exclusão do processo
-async function excluirProcesso(numero) {
-    try {
-        const response = await fetch(`${API_URL}/${numero}`, { method: "DELETE" });
-        if (!response.ok) throw new Error("Erro ao excluir processo.");
-        alert("Processo excluído com sucesso.");
-        carregarProcessosDoBackend(); // Atualiza a tabela após a exclusão
-    } catch (error) {
-        console.error("Erro ao excluir processo:", error);
-        alert("Erro ao excluir processo. Verifique o console para mais detalhes.");
-    }
-}
-
-
-async function excluirHistorico(numero, data) {
-    try {
-        const response = await fetch(`${API_URL}/${numero}/historico`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data })
-        });
-        if (!response.ok) throw new Error("Erro ao excluir entrada do histórico.");
-        alert("Entrada do histórico excluída com sucesso.");
-        // Após excluir, recarregue a tabela ou reabra o modal para refletir a mudança
-        carregarProcessosDoBackend();
-        fecharModalHistorico();
-    } catch (error) {
-        console.error("Erro ao excluir entrada do histórico:", error);
-        alert("Erro ao excluir entrada do histórico.");
     }
 }
 
@@ -518,7 +473,6 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
       "Despacho",
       "Teor Despacho",
       "Link",
-      "Ações"
     ];
     headers.forEach(text => {
       const th = document.createElement("th");
@@ -562,7 +516,6 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         tr.appendChild(tdTeorMov);
         
         
-  
         // Coluna: Despacho
         const tdDespacho = document.createElement("td");
         tdDespacho.textContent = item.ultimo_despacho || "-";
@@ -580,8 +533,6 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         });
         teorDespachoCell.appendChild(teorDespachoLink);
         tr.appendChild(teorDespachoCell);
-             
-        
   
         // Coluna: Link
         const tdLink = document.createElement("td");
@@ -595,19 +546,6 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
           tdLink.textContent = "-";
         }
         tr.appendChild(tdLink);
-  
-        // Coluna: Ações (botão excluir)
-        const tdAcoes = document.createElement("td");
-        const btnExcluir = document.createElement("button");
-        btnExcluir.textContent = "Excluir";
-        btnExcluir.classList.add("btn-excluir-historico");
-        btnExcluir.addEventListener("click", function() {
-          if (confirm("Tem certeza que quer excluir esta entrada do histórico?")) {
-            excluirHistorico(processo.numero, item.data);
-          }
-        });
-        tdAcoes.appendChild(btnExcluir);
-        tr.appendChild(tdAcoes);
   
         tbody.appendChild(tr);
 

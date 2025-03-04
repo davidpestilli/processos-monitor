@@ -220,46 +220,6 @@ app.post('/processos/atualizar', async (req, res) => {
     }
 });
 
-  
-// Rota para excluir um processo inteiro
-app.delete('/processos/:numero', async (req, res) => {
-    try {
-        const { numero } = req.params;
-        const result = await db.collection('processos').deleteOne({ numero });
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ error: "Processo não encontrado." });
-        }
-        res.json({ message: "Processo excluído com sucesso." });
-    } catch (error) {
-        console.error("Erro ao excluir processo:", error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Rota para excluir uma entrada do histórico de um processo
-app.delete('/processos/:numero/historico', async (req, res) => {
-    try {
-        const { numero } = req.params;
-        const { data } = req.body;  // espera-se receber a data (em formato ISO) da entrada a ser removida
-
-        if (!data) {
-            return res.status(400).json({ error: "Data da entrada é obrigatória." });
-        }
-
-        const result = await db.collection('processos').updateOne(
-            { numero },
-            { $pull: { historico: { data: new Date(data) } } }
-        );
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ error: "Entrada do histórico não encontrada." });
-        }
-        res.json({ message: "Entrada do histórico excluída com sucesso." });
-    } catch (error) {
-        console.error("Erro ao excluir entrada do histórico:", error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 
 app.post("/processos/excluir-multiplos", async (req, res) => {
     try {
