@@ -98,15 +98,17 @@ router.post('/atualizar', async (req, res) => {
                   link: p.link || null
               };
 
+              // Atualiza ou insere o processo no MongoDB
               await db.collection('processos').findOneAndUpdate(
-                  { numero: p.numero },
-                  {
-                      $set: { status, ultima_pesquisa: new Date() },
-                      $push: { historico: historicoItem },
-                      $setOnInsert: { numero: p.numero }
-                  },
-                  { upsert: true, returnDocument: 'after' }
+                { numero: p.numero },
+                {
+                  $set: { status, ...(p.manual ? { ultima_pesquisa: new Date() } : {}), novo_despacho: p.novo_despacho },
+                  $push: { historico: historicoItem },
+                  $setOnInsert: { numero: p.numero }
+                },
+                { upsert: true, returnDocument: 'after' }
               );
+
 
               console.log(`✅ Nova movimentação adicionada para ${p.numero}`);
           } else {
