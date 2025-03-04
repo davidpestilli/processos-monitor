@@ -176,8 +176,11 @@ app.post('/processos/atualizar', async (req, res) => {
                     status = "Baixa";
                 } else if (teorMov.includes("transito")) {
                     status = "Trânsito";
+                } else if (teorMov.includes("origem")) {  // 🔹 Nova condição para "origem"
+                    status = "Origem";
                 }
             }
+
 
             console.log(`📝 Status calculado para ${p.numero}: ${status}`);
 
