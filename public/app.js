@@ -17,8 +17,9 @@ function carregarProcessosDoBackend() {
     fetch(`${API_URL}?_=${cacheBuster}`, { cache: "no-store" }) // Evita cache
       .then(response => response.json())
       .then(processos => {
+        console.log("✅ Processos recebidos do backend:", processos); // <-- Novo log
         const tabelaBody = document.querySelector("#tabelaProcessos tbody");
-        tabelaBody.innerHTML = "";
+        tabelaBody.innerHTML = ""; // Limpa a tabela antes de atualizar
 
         processos.forEach(processo => {
             const ultimoHistorico =
