@@ -107,7 +107,7 @@ MongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true 
 // Rota para buscar todos os processos
 app.get('/processos', async (req, res) => {
     try {
-        const processos = await db.collection('processos').find({ status: "Em trâmite" }).toArray();
+        const processos = await db.collection('processos').find().toArray(); // Busca TODOS os processos
         res.json(processos);
     } catch (error) {
         console.error("Erro ao buscar processos:", error);
@@ -159,6 +159,7 @@ app.post('/processos/atualizar', async (req, res) => {
             p.ultimo_despacho = normalizeText(p.ultimo_despacho);
             p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
             p.link = normalizeText(p.link);
+            
 
             // Determina o status com base apenas no teor da última movimentação
             let status = "Em trâmite";
