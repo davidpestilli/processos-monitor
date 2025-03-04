@@ -361,6 +361,7 @@ function abrirModalDespacho(item) {
 }
 
 
+
 // Fechar o modal genérico
 document.getElementById("fecharModalGenerico").addEventListener("click", function () {
     document.getElementById("modalGenerico").style.display = "none";
@@ -441,16 +442,17 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorDespachoLink = document.createElement("a");
         teorDespachoLink.href = "#";
         teorDespachoLink.classList.add("teor-despacho");
-        teorDespachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+        teorDespachoLink.textContent = item.teor_ultimo_despacho || "N/A";
         teorDespachoLink.addEventListener("click", function (e) {
             e.preventDefault();
             abrirModalTexto(
                 teorDespachoLink.textContent,
                 "Teor do Último Despacho",
-                ultimoHistorico.link || null  // 🔹 Agora passa o link correto
+                item.link || null  // 🔹 Agora passa o link correto
             );
         });
         teorDespachoCell.appendChild(teorDespachoLink);
+        tr.appendChild(teorDespachoCell);
         
         
   
