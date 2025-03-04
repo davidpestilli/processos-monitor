@@ -61,26 +61,28 @@ export function createProcessosRouter(db) {
 
             // Obtém o processo existente no banco de dados
             const processoExistente = await db.collection('processos').findOne(
-                { numero: p.numero },
-                { projection: { teor_ultimo_despacho: 1, historico: 1 } }
-            );
-
-            let teorAnterior = "";
-
-            if (processoExistente) {
-                if (processoExistente.teor_ultimo_despacho) {
-                    teorAnterior = normalizeText(processoExistente.teor_ultimo_despacho);
-                } else if (processoExistente.historico && processoExistente.historico.length > 0) {
-                    // Obtém o último teor salvo no histórico
-                    teorAnterior = normalizeText(processoExistente.historico[processoExistente.historico.length - 1].teor_ultimo_despacho || "");
-                }
-            }
-
-            if (teorAnterior) {
-                console.log(`📜 Último despacho encontrado para ${p.numero}: "${teorAnterior}"`);
-            } else {
-                console.log(`⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`);
-            }
+              { numero: p.numero },
+              { projection: { teor_ultimo_despacho: 1, historico: 1 } }
+          );
+          
+          // Garante que o último despacho seja corretamente identificado
+          let teorAnterior = "";
+          if (processoExistente) {
+              if (processoExistente.teor_ultimo_despacho) {
+                  teorAnterior = normalizeText(processoExistente.teor_ultimo_despacho);
+              } else if (processoExistente.historico && processoExistente.historico.length > 0) {
+                  // Ordena o histórico por data e pega o mais recente
+                  const historicoOrdenado = processoExistente.historico.sort((a, b) => new Date(b.data) - new Date(a.data));
+                  teorAnterior = normalizeText(historicoOrdenado[0].teor_ultimo_despacho || "");
+              }
+          }
+          
+          if (teorAnterior) {
+              console.log(`📜 Último despacho encontrado para ${p.numero}: "${teorAnterior}"`);
+          } else {
+              console.log(`⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`);
+          }
+          
 
             let novoDespachoStatus = "Não"; // Valor padrão
 
