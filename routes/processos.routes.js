@@ -35,70 +35,91 @@ export function createProcessosRouter(db) {
     }
   });
 
-  // POST /processos/atualizar - Atualiza ou insere processos
-  router.post('/atualizar', async (req, res) => {
-    console.log("Requisição em /processos/atualizar");
-    try {
+
+// POST /processos/atualizar - Atualiza ou insere processos
+router.post('/atualizar', async (req, res) => {
+  console.log("Requisição em /processos/atualizar");
+  try {
       let { processos } = req.body;
       if (!Array.isArray(processos)) {
-        processos = [processos];
+          processos = [processos];
       }
+
       for (const p of processos) {
-        if (!p.numero) {
-          console.error("Número do processo não informado.");
-          return res.status(400).json({ error: "Número do processo é obrigatório." });
-        }
-
-        // Normaliza os campos
-        p.numero = normalizeNumero(p.numero);
-        p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
-        p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
-        p.ultimo_despacho = normalizeText(p.ultimo_despacho);
-        p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
-        p.link = normalizeText(p.link);
-
-        // Determina o status com base no teor da última movimentação
-        let status = "Em trâmite";
-        if (p.teor_ultima_movimentacao) {
-          const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
-          if (teorMov.includes("decurso")) {
-            status = "Decurso";
-          } else if (teorMov.includes("baixa")) {
-            status = "Baixa";
-          } else if (teorMov.includes("transito")) {
-            status = "Trânsito";
-          } else if (teorMov.includes("origem")) {
-            status = "Origem";
+          if (!p.numero) {
+              console.error("Número do processo não informado.");
+              return res.status(400).json({ error: "Número do processo é obrigatório." });
           }
-        }
 
-        // Cria um item para o histórico
-        const historicoItem = {
-          data: new Date(),
-          ultima_movimentacao: p.ultima_movimentacao || null,
-          teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-          ultimo_despacho: p.ultimo_despacho || null,
-          teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-          link: p.link || null
-        };
+          // Normaliza os campos
+          p.numero = normalizeNumero(p.numero);
+          p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
+          p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
+          p.ultimo_despacho = normalizeText(p.ultimo_despacho);
+          p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
+          p.link = normalizeText(p.link);
 
-        // Atualiza ou insere o processo no MongoDB
-        await db.collection('processos').findOneAndUpdate(
-          { numero: p.numero },
-          {
-            $set: { status, ultima_pesquisa: new Date() },
-            $push: { historico: historicoItem },
-            $setOnInsert: { numero: p.numero }
-          },
-          { upsert: true, returnDocument: 'after' }
-        );
+          // Determina o status com base no teor da última movimentação
+          let status = "Em trâmite";
+          if (p.teor_ultima_movimentacao) {
+              const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
+              if (teorMov.includes("decurso")) {
+                  status = "Decurso";
+              } else if (teorMov.includes("baixa")) {
+                  status = "Baixa";
+              } else if (teorMov.includes("transito")) {
+                  status = "Trânsito";
+              } else if (teorMov.includes("origem")) {
+                  status = "Origem";
+              }
+          }
+
+          // Buscar o processo existente para comparar com a última movimentação salva
+          const processoExistente = await db.collection('processos').findOne({ numero: p.numero });
+
+          let ultimaMovimentacaoSalva = null;
+          let teorUltimaMovimentacaoSalva = null;
+
+          if (processoExistente && processoExistente.historico && processoExistente.historico.length > 0) {
+              const ultimoHistorico = processoExistente.historico[processoExistente.historico.length - 1];
+              ultimaMovimentacaoSalva = ultimoHistorico.ultima_movimentacao;
+              teorUltimaMovimentacaoSalva = ultimoHistorico.teor_ultima_movimentacao;
+          }
+
+          // Somente adiciona a pesquisa ao histórico se for diferente da última salva
+          if (p.ultima_movimentacao !== ultimaMovimentacaoSalva || p.teor_ultima_movimentacao !== teorUltimaMovimentacaoSalva) {
+              const historicoItem = {
+                  data: new Date(),
+                  ultima_movimentacao: p.ultima_movimentacao || null,
+                  teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+                  ultimo_despacho: p.ultimo_despacho || null,
+                  teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+                  link: p.link || null
+              };
+
+              await db.collection('processos').findOneAndUpdate(
+                  { numero: p.numero },
+                  {
+                      $set: { status, ultima_pesquisa: new Date() },
+                      $push: { historico: historicoItem },
+                      $setOnInsert: { numero: p.numero }
+                  },
+                  { upsert: true, returnDocument: 'after' }
+              );
+
+              console.log(`✅ Nova movimentação adicionada para ${p.numero}`);
+          } else {
+              console.log(`🔍 Processo ${p.numero} já possui essa movimentação. Nenhuma nova entrada adicionada.`);
+          }
       }
+
       res.json({ message: "Processos atualizados com sucesso" });
-    } catch (error) {
+  } catch (error) {
       console.error("Erro ao atualizar processos:", error);
       res.status(500).json({ error: error.message });
-    }
-  });
+  }
+});
+
 
   // POST /processos/excluir-multiplos - Exclui vários processos
   router.post("/excluir-multiplos", async (req, res) => {
