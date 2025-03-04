@@ -263,6 +263,39 @@ app.post('/processos/atualizar', async (req, res) => {
     }
   });
 
+  // Rota para alterar status de processos que já estão na planilha
+  app.post('/processos/reavaliar', async (req, res) => {
+    try {
+        const processos = await db.collection('processos').find().toArray();
+        
+        for (const p of processos) {
+            if (p.ultima_movimentacao) {
+                const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
+                let status = "Em trâmite";
+                if (mov.includes("decurso")) {
+                    status = "Decurso";
+                } else if (mov.includes("baixa")) {
+                    status = "Baixa";
+                } else if (mov.includes("transito")) {
+                    status = "Trânsito";
+                }
+
+                console.log(`Atualizando processo ${p.numero} para status: ${status}`);
+
+                await db.collection('processos').updateOne(
+                    { numero: p.numero },
+                    { $set: { status } }
+                );
+            }
+        }
+        res.json({ message: "Todos os processos foram reavaliados." });
+    } catch (error) {
+        console.error("Erro ao reavaliar processos:", error);
+        res.status(500).json({ error: "Erro ao reavaliar processos." });
+    }
+});
+
+
   
 // Rota para excluir um processo inteiro
 app.delete('/processos/:numero', async (req, res) => {
