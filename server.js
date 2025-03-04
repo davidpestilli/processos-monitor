@@ -128,140 +128,90 @@ app.get('/processos/numeros', async (req, res) => {
   });
   
 
+// Função para remover acentos
+function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 // Rota para atualizar ou inserir processos
 app.post('/processos/atualizar', async (req, res) => {
     console.log("📌 Requisição recebida em /processos/atualizar");
     console.log("🔍 Dados recebidos:", JSON.stringify(req.body, null, 2));
+
     try {
-      let { processos } = req.body;
-  
-      // Se o payload não for um array, transforma em array
-      if (!Array.isArray(processos)) {
-        processos = [processos];
-      }
-  
-      // Verifica se cada processo tem o número informado
-      for (const p of processos) {
-        if (!p.numero) {
-          console.error("❌ Erro: Número do processo não informado.");
-          return res.status(400).json({ error: "Número do processo é obrigatório." });
+        let { processos } = req.body;
+
+        // Se o payload não for um array, transforma em array
+        if (!Array.isArray(processos)) {
+            processos = [processos];
         }
-      }
 
-      
-  
-      // Processa cada processo individualmente
-      for (const p of processos) {
-        // Aplica as funções de normalização
-        p.numero = normalizeNumero(p.numero);
-        p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
-        p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
-        p.ultimo_despacho = normalizeText(p.ultimo_despacho);
-        p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
-        p.link = normalizeText(p.link);
+        for (const p of processos) {
+            if (!p.numero) {
+                console.error("❌ Erro: Número do processo não informado.");
+                return res.status(400).json({ error: "Número do processo é obrigatório." });
+            }
 
-        // Determina o valor de novo_despacho conforme a lógica:
-        // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
-        // Determina o valor de novoDespacho conforme sua lógica existente...
-        let novoDespacho;
-        if (p.novo_despacho) {
-        novoDespacho = p.novo_despacho;
-        } else {
-        if (p.teor_ultimo_despacho && p.teor_ultimo_despacho.trim() !== "") {
-            // Busca o processo existente no banco
-            const processoExistente = await db.collection('processos').findOne({ numero: p.numero });
-            if (!processoExistente || !processoExistente.historico || processoExistente.historico.length === 0) {
-            novoDespacho = "Sim";
-            } else {
-            let lastDespacho = "";
-            for (let i = processoExistente.historico.length - 1; i >= 0; i--) {
-                if (
-                processoExistente.historico[i].teor_ultimo_despacho &&
-                processoExistente.historico[i].teor_ultimo_despacho.trim() !== ""
-                ) {
-                lastDespacho = processoExistente.historico[i].teor_ultimo_despacho;
-                break;
+            // Aplica normalização aos campos relevantes
+            p.numero = normalizeNumero(p.numero);
+            p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
+            p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
+            p.ultimo_despacho = normalizeText(p.ultimo_despacho);
+            p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
+            p.link = normalizeText(p.link);
+
+            // Determina o status com base apenas no teor da última movimentação
+            let status = "Em trâmite";
+
+            if (p.teor_ultima_movimentacao) {
+                const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
+
+                if (teorMov.includes("decurso")) {
+                    status = "Decurso";
+                } else if (teorMov.includes("baixa")) {
+                    status = "Baixa";
+                } else if (teorMov.includes("transito")) {
+                    status = "Trânsito";
                 }
             }
-            if (lastDespacho === "") {
-                novoDespacho = "Sim";
-            } else {
-                const diffPercent = computeDifferencePercentage(lastDespacho, p.teor_ultimo_despacho);
-                novoDespacho = diffPercent >= 5 ? "Sim" : "Não";
-            }
-            }
-        } else {
-            novoDespacho = "Não";
-        }
-        }
 
-        // Verifica se o processo é manualmente inserido (campo manual: true)
-        const insercaoManual = p.manual === true;
+            console.log(`📝 Status calculado para ${p.numero}: ${status}`);
 
-        // Verifica se há dados relevantes para registrar no histórico
-        const temDadosHistorico = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho || p.link;
+            // Criar o objeto do histórico
+            const historicoItem = {
+                data: new Date(),
+                ultima_movimentacao: p.ultima_movimentacao || null,
+                teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+                ultimo_despacho: p.ultimo_despacho || null,
+                teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+                link: p.link || null
+            };
 
-        if (!insercaoManual && !temDadosHistorico) {
-        console.log(`Pesquisa fantasma para o processo ${p.numero} descartada.`);
-        continue; // Pula para o próximo processo, sem atualizar nada
-        }
+            console.log(`📝 Tentando salvar/atualizar o processo ${p.numero} no MongoDB...`);
 
-        // Caso seja manual ou haja dados relevantes, registra o processo
-        const historicoItem = {
-        data: new Date(),
-        ultima_movimentacao: p.ultima_movimentacao || null,
-        teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-        ultimo_despacho: p.ultimo_despacho || null,
-        teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-        link: p.link || null
-        };
-
-
-        console.log(`📝 Tentando salvar/atualizar o processo ${p.numero} no MongoDB...`);
-
-        // **Usa findOneAndUpdate para inserir ou atualizar o processo**
-        const result = await db.collection('processos').findOneAndUpdate(
-            { numero: p.numero }, // Encontrar pelo número do processo
-            {
-                $set: {
-                    status,
-                    ultima_pesquisa: new Date()
+            // Usa findOneAndUpdate para inserir ou atualizar o processo
+            const result = await db.collection('processos').findOneAndUpdate(
+                { numero: p.numero }, // Encontrar pelo número do processo
+                {
+                    $set: {
+                        status,
+                        ultima_pesquisa: new Date()
+                    },
+                    $push: { historico: historicoItem }, // Adiciona ao histórico
+                    $setOnInsert: { numero: p.numero } // Apenas na primeira inserção
                 },
-                $push: { historico: historicoItem }, // Adiciona ao histórico
-                $setOnInsert: { numero: p.numero } // Apenas na primeira inserção
-            },
-            { upsert: true, returnDocument: 'after' } // Se não existir, cria
-        );
+                { upsert: true, returnDocument: 'after' } // Se não existir, cria
+            );
 
-
-
-        function removeAccents(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            console.log(`✅ Processo salvo/atualizado no MongoDB:`, result);
         }
 
-        // Determina o status com base apenas no teor da última movimentação
-        let status = "Em trâmite";
-
-        if (p.teor_ultima_movimentacao) {
-            const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
-
-            if (teorMov.includes("decurso")) {
-                status = "Decurso";
-            } else if (teorMov.includes("baixa")) {
-                status = "Baixa";
-            } else if (teorMov.includes("transito")) {
-                status = "Trânsito";
-            }
-        }
-
-    }
-  
-      res.json({ message: "Processos atualizados com sucesso" });
+        res.json({ message: "Processos atualizados com sucesso" });
     } catch (error) {
-      console.error("❌ Erro ao atualizar processos:", error);
-      res.status(500).json({ error: error.message });
+        console.error("❌ Erro ao atualizar processos:", error);
+        res.status(500).json({ error: error.message });
     }
-  });
+});
 
   
 // Rota para excluir um processo inteiro
