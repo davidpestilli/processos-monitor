@@ -11,7 +11,7 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
   }
 
 
-  function limitarTexto(texto, limite = 80) {
+function limitarTexto(texto, limite = 80) {
     if (!texto || texto.trim() === "-") return "-"; // 🔹 Evita inserir "-" duas vezes
     return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
 }
@@ -57,13 +57,16 @@ function carregarProcessosDoBackend() {
             pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "-";
 
             const movCell = document.createElement("td");
-            movCell.textContent = ultimoHistorico.ultima_movimentacao || "-";
-
+            movCell.textContent = ultimoHistorico.ultima_movimentacao ? ultimoHistorico.ultima_movimentacao : "-";
+            
             const teorMovCell = document.createElement("td");
             const teorMovLink = document.createElement("a");
             teorMovLink.href = "#";
             teorMovLink.classList.add("teor-movimentacao");
-            teorMovLink.textContent = limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80); // Aplica a função de limite
+            
+            const teorMovText = ultimoHistorico.teor_ultima_movimentacao ? limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80) : "-";
+            teorMovLink.textContent = teorMovText;
+            
             teorMovLink.addEventListener("click", function (e) {
                 e.preventDefault();
                 abrirModalTexto(ultimoHistorico.teor_ultima_movimentacao || "-", "Teor da Última Movimentação");
@@ -544,13 +547,17 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorMovLink = document.createElement("a");
         teorMovLink.href = "#";
         teorMovLink.classList.add("teor-movimentacao");
-        teorMovLink.textContent = item.teor_ultima_movimentacao || "-";
+        
+        const teorMovText = item.teor_ultima_movimentacao ? item.teor_ultima_movimentacao : "-";
+        teorMovLink.textContent = teorMovText;
+        
         teorMovLink.addEventListener("click", function (e) {
             e.preventDefault();
-            abrirModalTexto(teorMovLink.textContent, "Teor da Movimentação");
+            abrirModalTexto(item.teor_ultima_movimentacao || "-", "Teor da Movimentação");
         });
         tdTeorMov.appendChild(teorMovLink);
         tr.appendChild(tdTeorMov);
+        
         
   
         // Coluna: Despacho
