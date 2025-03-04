@@ -169,7 +169,7 @@ app.post('/processos/atualizar', async (req, res) => {
         } else if (mov.includes("trânsito")) {
             status = "Trânsito";
         }
-        }
+    }
 
         // Determina o valor de novo_despacho conforme a lógica:
         // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
@@ -228,14 +228,18 @@ app.post('/processos/atualizar', async (req, res) => {
         };
 
         await db.collection('processos').findOneAndUpdate(
-        { numero: p.numero },
-        {
-            $setOnInsert: { numero: p.numero, status: "Em trâmite" },
-            $push: { historico: historicoItem },
-            $set: { ultima_pesquisa: new Date(), novo_despacho: novoDespacho }
-        },
-        { upsert: true }
-        );
+            { numero: p.numero },
+            {
+              $set: {
+                status,                // Atualiza o status SEMPRE
+                ultima_pesquisa: new Date(),
+                novo_despacho: novoDespacho
+              },
+              $push: { historico: historicoItem },
+              $setOnInsert: { numero: p.numero } // Só define o número na primeira inserção
+            },
+            { upsert: true }
+          );          
 
 
       }
