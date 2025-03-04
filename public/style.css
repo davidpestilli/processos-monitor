@@ -105,7 +105,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px; /* Ajuste conforme necessário */
+  max-width: 150px; /* Ajuste conforme necessário */
   }
 
   /* Garante que o texto das células ocupe apenas uma linha e adicione "..." quando necessário */
