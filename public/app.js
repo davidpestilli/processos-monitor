@@ -38,7 +38,8 @@ async function alternarNovoDespacho(processo, botao) {
         });
 
         if (!response.ok) {
-            throw new Error("Erro ao atualizar despacho no backend.");
+            const errorText = await response.text();  // Captura detalhes do erro do servidor
+            throw new Error(`Erro ao atualizar despacho no backend: ${errorText}`);
         }
 
         // Se o backend confirmou a mudança, atualiza o frontend
@@ -48,10 +49,11 @@ async function alternarNovoDespacho(processo, botao) {
         console.log(`✅ Despacho do processo ${processo.numero} atualizado para ${novoValor}`);
 
     } catch (error) {
-        console.error("❌ Erro ao alternar despacho:", error);
-        alert("Erro ao alternar despacho. Tente novamente.");
+        console.error("❌ Erro ao alternar despacho:", error.message);
+        alert(`Erro ao alternar despacho: ${error.message}`);
     }
 }
+
 
 
 // Renderiza os processos na tabela
