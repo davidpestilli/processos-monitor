@@ -544,7 +544,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorMovLink = document.createElement("a");
         teorMovLink.href = "#";
         teorMovLink.classList.add("teor-movimentacao");
-        teorMovLink.textContent = item.teor_ultima_movimentacao || "-";
+        teorMovLink.textContent = teorMovText;
         teorMovLink.addEventListener("click", function (e) {
             e.preventDefault();
             abrirModalTexto(teorMovLink.textContent, "Teor da Movimentação");
@@ -563,7 +563,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorDespachoLink = document.createElement("a");
         teorDespachoLink.href = "#";
         teorDespachoLink.classList.add("teor-despacho");
-        teorDespachoLink.textContent = item.teor_ultimo_despacho || "-";
+        teorDespachoLink.textContent = teorDespachoText;
         teorDespachoLink.addEventListener("click", function (e) {
             e.preventDefault();
             abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
