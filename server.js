@@ -117,15 +117,18 @@ app.get('/processos', async (req, res) => {
 
 app.get('/processos/numeros', async (req, res) => {
     try {
-      const processos = await db
-        .collection('processos')
-        .find({ status: "Em trâmite" }, { projection: { numero: 1, _id: 0 } })
-        .toArray();
-      res.json(processos);
+        const processos = await db
+            .collection('processos')
+            .find({ status: "Em trâmite" }, { projection: { numero: 1, _id: 0 } }) // 🔹 Busca apenas processos "Em trâmite"
+            .toArray();
+
+        res.json(processos);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        console.error("❌ Erro ao buscar processos:", error);
+        res.status(500).json({ error: "Erro ao buscar processos." });
     }
-  });
+});
+
   
 
 // Função para remover acentos
