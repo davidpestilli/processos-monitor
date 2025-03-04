@@ -46,7 +46,7 @@ function carregarProcessosDoBackend() {
             numeroCell.appendChild(numeroLink);
 
             const statusCell = document.createElement("td");
-            statusCell.textContent = processo.status || "N/A";
+            statusCell.textContent = processo.status || "-";
             
             // Aplica cor de fundo verde claro se o status NÃO for "Em trâmite"
             if (processo.status && processo.status.toLowerCase() !== "em trâmite") {
@@ -54,10 +54,10 @@ function carregarProcessosDoBackend() {
             }            
 
             const pesquisaCell = document.createElement("td");
-            pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "N/A";
+            pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "-";
 
             const movCell = document.createElement("td");
-            movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
+            movCell.textContent = ultimoHistorico.ultima_movimentacao || "-";
 
             const teorMovCell = document.createElement("td");
             const teorMovLink = document.createElement("a");
@@ -66,14 +66,14 @@ function carregarProcessosDoBackend() {
             teorMovLink.textContent = limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80); // Aplica a função de limite
             teorMovLink.addEventListener("click", function (e) {
                 e.preventDefault();
-                abrirModalTexto(ultimoHistorico.teor_ultima_movimentacao || "N/A", "Teor da Última Movimentação");
+                abrirModalTexto(ultimoHistorico.teor_ultima_movimentacao || "-", "Teor da Última Movimentação");
             });
             teorMovCell.appendChild(teorMovLink);
             
             
             
             const despachoCell = document.createElement("td");
-            despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
+            despachoCell.textContent = ultimoHistorico.ultimo_despacho || "-";
             
             const teorDespachoCell = document.createElement("td");
             const teorDespachoLink = document.createElement("a");
@@ -83,7 +83,7 @@ function carregarProcessosDoBackend() {
             teorDespachoLink.addEventListener("click", function (e) {
                 e.preventDefault();
                 abrirModalTexto(
-                    ultimoHistorico.teor_ultimo_despacho || "N/A", // Exibe o texto completo no modal
+                    ultimoHistorico.teor_ultimo_despacho || "-", // Exibe o texto completo no modal
                     "Teor do Último Despacho",
                     ultimoHistorico.link || null  // 🔹 Agora passa o link correto!
                 );
@@ -536,7 +536,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
   
         // Coluna: Movimentação
         const tdMov = document.createElement("td");
-        tdMov.textContent = item.ultima_movimentacao || "N/A";
+        tdMov.textContent = item.ultima_movimentacao || "-";
         tr.appendChild(tdMov);
   
         // Coluna: Teor Movimentação
@@ -544,7 +544,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorMovLink = document.createElement("a");
         teorMovLink.href = "#";
         teorMovLink.classList.add("teor-movimentacao");
-        teorMovLink.textContent = item.teor_ultima_movimentacao || "N/A";
+        teorMovLink.textContent = item.teor_ultima_movimentacao || "-";
         teorMovLink.addEventListener("click", function (e) {
             e.preventDefault();
             abrirModalTexto(teorMovLink.textContent, "Teor da Movimentação");
@@ -555,7 +555,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
   
         // Coluna: Despacho
         const tdDespacho = document.createElement("td");
-        tdDespacho.textContent = item.ultimo_despacho || "N/A";
+        tdDespacho.textContent = item.ultimo_despacho || "-";
         tr.appendChild(tdDespacho);
   
         // Coluna: Teor Despacho
@@ -563,7 +563,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         const teorDespachoLink = document.createElement("a");
         teorDespachoLink.href = "#";
         teorDespachoLink.classList.add("teor-despacho");
-        teorDespachoLink.textContent = item.teor_ultimo_despacho || "N/A";
+        teorDespachoLink.textContent = item.teor_ultimo_despacho || "-";
         teorDespachoLink.addEventListener("click", function (e) {
             e.preventDefault();
             abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
@@ -582,7 +582,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
           a.textContent = "Ver";
           tdLink.appendChild(a);
         } else {
-          tdLink.textContent = "N/A";
+          tdLink.textContent = "-";
         }
         tr.appendChild(tdLink);
   
