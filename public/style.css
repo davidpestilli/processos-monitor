@@ -99,6 +99,24 @@
     border: 1px solid #ddd;
     text-align: left;
   }
+
+  /* Para as células de largura fixa com texto em 1 linha */
+  td.fixed {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; /* Ajuste conforme necessário */
+  }
+
+  /* Garante que o texto das células ocupe apenas uma linha e adicione "..." quando necessário */
+  .teor-despacho {
+  white-space: nowrap; /* Mantém o texto em uma única linha */
+  overflow: hidden; /* Esconde o excesso de texto */
+  text-overflow: ellipsis; /* Adiciona "..." ao final se o texto for muito longo */
+  max-width: 250px; /* Define uma largura máxima */
+  display: inline-block; /* Garante que a largura seja aplicada corretamente */
+  }
+
   
   table thead {
     background-color: #0073e6;
@@ -145,13 +163,6 @@
     }
   }
   
-/* Para as células de largura fixa com texto em 1 linha */
-td.fixed {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px; /* Ajuste conforme necessário */
-}
 
 /* Estilos para os modais */
 .modal {

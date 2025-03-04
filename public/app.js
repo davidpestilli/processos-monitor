@@ -10,6 +10,14 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
     return `${day}/${month} ${hours}:${minutes}`;
   }
 
+
+  // Função para limitar o texto a um número fixo de caracteres
+function limitarTexto(texto, limite = 80) {
+    if (!texto) return "N/A";
+    return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
+}
+
+
 // Função para carregar os processos do backend
 function carregarProcessosDoBackend() {
     const cacheBuster = new Date().getTime(); // Garante que o navegador sempre carregue dados novos
@@ -50,31 +58,33 @@ function carregarProcessosDoBackend() {
             const teorMovLink = document.createElement("a");
             teorMovLink.href = "#";
             teorMovLink.classList.add("teor-movimentacao");
-            teorMovLink.textContent = ultimoHistorico.teor_ultima_movimentacao || "N/A";
+            teorMovLink.textContent = limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80); // Aplica a função de limite
             teorMovLink.addEventListener("click", function (e) {
                 e.preventDefault();
-                abrirModalTexto(teorMovLink.textContent, "Teor da Última Movimentação");
+                abrirModalTexto(ultimoHistorico.teor_ultima_movimentacao || "N/A", "Teor da Última Movimentação");
             });
             teorMovCell.appendChild(teorMovLink);
             
             
+            
             const despachoCell = document.createElement("td");
             despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
-
+            
             const teorDespachoCell = document.createElement("td");
             const teorDespachoLink = document.createElement("a");
             teorDespachoLink.href = "#";
             teorDespachoLink.classList.add("teor-despacho");
-            teorDespachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
+            teorDespachoLink.textContent = limitarTexto(ultimoHistorico.teor_ultimo_despacho, 80); // Limita a 80 caracteres
             teorDespachoLink.addEventListener("click", function (e) {
                 e.preventDefault();
                 abrirModalTexto(
-                    teorDespachoLink.textContent,
+                    ultimoHistorico.teor_ultimo_despacho || "N/A", // Exibe o texto completo no modal
                     "Teor do Último Despacho",
                     ultimoHistorico.link || null  // 🔹 Agora passa o link correto!
                 );
             });
             teorDespachoCell.appendChild(teorDespachoLink);
+            
               
 
             const novoDespachoCell = document.createElement("td");
