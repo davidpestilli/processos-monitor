@@ -188,7 +188,7 @@ table tbody tr:nth-child(even) {
   border-radius: 8px;
   width: 90%;
   max-width: 800px; /* Define um tamanho máximo para a largura */
-  max-height: 60vh; /* Define um tamanho máximo para a altura */
+  max-height: 80vh; /* Define um tamanho máximo para a altura */
   overflow-y: auto; /* Adiciona rolagem vertical quando necessário */
 }
 
