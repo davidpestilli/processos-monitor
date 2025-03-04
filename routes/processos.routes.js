@@ -62,7 +62,7 @@ export function createProcessosRouter(db) {
             // Obtém o processo existente no banco de dados
             const processoExistente = await db.collection('processos').findOne(
               { numero: p.numero },
-              { projection: { teor_ultimo_despacho: 1, historico: 1 } }
+              { projection: { teor_ultimo_despacho: 1, historico: 1, novo_despacho: 1 } }
           );
           
           // Garante que o último despacho seja corretamente identificado
@@ -71,7 +71,6 @@ export function createProcessosRouter(db) {
               if (processoExistente.teor_ultimo_despacho) {
                   teorAnterior = normalizeText(processoExistente.teor_ultimo_despacho);
               } else if (processoExistente.historico && processoExistente.historico.length > 0) {
-                  // Ordena o histórico por data e pega o mais recente
                   const historicoOrdenado = processoExistente.historico.sort((a, b) => new Date(b.data) - new Date(a.data));
                   teorAnterior = normalizeText(historicoOrdenado[0].teor_ultimo_despacho || "");
               }
@@ -83,34 +82,30 @@ export function createProcessosRouter(db) {
               console.log(`⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`);
           }
           
-
-            let novoDespachoStatus = "Não"; // Valor padrão
-
-            if (teorAnterior) {
-              const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
-
-              let diferenca = 0; // Inicializa a variável antes de usá-la
-
-              if (teorNovo) {
-                  diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
-              
-                  console.log(`🔍 Comparando despachos para ${p.numero}`);
-                  console.log(`📝 Anterior: "${teorAnterior}"`);
-                  console.log(`🆕 Novo: "${teorNovo}"`);
-                  console.log(`📊 Diferença: ${diferenca}%`);
-              
-                  const estadoAnterior = processoExistente.novo_despacho || "Não"; // Se não estiver definido, assume "Não"
-
-                  if (diferenca >= 5 && estadoAnterior === "Não") {
-                      novoDespachoStatus = "Sim";
-                      console.log(`✅ Diferença >= 5% e estava "Não". Atualizando novo_despacho para "Sim"`);
-                  } else {
-                      console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
-                  }
-                  
-                
-              }
-              
+          // Define o estado anterior do botão
+          const estadoAnterior = processoExistente ? (processoExistente.novo_despacho || "Não") : "Não";
+          
+          let novoDespachoStatus = estadoAnterior; // Mantém o estado salvo no banco por padrão
+          
+          // Se há um novo teor de despacho, calcula a diferença
+          const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
+          let diferenca = 0; // Inicializa a variável
+          
+          if (teorNovo) {
+              diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
+          
+              console.log(`🔍 Comparando despachos para ${p.numero}`);
+              console.log(`📝 Anterior: "${teorAnterior}"`);
+              console.log(`🆕 Novo: "${teorNovo}"`);
+              console.log(`📊 Diferença: ${diferenca}%`);
+          
+              // Se a diferença for maior que 5% e o estado anterior era "Não", muda para "Sim"
+              if (diferenca >= 5 && estadoAnterior === "Não") {
+                  novoDespachoStatus = "Sim";
+                  console.log(`✅ Diferença >= 5% e estava "Não". Atualizando novo_despacho para "Sim"`);
+              } else {
+                  console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
+              }  
             
             }
 
