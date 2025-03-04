@@ -87,8 +87,13 @@ export function createProcessosRouter(db) {
             let novoDespachoStatus = "Não"; // Valor padrão
 
             if (teorAnterior) {
-                const teorNovo = normalizeText(p.teor_ultimo_despacho);
+              const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
+
+              if (!teorNovo) {
+                console.log(`⚠️ O novo despacho recebido está vazio ou indefinido para ${p.numero}. Mantendo novo_despacho como "Não".`);
+            } else {
                 const diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
+            }
 
                 console.log(`🔍 Comparando despachos para ${p.numero}`);
                 console.log(`📝 Anterior: "${teorAnterior}"`);
