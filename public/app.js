@@ -11,11 +11,11 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
   }
 
 
-  // Função para limitar o texto a um número fixo de caracteres
-function limitarTexto(texto, limite = 80) {
-    if (!texto) return "-";
+  function limitarTexto(texto, limite = 80) {
+    if (!texto || texto.trim() === "-") return "-"; // 🔹 Evita inserir "-" duas vezes
     return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
 }
+
 
 
 // Função para carregar os processos do backend
