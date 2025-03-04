@@ -129,7 +129,6 @@ function carregarProcessosDoBackend() {
             row.appendChild(despachoCell);
             row.appendChild(teorDespachoCell);
             row.appendChild(novoDespachoCell);
-            row.appendChild(acoesCell);
             row.appendChild(checkboxCell);
 
 
