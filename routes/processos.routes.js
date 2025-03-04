@@ -83,11 +83,18 @@ router.post('/atualizar', async (req, res) => {
         link: p.link || null
       };
 
+      // Constrói os campos a serem atualizados
+      const updateFields = { status, ultima_pesquisa: new Date() };
+      // Se a requisição enviar o campo novo_despacho, usamos ele
+      if (p.novo_despacho) {
+        updateFields.novo_despacho = p.novo_despacho;
+      }
+
       // Atualiza ou insere o processo no MongoDB
       await db.collection('processos').findOneAndUpdate(
         { numero: p.numero },
         {
-          $set: { status, ultima_pesquisa: new Date(), novo_despacho: p.novo_despacho },
+          $set: updateFields,
           $push: { historico: historicoItem },
           $setOnInsert: { numero: p.numero }
         },
@@ -100,6 +107,7 @@ router.post('/atualizar', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
