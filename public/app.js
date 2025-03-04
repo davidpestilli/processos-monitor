@@ -68,9 +68,14 @@ function carregarProcessosDoBackend() {
             teorDespachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
             teorDespachoLink.addEventListener("click", function (e) {
                 e.preventDefault();
-                abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
+                abrirModalTexto(
+                    teorDespachoLink.textContent,
+                    "Teor do Último Despacho",
+                    ultimoHistorico.link || null  // 🔹 Agora passa o link correto!
+                );
             });
             teorDespachoCell.appendChild(teorDespachoLink);
+            
             
             
 
@@ -445,15 +450,11 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         teorDespachoLink.textContent = item.teor_ultimo_despacho || "N/A";
         teorDespachoLink.addEventListener("click", function (e) {
             e.preventDefault();
-            abrirModalTexto(
-                teorDespachoLink.textContent,
-                "Teor do Último Despacho",
-                item.link || null  // 🔹 Agora passa o link correto
-            );
+            abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
         });
         teorDespachoCell.appendChild(teorDespachoLink);
         tr.appendChild(teorDespachoCell);
-        
+             
         
   
         // Coluna: Link
