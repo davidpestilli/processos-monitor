@@ -75,9 +75,7 @@ function carregarProcessosDoBackend() {
                 );
             });
             teorDespachoCell.appendChild(teorDespachoLink);
-            
-            
-            
+              
 
             const novoDespachoCell = document.createElement("td");
             const btnNovoDespacho = document.createElement("button");
@@ -104,6 +102,14 @@ function carregarProcessosDoBackend() {
             });
             acoesCell.appendChild(btnExcluir);
 
+            const checkboxCell = document.createElement("td");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("processo-checkbox");
+            checkbox.dataset.numero = processo.numero;  // Armazena o número do processo
+            checkboxCell.appendChild(checkbox);
+
+
             row.appendChild(numeroCell);
             row.appendChild(statusCell);
             row.appendChild(pesquisaCell);
@@ -113,6 +119,8 @@ function carregarProcessosDoBackend() {
             row.appendChild(teorDespachoCell);
             row.appendChild(novoDespachoCell);
             row.appendChild(acoesCell);
+            row.appendChild(checkboxCell);
+
 
             tabelaBody.appendChild(row);
         });
@@ -252,6 +260,76 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error("Erro ao adicionar o processo.");
                 }
         
+                document.addEventListener("DOMContentLoaded", function () {
+                    // 🔹 Adiciona evento para excluir múltiplos processos
+                    document.getElementById("btnExcluirSelecionados").addEventListener("click", async function () {
+                        const checkboxes = document.querySelectorAll(".processo-checkbox:checked");
+                        if (checkboxes.length === 0) {
+                            alert("Nenhum processo selecionado.");
+                            return;
+                        }
+                
+                        if (!confirm("Tem certeza que deseja excluir os processos selecionados?")) {
+                            return;
+                        }
+                
+                        const numerosParaExcluir = Array.from(checkboxes).map(cb => cb.dataset.numero);
+                
+                        try {
+                            const response = await fetch(`${API_URL}/excluir-multiplos`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ numeros: numerosParaExcluir })
+                            });
+                
+                            if (!response.ok) throw new Error("Erro ao excluir processos.");
+                
+                            alert("Processos excluídos com sucesso!");
+                            carregarProcessosDoBackend(); // Atualiza a tabela
+                        } catch (error) {
+                            console.error("Erro ao excluir processos:", error);
+                        }
+                    });
+                
+
+                    // 🔹 Adiciona evento para excluir múltiplas entradas do histórico
+                    document.getElementById("btnExcluirHistoricoSelecionado").addEventListener("click", async function () {
+                        const checkboxes = document.querySelectorAll(".historico-checkbox:checked");
+                        if (checkboxes.length === 0) {
+                            alert("Nenhuma entrada selecionada.");
+                            return;
+                        }
+                
+                        if (!confirm("Tem certeza que deseja excluir as entradas selecionadas?")) {
+                            return;
+                        }
+                
+                        const dadosParaExcluir = Array.from(checkboxes).map(cb => ({
+                            numero: cb.dataset.numero,
+                            data: cb.dataset.data
+                        }));
+                
+                        try {
+                            const response = await fetch(`${API_URL}/excluir-historico-multiplos`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ entradas: dadosParaExcluir })
+                            });
+                
+                            if (!response.ok) throw new Error("Erro ao excluir entradas.");
+                
+                            alert("Entradas excluídas com sucesso!");
+                            carregarProcessosDoBackend(); // Atualiza a tabela
+                        } catch (error) {
+                            console.error("Erro ao excluir histórico:", error);
+                        }
+                    });
+                    
+                
+                    // 🔹 Depois de configurar os botões, carregamos os processos do backend
+                    carregarProcessosDoBackend();
+                });
+
                 alert("Processo adicionado com sucesso!");
         
                 // Recarregar a lista de processos após adicionar um novo
@@ -484,6 +562,17 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         tr.appendChild(tdAcoes);
   
         tbody.appendChild(tr);
+
+        const tdCheckbox = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("historico-checkbox");
+        checkbox.dataset.numero = processo.numero;
+        checkbox.dataset.data = item.data;
+        tdCheckbox.appendChild(checkbox);
+        tr.appendChild(tdCheckbox);
+
+
       });
     } else {
       const tr = document.createElement("tr");

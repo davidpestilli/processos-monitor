@@ -32,6 +32,7 @@
     <table id="tabelaProcessos">
       <thead>
         <tr>
+          <th><input type="checkbox" id="selecionarTodosProcessos"></th>
           <th>Número do Processo</th>
           <th>Status</th>
           <th>Última Pesquisa</th>
@@ -47,6 +48,8 @@
         <!-- Os processos serão inseridos dinamicamente pelo app.js -->
       </tbody>
     </table>
+    <!-- 🔹 Botão de exclusão múltipla logo abaixo da tabela -->
+    <button id="btnExcluirSelecionados" class="btn-excluir-multiplo">Excluir Selecionados</button>  
   </section>
 
   <script type="module" src="app.js"></script>
@@ -65,6 +68,8 @@
   <div class="modal-content">
     <span id="fecharHistorico" class="close">&times;</span>
     <div id="modalConteudoHistorico"></div>
+    <!-- 🔹 Botão de exclusão múltipla dentro do modal histórico -->
+    <button id="btnExcluirHistoricoSelecionado" class="btn-excluir-multiplo">Excluir Selecionados</button>
   </div>
 </div>
 
@@ -77,9 +82,6 @@
       <a id="modalLinkGenerico" href="#" target="_blank" style="display: none;">Ver decisão no STF</a>
   </div>
 </div>
-
-
-
 </body>
 </html>
 

@@ -260,3 +260,12 @@ td.fixed {
 .teor-despacho:hover {
   color: #005bb5; /* Azul mais escuro ao passar o mouse */
 }
+
+.btn-excluir-multiplo {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}

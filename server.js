@@ -258,6 +258,43 @@ app.delete('/processos/:numero/historico', async (req, res) => {
 });
 
 
+app.post("/processos/excluir-multiplos", async (req, res) => {
+    try {
+        const { numeros } = req.body;
+        if (!numeros || !Array.isArray(numeros)) {
+            return res.status(400).json({ error: "Lista de números inválida." });
+        }
+
+        const result = await db.collection("processos").deleteMany({ numero: { $in: numeros } });
+        res.json({ message: "Processos excluídos com sucesso.", deletados: result.deletedCount });
+    } catch (error) {
+        console.error("Erro ao excluir múltiplos processos:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post("/processos/excluir-historico-multiplos", async (req, res) => {
+    try {
+        const { entradas } = req.body;
+        if (!entradas || !Array.isArray(entradas)) {
+            return res.status(400).json({ error: "Lista de entradas inválida." });
+        }
+
+        const result = await Promise.all(
+            entradas.map(async ({ numero, data }) => {
+                return db.collection("processos").updateOne(
+                    { numero },
+                    { $pull: { historico: { data: new Date(data) } } }
+                );
+            })
+        );
+
+        res.json({ message: "Entradas do histórico excluídas com sucesso.", modificadas: result.length });
+    } catch (error) {
+        console.error("Erro ao excluir múltiplas entradas do histórico:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
