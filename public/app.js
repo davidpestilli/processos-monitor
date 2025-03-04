@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 🔹 Adicionar evento para exclusão múltipla de processos
+    // 🔹 Adicionar evento para exclusão múltipla de processos na tabela principal
     const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
 
     if (btnExcluirSelecionados) {
@@ -316,10 +316,57 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("❌ Erro: Botão 'Excluir Selecionados' não encontrado no DOM.");
     }
 
+    // 🔹 Adicionar evento para exclusão múltipla no modal histórico
+    const btnExcluirHistoricoSelecionado = document.getElementById("btnExcluirHistoricoSelecionado");
+
+    if (btnExcluirHistoricoSelecionado) {
+        btnExcluirHistoricoSelecionado.addEventListener("click", async function () {
+            console.log("🔍 Botão de exclusão múltipla do histórico clicado.");
+
+            // Capturar checkboxes marcados no modal do histórico
+            const checkboxes = document.querySelectorAll(".historico-checkbox:checked");
+
+            if (checkboxes.length === 0) {
+                alert("Nenhuma entrada do histórico selecionada.");
+                return;
+            }
+
+            if (!confirm(`Tem certeza que deseja excluir ${checkboxes.length} entradas selecionadas do histórico?`)) {
+                return;
+            }
+
+            // Criar array de objetos contendo os números dos processos e as datas das entradas
+            const dadosParaExcluir = Array.from(checkboxes).map(cb => ({
+                numero: cb.dataset.numero,
+                data: cb.dataset.data
+            }));
+
+            console.log("📌 Entradas do histórico a excluir:", dadosParaExcluir);
+
+            try {
+                const response = await fetch("/processos/excluir-historico-multiplos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ entradas: dadosParaExcluir })
+                });
+
+                if (!response.ok) throw new Error("Erro ao excluir entradas do histórico.");
+
+                alert("Entradas do histórico excluídas com sucesso!");
+                carregarProcessosDoBackend(); // Atualiza a tabela principal
+                fecharModalHistorico(); // Fecha o modal após exclusão
+            } catch (error) {
+                console.error("❌ Erro ao excluir histórico:", error);
+                alert("Erro ao excluir histórico. Verifique o console para mais detalhes.");
+            }
+        });
+    } else {
+        console.error("❌ Erro: Botão 'Excluir Selecionados' do modal histórico não encontrado no DOM.");
+    }
+
     // 🔹 Depois de configurar os eventos, carregamos os processos do backend
     carregarProcessosDoBackend();
 });
-
 
 
 function processarCSV() {
