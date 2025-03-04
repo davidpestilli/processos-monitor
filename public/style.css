@@ -245,3 +245,18 @@ td.fixed {
 .icon-cross {
   margin-right: 4px;
 }
+
+/* Estiliza os links dentro da tabela para parecerem interativos */
+.numeroLink,
+.teor-movimentacao,
+.teor-despacho {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #0073e6; /* Azul para indicar que é clicável */
+}
+
+.numeroLink:hover,
+.teor-movimentacao:hover,
+.teor-despacho:hover {
+  color: #005bb5; /* Azul mais escuro ao passar o mouse */
+}
