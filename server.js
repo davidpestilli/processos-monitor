@@ -218,7 +218,6 @@ app.post('/processos/atualizar', async (req, res) => {
         // Determina o status com base na última movimentação
         let status = "Em trâmite";
         if (p.ultima_movimentacao) {
-            const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
             if (mov.includes("decurso")) {
                 status = "Decurso";
             } else if (mov.includes("baixa")) {
