@@ -1,7 +1,7 @@
 // routes/processos.routes.js
 
 import express from 'express';
-import { normalizeNumero, normalizeText, removeAccents } from '../utils.js';
+import { normalizeNumero, normalizeText, removeAccents } from '../public/utils.js';
 
 /**
  * Cria e retorna um router para as rotas de processos.
