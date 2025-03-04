@@ -2,6 +2,7 @@
 import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, excluirHistorico, uploadCSV } from "./api.js";
 import { createProcessRow, openModalHistorico, openModalTexto, closeModal } from "./dom.js";
 
+const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 
 // Seleciona elementos do DOM
@@ -53,7 +54,6 @@ async function alternarNovoDespacho(processo, botao) {
         alert(`Erro ao alternar despacho: ${error.message}`);
     }
 }
-
 
 
 // Renderiza os processos na tabela
