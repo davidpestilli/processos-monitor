@@ -93,7 +93,6 @@ export function createProcessosRouter(db) {
                 console.log(`⚠️ O novo despacho recebido está vazio ou indefinido para ${p.numero}. Mantendo novo_despacho como "Não".`);
             } else {
                 const diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
-            }
 
                 console.log(`🔍 Comparando despachos para ${p.numero}`);
                 console.log(`📝 Anterior: "${teorAnterior}"`);
@@ -106,6 +105,7 @@ export function createProcessosRouter(db) {
                 } else {
                     console.log(`❌ Diferença < 5%. Mantendo novo_despacho como "Não"`);
                 }
+              }
             }
 
             // Determina o status com base no teor da última movimentação
