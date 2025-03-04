@@ -90,6 +90,7 @@ export function createProcessRow(processo) {
     btnNovoDespacho.innerHTML = `<span class="icon-cross">✖</span> Não`;
     btnNovoDespacho.className = "btn-nao";
   }
+  btnNovoDespacho.dataset.teorDespacho = ultimoHistorico.teor_ultimo_despacho || "";
   novoDespachoCell.appendChild(btnNovoDespacho);
   row.appendChild(novoDespachoCell);
 

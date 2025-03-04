@@ -13,36 +13,62 @@ const inputCSV = document.querySelector("#inputCSV");
 
 // Renderiza os processos na tabela
 async function renderProcessos() {
-  try {
-    const processos = await fetchProcessos();
-    tabelaBody.innerHTML = "";
-    processos.forEach(processo => {
-      const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
-
-      // Evento para abrir o modal de histórico
-      numeroLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        openModalHistorico(processo);
+    try {
+      const processos = await fetchProcessos();
+      tabelaBody.innerHTML = "";
+      processos.forEach(processo => {
+        const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
+  
+        // Evento para abrir o modal de histórico
+        numeroLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          openModalHistorico(processo);
+        });
+  
+        // Evento para o botão "Novo Despacho" com a lógica de diferença
+        btnNovoDespacho.addEventListener("click", async () => {
+          // Se o status atual for "Não", peça o novo teor
+          if (btnNovoDespacho.textContent.includes("Não")) {
+            const novoTeor = prompt("Insira o novo teor do despacho:");
+            if (!novoTeor) return; // Se o usuário cancelar, não faz nada
+  
+            // Recupera o teor atual armazenado no botão
+            const teorAtual = btnNovoDespacho.dataset.teorDespacho;
+            const diffPercent = computeDifferencePercentage(teorAtual, novoTeor);
+  
+            if (diffPercent >= 5) {
+              const novoValor = "Sim";
+              try {
+                await updateNovoDespacho(processo.numero, novoValor);
+                btnNovoDespacho.textContent = "✔ Sim";
+                btnNovoDespacho.className = "btn-sim";
+                // Atualiza o data attribute com o novo teor
+                btnNovoDespacho.dataset.teorDespacho = novoTeor;
+              } catch (error) {
+                console.error("Erro ao atualizar despacho:", error);
+              }
+            } else {
+              alert("A diferença entre o novo teor e o atual não é de pelo menos 5%.");
+            }
+          } else {
+            // Se o status já for "Sim", permite voltar para "Não" sem comparação
+            const novoValor = "Não";
+            try {
+              await updateNovoDespacho(processo.numero, novoValor);
+              btnNovoDespacho.textContent = "❌ Não";
+              btnNovoDespacho.className = "btn-nao";
+            } catch (error) {
+              console.error("Erro ao atualizar despacho:", error);
+            }
+          }
+        });
+  
+        tabelaBody.appendChild(row);
       });
-
-      // Evento para alternar o "Novo Despacho"
-      btnNovoDespacho.addEventListener("click", async () => {
-        const novoValor = btnNovoDespacho.textContent.includes("Sim") ? "Não" : "Sim";
-        try {
-          await updateNovoDespacho(processo.numero, novoValor);
-          btnNovoDespacho.textContent = novoValor === "Sim" ? "✔ Sim" : "❌ Não";
-          btnNovoDespacho.className = novoValor === "Sim" ? "btn-sim" : "btn-nao";
-        } catch (error) {
-          console.error("Erro ao atualizar despacho:", error);
-        }
-      });
-
-      tabelaBody.appendChild(row);
-    });
-  } catch (error) {
-    console.error("Erro ao renderizar processos:", error);
+    } catch (error) {
+      console.error("Erro ao renderizar processos:", error);
+    }
   }
-}
 
 // Configura o evento do formulário para adicionar um novo processo
 if (formProcesso) {

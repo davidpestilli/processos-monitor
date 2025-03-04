@@ -87,7 +87,8 @@ router.post('/atualizar', async (req, res) => {
           }
 
           // Somente adiciona a pesquisa ao histórico se for diferente da última salva
-          if (p.ultima_movimentacao !== ultimaMovimentacaoSalva || p.teor_ultima_movimentacao !== teorUltimaMovimentacaoSalva) {
+          if (p.ultima_movimentacao !== ultimaMovimentacaoSalva || !textoDiferente(p.teor_ultima_movimentacao, teorUltimaMovimentacaoSalva)) {
+
               const historicoItem = {
                   data: new Date(),
                   ultima_movimentacao: p.ultima_movimentacao || null,
