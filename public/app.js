@@ -10,14 +10,6 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
     return `${day}/${month} ${hours}:${minutes}`;
   }
 
-  
-
-  function limitarTexto(texto, limite = 50) {
-    if (!texto) return "N/A";
-    return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
-}
-
-
 // Função para carregar os processos do backend
 function carregarProcessosDoBackend() {
     const cacheBuster = new Date().getTime(); // Garante que o navegador sempre carregue dados novos
@@ -55,8 +47,6 @@ function carregarProcessosDoBackend() {
             movCell.textContent = ultimoHistorico.ultima_movimentacao || "N/A";
 
             const teorMovCell = document.createElement("td");
-            teorMovCell.classList.add("fixed", "limitar-texto");
-            teorMovCell.textContent = limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80); // Limite de 80 caracteres
             const teorMovLink = document.createElement("a");
             teorMovLink.href = "#";
             teorMovLink.classList.add("teor-movimentacao");
@@ -72,8 +62,6 @@ function carregarProcessosDoBackend() {
             despachoCell.textContent = ultimoHistorico.ultimo_despacho || "N/A";
 
             const teorDespachoCell = document.createElement("td");
-            teorDespachoCell.classList.add("fixed", "limitar-texto");
-            teorDespachoCell.textContent = limitarTexto(ultimoHistorico.teor_ultimo_despacho, 80); // Limite de 80 caracteres
             const teorDespachoLink = document.createElement("a");
             teorDespachoLink.href = "#";
             teorDespachoLink.classList.add("teor-despacho");

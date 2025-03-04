@@ -144,15 +144,6 @@
       text-align: left;
     }
   }
-
-  /* Garante que o texto da célula ocupe apenas uma linha e adicione "..." quando necessário */
-.limitar-texto {
-  white-space: nowrap; /* Mantém o texto em uma única linha */
-  overflow: hidden; /* Esconde o excesso de texto */
-  text-overflow: ellipsis; /* Adiciona "..." ao final se o texto for muito longo */
-  max-width: 200px; /* Define uma largura máxima para que funcione corretamente */
-}
-
   
 /* Para as células de largura fixa com texto em 1 linha */
 td.fixed {
