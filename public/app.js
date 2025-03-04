@@ -455,21 +455,15 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
 });
 
   
-  function abrirModalHistorico(processo) {
+function abrirModalHistorico(processo) {
     const modalConteudo = document.getElementById("modalConteudoHistorico");
     modalConteudo.innerHTML = ""; // Limpa conteúdo antigo
-  
-    // Cria o título com o número do processo
-    const modalTitulo = document.createElement("h3");
-    modalTitulo.textContent = "Histórico do Processo: " + processo.numero;
-    modalConteudo.appendChild(modalTitulo);
-  
-    // Cria a tabela
+
+    // Criar a tabela
     const table = document.createElement("table");
     table.classList.add("historico-table");
-  
 
-    // Cria o cabeçalho com a nova coluna de seleção
+    // Criar o cabeçalho com a coluna de seleção
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
 
@@ -482,32 +476,19 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
     headerRow.appendChild(thCheckbox);
 
     // Criar os demais cabeçalhos
-    const headers = [
-    "Última Pesquisa",
-    "Movimentação",
-    "Teor Movimentação",
-    "Despacho",
-    "Teor Despacho",
-    "Link"
-    ];
-
+    const headers = ["Última Pesquisa", "Movimentação", "Teor Movimentação", "Despacho", "Teor Despacho", "Link"];
     headers.forEach(text => {
-    const th = document.createElement("th");
-    th.textContent = text;
-    headerRow.appendChild(th);
+        const th = document.createElement("th");
+        th.textContent = text;
+        headerRow.appendChild(th);
     });
 
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    document.getElementById("selecionarTodosHistorico").addEventListener("change", function () {
-        const checkboxes = document.querySelectorAll(".historico-checkbox");
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-    });
-    
-    // Cria o corpo da tabela
+    // Criar o corpo da tabela
     const tbody = document.createElement("tbody");
-  
+
     if (processo.historico && processo.historico.length > 0) {
         processo.historico.forEach(item => {
             const tr = document.createElement("tr");
@@ -586,7 +567,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
     modalConteudo.appendChild(table);
     document.getElementById("modalHistorico").style.display = "block";
 
-    // 🔹 Agora que o botão existe no DOM, adicionamos o evento corretamente
+    // 🔹 Adiciona um pequeno atraso para garantir que o checkbox está no DOM antes de adicionar o evento
     setTimeout(() => {
         const selecionarTodosCheckbox = document.getElementById("selecionarTodosHistorico");
         if (selecionarTodosCheckbox) {
@@ -599,6 +580,7 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         }
     }, 100); // Aguarda um pequeno tempo para garantir que o elemento esteja no DOM
 }
+
   
   
   function fecharModalHistorico() {
