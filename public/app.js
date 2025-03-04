@@ -12,23 +12,22 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 // Função para carregar os processos do backend
 function carregarProcessosDoBackend() {
-    fetch(API_URL)
+    const cacheBuster = new Date().getTime(); // Garante que o navegador sempre carregue dados novos
+
+    fetch(`${API_URL}?_=${cacheBuster}`, { cache: "no-store" }) // Evita cache
       .then(response => response.json())
       .then(processos => {
         const tabelaBody = document.querySelector("#tabelaProcessos tbody");
         tabelaBody.innerHTML = "";
-  
+
         processos.forEach(processo => {
-            // Usa o último registro do histórico para dados atuais
             const ultimoHistorico =
                 processo.historico && processo.historico.length
                 ? processo.historico[processo.historico.length - 1]
                 : {};
     
             const row = document.createElement("tr");
-  
-            // Cria a célula do número do processo com data-attribute
-            // Criação das células já existentes:
+
             const numeroCell = document.createElement("td");
             const numeroLink = document.createElement("a");
             numeroLink.href = "#";
@@ -58,12 +57,10 @@ function carregarProcessosDoBackend() {
             const despachoLink = document.createElement("a");
             despachoLink.href = "#";
             despachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
-            // Armazena o objeto do histórico para uso no modal
             despachoLink.dataset.historico = JSON.stringify(ultimoHistorico);
             despachoLink.classList.add("despachoLink");
             teorDespachoCell.appendChild(despachoLink);
 
-            // Célula para "Novo Despacho"
             const novoDespachoCell = document.createElement("td");
             const btnNovoDespacho = document.createElement("button");
             if (processo.novo_despacho === "Sim") {
@@ -78,7 +75,6 @@ function carregarProcessosDoBackend() {
             });
             novoDespachoCell.appendChild(btnNovoDespacho);
 
-            // Célula para "Ações" (exclusão)
             const acoesCell = document.createElement("td");
             const btnExcluir = document.createElement("button");
             btnExcluir.textContent = "Excluir";
@@ -90,21 +86,19 @@ function carregarProcessosDoBackend() {
             });
             acoesCell.appendChild(btnExcluir);
 
-            // Agora, adicione as células na ordem correta:
-            row.appendChild(numeroCell);         // Coluna 1: Número
-            row.appendChild(statusCell);           // Coluna 2: Status
-            row.appendChild(pesquisaCell);         // Coluna 3: Última Pesquisa
-            row.appendChild(movCell);              // Coluna 4: Última Movimentação
-            row.appendChild(teorMovCell);          // Coluna 5: Teor da Última Movimentação
-            row.appendChild(despachoCell);         // Coluna 6: Último Despacho
-            row.appendChild(teorDespachoCell);     // Coluna 7: Teor do Último Despacho
-            row.appendChild(novoDespachoCell);     // Coluna 8: Novo Despacho?
-            row.appendChild(acoesCell);            // Coluna 9: Ações (Excluir)
+            row.appendChild(numeroCell);
+            row.appendChild(statusCell);
+            row.appendChild(pesquisaCell);
+            row.appendChild(movCell);
+            row.appendChild(teorMovCell);
+            row.appendChild(despachoCell);
+            row.appendChild(teorDespachoCell);
+            row.appendChild(novoDespachoCell);
+            row.appendChild(acoesCell);
 
             tabelaBody.appendChild(row);
         });
-  
-        // Adiciona event listeners para os links criados
+
         document.querySelectorAll(".numeroLink").forEach(link => {
           link.addEventListener("click", function (e) {
             e.preventDefault();
@@ -112,7 +106,7 @@ function carregarProcessosDoBackend() {
             abrirModalHistorico(processo);
           });
         });
-  
+
         document.querySelectorAll(".despachoLink").forEach(link => {
           link.addEventListener("click", function (e) {
             e.preventDefault();
@@ -120,11 +114,13 @@ function carregarProcessosDoBackend() {
             abrirModalDespacho(historico);
           });
         });
+
       })
       .catch(error => {
         console.error("Erro ao buscar processos:", error);
       });
-  }
+}
+
   
 
 // Função para alternar o campo "Novo Despacho"
@@ -160,11 +156,16 @@ async function salvarProcessoNoBackend(processo) {
         if (!response.ok) throw new Error("Erro ao enviar processo.");
 
         console.log("✅ Processo enviado com sucesso!");
-        carregarProcessosDoBackend(); // Atualiza a tabela após o envio
+
+        // 🔹 Após atualizar, recarregar a tabela para mostrar as mudanças
+        carregarProcessosDoBackend();
+
     } catch (error) {
         console.error("Erro ao enviar processo:", error);
     }
 }
+
+
 
 // Função para chamar o endpoint de exclusão do processo
 async function excluirProcesso(numero) {
