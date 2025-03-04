@@ -509,92 +509,96 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
     const tbody = document.createElement("tbody");
   
     if (processo.historico && processo.historico.length > 0) {
-      processo.historico.forEach(item => {
-        const tr = document.createElement("tr");
-  
-        // Coluna: Última Pesquisa
-        const tdData = document.createElement("td");
-        tdData.textContent = formatDate(item.data);
-        tr.appendChild(tdData);
-  
-        // Coluna: Movimentação
-        const tdMov = document.createElement("td");
-        tdMov.textContent = item.ultima_movimentacao || "-";
-        tr.appendChild(tdMov);
-  
-        // Coluna: Teor Movimentação
-        const tdTeorMov = document.createElement("td");
-        const teorMovLink = document.createElement("a");
-        teorMovLink.href = "#";
-        teorMovLink.classList.add("teor-movimentacao");
-        
-        const teorMovText = item.teor_ultima_movimentacao ? item.teor_ultima_movimentacao : "-";
-        teorMovLink.textContent = teorMovText;
-        
-        teorMovLink.addEventListener("click", function (e) {
-            e.preventDefault();
-            abrirModalTexto(item.teor_ultima_movimentacao || "-", "Teor da Movimentação");
+        processo.historico.forEach(item => {
+            const tr = document.createElement("tr");
+
+            // Criar a célula do checkbox
+            const tdCheckbox = document.createElement("td");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("historico-checkbox");
+            checkbox.dataset.numero = processo.numero;
+            checkbox.dataset.data = item.data;
+            tdCheckbox.appendChild(checkbox);
+            tr.appendChild(tdCheckbox);
+
+            // Adicionar as demais colunas
+            const tdData = document.createElement("td");
+            tdData.textContent = formatDate(item.data);
+            tr.appendChild(tdData);
+
+            const tdMov = document.createElement("td");
+            tdMov.textContent = item.ultima_movimentacao || "-";
+            tr.appendChild(tdMov);
+
+            const tdTeorMov = document.createElement("td");
+            const teorMovLink = document.createElement("a");
+            teorMovLink.href = "#";
+            teorMovLink.classList.add("teor-movimentacao");
+            teorMovLink.textContent = item.teor_ultima_movimentacao || "-";
+            teorMovLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                abrirModalTexto(item.teor_ultima_movimentacao || "-", "Teor da Movimentação");
+            });
+            tdTeorMov.appendChild(teorMovLink);
+            tr.appendChild(tdTeorMov);
+
+            const tdDespacho = document.createElement("td");
+            tdDespacho.textContent = item.ultimo_despacho || "-";
+            tr.appendChild(tdDespacho);
+
+            const teorDespachoCell = document.createElement("td");
+            const teorDespachoLink = document.createElement("a");
+            teorDespachoLink.href = "#";
+            teorDespachoLink.classList.add("teor-despacho");
+            teorDespachoLink.textContent = item.teor_ultimo_despacho || "-";
+            teorDespachoLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
+            });
+            teorDespachoCell.appendChild(teorDespachoLink);
+            tr.appendChild(teorDespachoCell);
+
+            const tdLink = document.createElement("td");
+            if (item.link) {
+                const a = document.createElement("a");
+                a.href = item.link;
+                a.target = "_blank";
+                a.textContent = "Ver";
+                tdLink.appendChild(a);
+            } else {
+                tdLink.textContent = "-";
+            }
+            tr.appendChild(tdLink);
+
+            tbody.appendChild(tr);
         });
-        tdTeorMov.appendChild(teorMovLink);
-        tr.appendChild(tdTeorMov);
-        
-        
-        // Coluna: Despacho
-        const tdDespacho = document.createElement("td");
-        tdDespacho.textContent = item.ultimo_despacho || "-";
-        tr.appendChild(tdDespacho);
-  
-        // Coluna: Teor Despacho
-        const teorDespachoCell = document.createElement("td");
-        const teorDespachoLink = document.createElement("a");
-        teorDespachoLink.href = "#";
-        teorDespachoLink.classList.add("teor-despacho");
-        teorDespachoLink.textContent = item.teor_ultimo_despacho || "-";
-        teorDespachoLink.addEventListener("click", function (e) {
-            e.preventDefault();
-            abrirModalTexto(teorDespachoLink.textContent, "Teor do Último Despacho");
-        });
-        teorDespachoCell.appendChild(teorDespachoLink);
-        tr.appendChild(teorDespachoCell);
-  
-        // Coluna: Link
-        const tdLink = document.createElement("td");
-        if (item.link) {
-          const a = document.createElement("a");
-          a.href = item.link;
-          a.target = "_blank";
-          a.textContent = "Ver";
-          tdLink.appendChild(a);
-        } else {
-          tdLink.textContent = "-";
-        }
-        tr.appendChild(tdLink);
-  
-        tbody.appendChild(tr);
-
-        const tdCheckbox = document.createElement("td");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("historico-checkbox");
-        checkbox.dataset.numero = processo.numero;
-        checkbox.dataset.data = item.data;
-        tdCheckbox.appendChild(checkbox);
-        tr.appendChild(tdCheckbox);
-
-
-      });
     } else {
-      const tr = document.createElement("tr");
-      const td = document.createElement("td");
-      td.colSpan = 7;
-      td.textContent = "Nenhum histórico encontrado.";
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 7;
+        td.textContent = "Nenhum histórico encontrado.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
     }
+
     table.appendChild(tbody);
     modalConteudo.appendChild(table);
     document.getElementById("modalHistorico").style.display = "block";
-  }
+
+    // 🔹 Agora que o botão existe no DOM, adicionamos o evento corretamente
+    setTimeout(() => {
+        const selecionarTodosCheckbox = document.getElementById("selecionarTodosHistorico");
+        if (selecionarTodosCheckbox) {
+            selecionarTodosCheckbox.addEventListener("change", function () {
+                const checkboxes = document.querySelectorAll(".historico-checkbox");
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+        } else {
+            console.error("❌ Erro: Checkbox 'Selecionar Todos' do modal histórico não encontrado!");
+        }
+    }, 100); // Aguarda um pequeno tempo para garantir que o elemento esteja no DOM
+}
   
   
   function fecharModalHistorico() {
