@@ -345,11 +345,21 @@ function abrirModalDespacho(item) {
   }
 
   // Função para abrir o modal de teor de movimentação e despacho
-function abrirModalTexto(texto, titulo) {
+  function abrirModalTexto(texto, titulo, link = null) {
     document.getElementById("modalTextoGenerico").textContent = texto;
     document.getElementById("modalTituloGenerico").textContent = titulo;
+
+    const modalLink = document.getElementById("modalLinkGenerico");
+    if (link) {
+        modalLink.href = link;
+        modalLink.style.display = "block";
+    } else {
+        modalLink.style.display = "none";
+    }
+
     document.getElementById("modalGenerico").style.display = "block";
 }
+
 
 // Fechar o modal genérico
 document.getElementById("fecharModalGenerico").addEventListener("click", function () {
@@ -427,17 +437,21 @@ document.getElementById("fecharModalGenerico").addEventListener("click", functio
         tr.appendChild(tdDespacho);
   
         // Coluna: Teor Despacho
-        const tdTeorDespacho = document.createElement("td");
+        const teorDespachoCell = document.createElement("td");
         const teorDespachoLink = document.createElement("a");
         teorDespachoLink.href = "#";
         teorDespachoLink.classList.add("teor-despacho");
-        teorDespachoLink.textContent = item.teor_ultimo_despacho || "N/A";
+        teorDespachoLink.textContent = ultimoHistorico.teor_ultimo_despacho || "N/A";
         teorDespachoLink.addEventListener("click", function (e) {
             e.preventDefault();
-            abrirModalTexto(teorDespachoLink.textContent, "Teor do Despacho");
+            abrirModalTexto(
+                teorDespachoLink.textContent,
+                "Teor do Último Despacho",
+                ultimoHistorico.link || null  // 🔹 Agora passa o link correto
+            );
         });
-        tdTeorDespacho.appendChild(teorDespachoLink);
-        tr.appendChild(tdTeorDespacho);
+        teorDespachoCell.appendChild(teorDespachoLink);
+        
         
   
         // Coluna: Link
