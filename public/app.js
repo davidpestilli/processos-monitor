@@ -1,7 +1,7 @@
 const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
   function formatDate(date) {
-    if (!date) return "N/A";
+    if (!date) return "-";
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -13,7 +13,7 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
   // Função para limitar o texto a um número fixo de caracteres
 function limitarTexto(texto, limite = 80) {
-    if (!texto) return "N/A";
+    if (!texto) return "-";
     return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
 }
 
@@ -450,7 +450,7 @@ window.processarCSV = processarCSV;
 
 function abrirModalDespacho(item) {
     document.getElementById("modalTextoDespacho").textContent =
-      item.teor_ultimo_despacho || "N/A";
+      item.teor_ultimo_despacho || "-";
     const linkEl = document.getElementById("modalLinkDespacho");
     if (item.link) {
       linkEl.href = item.link;
