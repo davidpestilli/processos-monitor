@@ -90,18 +90,6 @@ async function renderProcessos() {
 }
 
 
-// Atualiza o botão "Novo Despacho" com base no valor do backend
-function atualizarBotaoNovoDespacho(botao, novoDespacho) {
-    if (novoDespacho === "Sim") {
-        botao.textContent = "✔ Sim";
-        botao.className = "btn-sim";
-    } else {
-        botao.textContent = "❌ Não";
-        botao.className = "btn-nao";
-    }
-}
-
-
 // Configura o evento do formulário para adicionar um novo processo
 if (formProcesso) {
   formProcesso.addEventListener("submit", async (e) => {
