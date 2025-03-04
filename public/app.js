@@ -182,6 +182,11 @@ document.addEventListener("DOMContentLoaded", () => {
   renderProcessos();
 });
 
+// Garante que todas as modais com a classe "modal" comecem fechadas ao carregar a página
+document.querySelectorAll(".modal").forEach(modal => {
+    modal.style.display = "none";
+});
+
 // Função para fechar o modal ao clicar fora dele
 document.addEventListener("click", (event) => {
     const modais = document.querySelectorAll(".modal"); // Seleciona todas as modais
