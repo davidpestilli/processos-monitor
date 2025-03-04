@@ -47,6 +47,11 @@ function carregarProcessosDoBackend() {
 
             const statusCell = document.createElement("td");
             statusCell.textContent = processo.status || "N/A";
+            
+            // Aplica cor de fundo verde claro se o status NÃO for "Em trâmite"
+            if (processo.status && processo.status.toLowerCase() !== "em trâmite") {
+                statusCell.classList.add("status-alerta");
+            }            
 
             const pesquisaCell = document.createElement("td");
             pesquisaCell.textContent = processo.ultima_pesquisa ? formatDate(processo.ultima_pesquisa) : "N/A";

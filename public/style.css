@@ -118,6 +118,11 @@
   display: inline-block; /* Garante que a largura seja aplicada corretamente */
 }
 
+/* Aplica um fundo verde claro para células de status diferentes de "Em trâmite" */
+.status-alerta {
+  background-color: #c8f7c5; /* Verde claro */
+  font-weight: bold; /* Destaca o status */
+}
 
   
   table thead {
