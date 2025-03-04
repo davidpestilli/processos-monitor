@@ -215,19 +215,37 @@ app.post('/processos/atualizar', async (req, res) => {
         };
 
 
+        // Determina o status com base na última movimentação
+        let status = "Em trâmite";
+        if (p.ultima_movimentacao) {
+            const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
+            if (mov.includes("decurso")) {
+                status = "Decurso";
+            } else if (mov.includes("baixa")) {
+                status = "Baixa";
+            } else if (mov.includes("transito")) { // Sem acento
+                status = "Trânsito";
+            }
+        }
+
+        // LOG DO STATUS AQUI
+        console.log(`Status calculado para ${p.numero}: ${status}`);
+
+        // Atualiza o processo no banco de dados
         await db.collection('processos').findOneAndUpdate(
             { numero: p.numero },
             {
-              $set: {
-                status,                // Atualiza o status SEMPRE
-                ultima_pesquisa: new Date(),
-                novo_despacho: novoDespacho
-              },
-              $push: { historico: historicoItem },
-              $setOnInsert: { numero: p.numero } // Só define o número na primeira inserção
+                $set: {
+                    status, // Sempre atualiza o status ao atualizar a planilha
+                    ultima_pesquisa: new Date(),
+                    novo_despacho: novoDespacho
+                },
+                $push: { historico: historicoItem },
+                $setOnInsert: { numero: p.numero } // Apenas na primeira inserção
             },
             { upsert: true }
-          );       
+        );
+    
 
 
     }
