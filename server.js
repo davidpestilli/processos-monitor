@@ -171,6 +171,9 @@ app.post('/processos/atualizar', async (req, res) => {
         }
     }
 
+    // LOG DO STATUS AQUI
+    console.log("Status calculado para", p.numero, ":", status);
+
         // Determina o valor de novo_despacho conforme a lógica:
         // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
         // Determina o valor de novoDespacho conforme sua lógica existente...
