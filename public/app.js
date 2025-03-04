@@ -122,36 +122,42 @@ if (btnExcluirSelecionados) {
 
 // Configura o processamento do CSV
 window.processarCSV = function processarCSV() {
-  if (!inputCSV.files.length) {
-    alert("Por favor, selecione um arquivo CSV.");
-    return;
-  }
-  const arquivo = inputCSV.files[0];
-  const leitor = new FileReader();
-  leitor.onload = async (event) => {
-    const conteudo = event.target.result;
-    const linhas = conteudo.split("\n").map(linha => linha.trim()).filter(linha => linha);
-    const processos = linhas.flatMap(linha =>
-      linha.split(";").map(numero => ({
-        numero: numero.trim().replace(/,$/, ''),
-        manual: true
-      }))
-    );
-    if (processos.length === 0) {
-      alert("O arquivo CSV está vazio ou mal formatado.");
-      return;
+    if (!inputCSV.files.length) {
+        alert("Por favor, selecione um arquivo CSV.");
+        return;
     }
-    try {
-      await uploadCSV(processos);
-      alert("Processos enviados com sucesso!");
-      renderProcessos();
-    } catch (error) {
-      console.error("Erro ao enviar o CSV:", error);
-      alert("Erro ao enviar o arquivo CSV.");
-    }
-  };
-  leitor.readAsText(arquivo);
+    
+    const arquivo = inputCSV.files[0];
+    const leitor = new FileReader();
+    
+    leitor.onload = async (event) => {
+        const conteudo = event.target.result;
+        const linhas = conteudo.split("\n").map(linha => linha.trim()).filter(linha => linha);
+        const processos = linhas.flatMap(linha =>
+            linha.split(";").map(numero => ({
+                numero: numero.trim().replace(/,$/, ''),
+                manual: true
+            }))
+        );
+
+        if (processos.length === 0) {
+            alert("O arquivo CSV está vazio ou mal formatado.");
+            return;
+        }
+
+        try {
+            await uploadCSV(processos);
+            alert("Processos enviados com sucesso!");
+            renderProcessos();
+        } catch (error) {
+            console.error("Erro ao enviar o CSV:", error);
+            alert("Erro ao enviar o arquivo CSV.");
+        }
+    };
+
+    leitor.readAsText(arquivo);
 };
+
 
 // Eventos para fechar modais
 document.getElementById("fecharModalGenerico").addEventListener("click", () => {
@@ -175,6 +181,12 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado. Iniciando aplicação...");
   renderProcessos();
 });
+
+const btnEnviarCSV = document.getElementById("btnEnviarCSV");
+if (btnEnviarCSV) {
+    btnEnviarCSV.addEventListener("click", processarCSV);
+}
+
 
 // Event listener para o botão "Excluir Selecionados" no modal de histórico
 const btnExcluirHistorico = document.getElementById("btnExcluirHistoricoSelecionado");
