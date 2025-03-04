@@ -37,7 +37,7 @@ export function createProcessosRouter(db) {
   });
 
   router.post('/atualizar', async (req, res) => {
-    console.log("Requisição em /processos/atualizar");
+    console.log("🔵 Requisição recebida em /processos/atualizar");
     try {
       let { processos } = req.body;
       if (!Array.isArray(processos)) {
@@ -46,7 +46,7 @@ export function createProcessosRouter(db) {
   
       for (const p of processos) {
         if (!p.numero) {
-          console.error("Número do processo não informado.");
+          console.error("🔴 ERRO: Número do processo não informado.");
           return res.status(400).json({ error: "Número do processo é obrigatório." });
         }
   
@@ -71,8 +71,13 @@ export function createProcessosRouter(db) {
           const diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
           
           if (diferenca >= 5) {
-            novoDespachoStatus = "Sim"; // Se a diferença for de pelo menos 5%, atualiza para "Sim"
+            novoDespachoStatus = "Sim";
+            console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim"`);
+          } else {
+            console.log(`❌ Diferença < 5%. Mantendo novo_despacho como "Não"`);
           }
+        } else {
+          console.log("⚠️ Nenhum despacho anterior encontrado. Mantendo novo_despacho como 'Não'.");
         }
   
         // Determina o status com base no teor da última movimentação
@@ -114,6 +119,7 @@ export function createProcessosRouter(db) {
           },
           { upsert: true, returnDocument: 'after' }
         );
+        console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
       }
   
       res.json({ message: "Processos atualizados com sucesso" });

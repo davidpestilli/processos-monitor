@@ -14,61 +14,44 @@ const inputCSV = document.querySelector("#inputCSV");
 // Renderiza os processos na tabela
 async function renderProcessos() {
     try {
-      const processos = await fetchProcessos();
-      tabelaBody.innerHTML = "";
-      processos.forEach(processo => {
-        const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
-  
-        // Evento para abrir o modal de histórico
-        numeroLink.addEventListener("click", (e) => {
-          e.preventDefault();
-          openModalHistorico(processo);
+        const processos = await fetchProcessos(); // Obtém os processos do backend
+        tabelaBody.innerHTML = ""; // Limpa a tabela antes de renderizar
+
+        processos.forEach(processo => {
+            console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
+
+            // Cria a linha da tabela com os elementos necessários
+            const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
+
+            // Adiciona evento para abrir o modal de histórico
+            numeroLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                openModalHistorico(processo);
+            });
+
+            // Atualiza o botão de "Novo Despacho" conforme os dados vindos do backend
+            atualizarBotaoNovoDespacho(btnNovoDespacho, processo.novo_despacho);
+
+            // Adiciona a linha processada na tabela
+            tabelaBody.appendChild(row);
         });
-  
-        // Evento para o botão "Novo Despacho" com a lógica de diferença
-        btnNovoDespacho.addEventListener("click", async () => {
-          // Se o status atual for "Não", peça o novo teor
-          if (btnNovoDespacho.textContent.includes("Não")) {
-            const novoTeor = prompt("Insira o novo teor do despacho:");
-            if (!novoTeor) return; // Se o usuário cancelar, não faz nada
-  
-            // Recupera o teor atual armazenado no botão
-            const teorAtual = btnNovoDespacho.dataset.teorDespacho;
-            const diffPercent = computeDifferencePercentage(teorAtual, novoTeor);
-  
-            if (diffPercent >= 5) {
-              const novoValor = "Sim";
-              try {
-                await updateNovoDespacho(processo.numero, novoValor);
-                btnNovoDespacho.textContent = "✔ Sim";
-                btnNovoDespacho.className = "btn-sim";
-                // Atualiza o data attribute com o novo teor
-                btnNovoDespacho.dataset.teorDespacho = novoTeor;
-              } catch (error) {
-                console.error("Erro ao atualizar despacho:", error);
-              }
-            } else {
-              alert("A diferença entre o novo teor e o atual não é de pelo menos 5%.");
-            }
-          } else {
-            // Se o status já for "Sim", permite voltar para "Não" sem comparação
-            const novoValor = "Não";
-            try {
-              await updateNovoDespacho(processo.numero, novoValor);
-              btnNovoDespacho.textContent = "❌ Não";
-              btnNovoDespacho.className = "btn-nao";
-            } catch (error) {
-              console.error("Erro ao atualizar despacho:", error);
-            }
-          }
-        });
-  
-        tabelaBody.appendChild(row);
-      });
+
     } catch (error) {
-      console.error("Erro ao renderizar processos:", error);
+        console.error("❌ Erro ao renderizar processos:", error);
     }
-  }
+}
+
+// Atualiza o botão "Novo Despacho" com base no valor do backend
+function atualizarBotaoNovoDespacho(botao, novoDespacho) {
+    if (novoDespacho === "Sim") {
+        botao.textContent = "✔ Sim";
+        botao.className = "btn-sim";
+    } else {
+        botao.textContent = "❌ Não";
+        botao.className = "btn-nao";
+    }
+}
+
 
 // Configura o evento do formulário para adicionar um novo processo
 if (formProcesso) {
