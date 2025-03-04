@@ -226,10 +226,10 @@ async function excluirHistorico(numero, data) {
     }
 }
 
-
-
-// Adicionar evento para capturar submissão de novo processo
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM completamente carregado. Registrando eventos...");
+
+    // 🔹 Capturar submissão de novo processo
     const formProcesso = document.querySelector("#formProcesso");
 
     if (formProcesso) {
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    // Aqui adicionamos "manual": true no objeto do processo
+                    // Adicionamos "manual": true no objeto do processo
                     body: JSON.stringify({
                         processos: [{ numero: numeroProcesso, manual: true }]
                     }),
@@ -260,89 +260,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!response.ok) {
                     throw new Error("Erro ao adicionar o processo.");
                 }
-        
-document.addEventListener("DOMContentLoaded", function () {
-    const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
-    if (!btnExcluirSelecionados) {
-        console.error("❌ Erro: Botão de exclusão múltipla não encontrado!");
-        return;
-    }
-                
-    btnExcluirSelecionados.addEventListener("click", async function () {
-        const checkboxes = document.querySelectorAll(".processo-checkbox:checked");
-        if (checkboxes.length === 0) {
-            alert("Nenhum processo selecionado.");
-            return;
-        }
-                
-        if (!confirm("Tem certeza que deseja excluir os processos selecionados?")) {
-            return;
-        }
-                
-        const numerosParaExcluir = Array.from(checkboxes).map(cb => cb.dataset.numero);
-                
-        try {
-            const response = await fetch("/processos/excluir-multiplos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ numeros: numerosParaExcluir })
-            });
-                
-            if (!response.ok) throw new Error("Erro ao excluir processos.");
-                
-            alert("Processos excluídos com sucesso!");
-            carregarProcessosDoBackend(); // Atualiza a tabela
-        } catch (error) {
-            console.error("Erro ao excluir processos:", error);
-        }
-    });
-
-                
-                
-
-// 🔹 Adiciona evento para excluir múltiplas entradas do histórico
-document.getElementById("btnExcluirHistoricoSelecionado").addEventListener("click", async function () {
-    const checkboxes = document.querySelectorAll(".historico-checkbox:checked");
-    if (checkboxes.length === 0) {
-        alert("Nenhuma entrada selecionada.");
-        return;
-    }
-
-    if (!confirm("Tem certeza que deseja excluir as entradas selecionadas?")) {
-        return;
-    }
-
-    const dadosParaExcluir = Array.from(checkboxes).map(cb => ({
-        numero: cb.dataset.numero,
-        data: cb.dataset.data
-    }));
-
-    try {
-        const response = await fetch(`${API_URL}/excluir-historico-multiplos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ entradas: dadosParaExcluir })
-        });
-
-        if (!response.ok) throw new Error("Erro ao excluir entradas.");
-
-        alert("Entradas excluídas com sucesso!");
-        carregarProcessosDoBackend(); // Atualiza a tabela
-    } catch (error) {
-        console.error("Erro ao excluir histórico:", error);
-    }
-});
-                    
-                
-                    // 🔹 Depois de configurar os botões, carregamos os processos do backend
-                    carregarProcessosDoBackend();
-                });
 
                 alert("Processo adicionado com sucesso!");
-        
+
                 // Recarregar a lista de processos após adicionar um novo
                 carregarProcessosDoBackend();
-        
+
                 // Limpar o campo de entrada
                 inputNumeroProcesso.value = "";
             } catch (error) {
@@ -350,9 +273,54 @@ document.getElementById("btnExcluirHistoricoSelecionado").addEventListener("clic
                 alert("Erro ao adicionar o processo. Verifique o console para mais detalhes.");
             }
         });
-        
     }
+
+    // 🔹 Adicionar evento para exclusão múltipla de processos
+    const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
+
+    if (btnExcluirSelecionados) {
+        btnExcluirSelecionados.addEventListener("click", async function () {
+            console.log("🔍 Botão de exclusão múltipla clicado.");
+
+            const checkboxes = document.querySelectorAll(".processo-checkbox:checked");
+
+            if (checkboxes.length === 0) {
+                alert("Nenhum processo selecionado.");
+                return;
+            }
+
+            if (!confirm(`Tem certeza que deseja excluir ${checkboxes.length} processos selecionados?`)) {
+                return;
+            }
+
+            const numerosParaExcluir = Array.from(checkboxes).map(cb => cb.dataset.numero);
+            console.log("📌 Processos a excluir:", numerosParaExcluir);
+
+            try {
+                const response = await fetch("/processos/excluir-multiplos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ numeros: numerosParaExcluir })
+                });
+
+                if (!response.ok) throw new Error("Erro ao excluir processos.");
+
+                alert("Processos excluídos com sucesso!");
+                carregarProcessosDoBackend();
+            } catch (error) {
+                console.error("❌ Erro ao excluir processos:", error);
+                alert("Erro ao excluir processos. Verifique o console para mais detalhes.");
+            }
+        });
+    } else {
+        console.error("❌ Erro: Botão 'Excluir Selecionados' não encontrado no DOM.");
+    }
+
+    // 🔹 Depois de configurar os eventos, carregamos os processos do backend
+    carregarProcessosDoBackend();
 });
+
+
 
 function processarCSV() {
     const inputCSV = document.querySelector("#inputCSV");
