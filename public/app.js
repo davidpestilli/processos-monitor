@@ -1,6 +1,8 @@
 // app.js
 import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, uploadCSV } from "./api.js";
 import { createProcessRow, openModalHistorico, openModalTexto, closeModal } from "./dom.js";
+import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, excluirHistorico, uploadCSV } from "./api.js";
+
 
 // Seleciona elementos do DOM
 const tabelaBody = document.querySelector("#tabelaProcessos tbody");
@@ -141,3 +143,34 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado. Iniciando aplicação...");
   renderProcessos();
 });
+
+// Event listener para o botão "Excluir Selecionados" no modal de histórico
+const btnExcluirHistorico = document.getElementById("btnExcluirHistoricoSelecionado");
+if (btnExcluirHistorico) {
+  btnExcluirHistorico.addEventListener("click", async () => {
+    const historicoCheckboxes = document.querySelectorAll(".historico-checkbox:checked");
+    if (historicoCheckboxes.length === 0) {
+      alert("Nenhuma entrada do histórico selecionada.");
+      return;
+    }
+    if (!confirm(`Tem certeza que deseja excluir ${historicoCheckboxes.length} entradas do histórico selecionadas?`)) {
+      return;
+    }
+    // Cria o array de entradas com número e data
+    const entradasParaExcluir = Array.from(historicoCheckboxes).map(cb => ({
+      numero: cb.dataset.numero,
+      data: cb.dataset.data
+    }));
+    try {
+      await excluirHistorico(entradasParaExcluir);
+      alert("Entradas do histórico excluídas com sucesso!");
+      // Re-renderiza o modal com o processo atual, se disponível
+      if (window.currentHistoricoProcesso) {
+        openModalHistorico(window.currentHistoricoProcesso);
+      }
+    } catch (error) {
+      console.error("Erro ao excluir entradas do histórico:", error);
+      alert("Erro ao excluir entradas do histórico.");
+    }
+  });
+}

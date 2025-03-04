@@ -112,6 +112,8 @@ export function openModalTexto(text, title, link = null) {
 
 // Função para abrir o modal de histórico de um processo
 export function openModalHistorico(processo) {
+    // Armazena o processo atual para uso futuro (por exemplo, após exclusão)
+    window.currentHistoricoProcesso = processo;
   const modalConteudo = document.getElementById("modalConteudoHistorico");
   modalConteudo.innerHTML = "";
   const table = document.createElement("table");
