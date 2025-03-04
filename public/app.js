@@ -11,6 +11,49 @@ const inputNumeroProcesso = document.querySelector("#numeroProcesso");
 const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
 const inputCSV = document.querySelector("#inputCSV");
 
+function atualizarBotaoNovoDespacho(botao, processo) {
+    if (processo.novo_despacho === "Sim") {
+        botao.textContent = "✔ Sim";
+        botao.className = "btn-sim";
+    } else {
+        botao.textContent = "❌ Não";
+        botao.className = "btn-nao";
+    }
+}
+
+async function alternarNovoDespacho(processo, botao) {
+    try {
+        // Define o novo valor invertendo o atual
+        const novoValor = (processo.novo_despacho === "Sim") ? "Não" : "Sim";
+
+        console.log(`🔄 Alterando despacho do processo ${processo.numero} para ${novoValor}...`);
+
+        // Envia a atualização para o backend
+        const response = await fetch(`${API_URL}/atualizar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                processos: [{ numero: processo.numero, novo_despacho: novoValor }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Erro ao atualizar despacho no backend.");
+        }
+
+        // Se o backend confirmou a mudança, atualiza o frontend
+        processo.novo_despacho = novoValor;
+        atualizarBotaoNovoDespacho(botao, processo);
+        
+        console.log(`✅ Despacho do processo ${processo.numero} atualizado para ${novoValor}`);
+
+    } catch (error) {
+        console.error("❌ Erro ao alternar despacho:", error);
+        alert("Erro ao alternar despacho. Tente novamente.");
+    }
+}
+
+
 // Renderiza os processos na tabela
 async function renderProcessos() {
     try {
@@ -30,7 +73,12 @@ async function renderProcessos() {
             });
 
             // Atualiza o botão de "Novo Despacho" conforme os dados vindos do backend
-            atualizarBotaoNovoDespacho(btnNovoDespacho, processo.novo_despacho);
+            atualizarBotaoNovoDespacho(btnNovoDespacho, processo);
+
+            // Adiciona evento para alternar entre Sim/Não ao clicar
+            btnNovoDespacho.addEventListener("click", async () => {
+                await alternarNovoDespacho(processo, btnNovoDespacho);
+            });
 
             // Adiciona a linha processada na tabela
             tabelaBody.appendChild(row);
@@ -40,6 +88,7 @@ async function renderProcessos() {
         console.error("❌ Erro ao renderizar processos:", error);
     }
 }
+
 
 // Atualiza o botão "Novo Despacho" com base no valor do backend
 function atualizarBotaoNovoDespacho(botao, novoDespacho) {
