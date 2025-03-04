@@ -108,6 +108,7 @@ function carregarProcessosDoBackend() {
             checkbox.classList.add("processo-checkbox");
             checkbox.dataset.numero = processo.numero;  // Armazena o número do processo
             checkboxCell.appendChild(checkbox);
+            row.insertBefore(checkboxCell, row.firstChild); // Garante que o checkbox esteja na primeira coluna
 
 
             row.appendChild(numeroCell);
@@ -260,70 +261,77 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error("Erro ao adicionar o processo.");
                 }
         
-                document.addEventListener("DOMContentLoaded", function () {
-                    // 🔹 Adiciona evento para excluir múltiplos processos
-                    document.getElementById("btnExcluirSelecionados").addEventListener("click", async function () {
-                        const checkboxes = document.querySelectorAll(".processo-checkbox:checked");
-                        if (checkboxes.length === 0) {
-                            alert("Nenhum processo selecionado.");
-                            return;
-                        }
+document.addEventListener("DOMContentLoaded", function () {
+    const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
+    if (!btnExcluirSelecionados) {
+        console.error("❌ Erro: Botão de exclusão múltipla não encontrado!");
+        return;
+    }
                 
-                        if (!confirm("Tem certeza que deseja excluir os processos selecionados?")) {
-                            return;
-                        }
+    btnExcluirSelecionados.addEventListener("click", async function () {
+        const checkboxes = document.querySelectorAll(".processo-checkbox:checked");
+        if (checkboxes.length === 0) {
+            alert("Nenhum processo selecionado.");
+            return;
+        }
                 
-                        const numerosParaExcluir = Array.from(checkboxes).map(cb => cb.dataset.numero);
+        if (!confirm("Tem certeza que deseja excluir os processos selecionados?")) {
+            return;
+        }
                 
-                        try {
-                            const response = await fetch(`${API_URL}/excluir-multiplos`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ numeros: numerosParaExcluir })
-                            });
+        const numerosParaExcluir = Array.from(checkboxes).map(cb => cb.dataset.numero);
                 
-                            if (!response.ok) throw new Error("Erro ao excluir processos.");
+        try {
+            const response = await fetch("/processos/excluir-multiplos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ numeros: numerosParaExcluir })
+            });
                 
-                            alert("Processos excluídos com sucesso!");
-                            carregarProcessosDoBackend(); // Atualiza a tabela
-                        } catch (error) {
-                            console.error("Erro ao excluir processos:", error);
-                        }
-                    });
+            if (!response.ok) throw new Error("Erro ao excluir processos.");
+                
+            alert("Processos excluídos com sucesso!");
+            carregarProcessosDoBackend(); // Atualiza a tabela
+        } catch (error) {
+            console.error("Erro ao excluir processos:", error);
+        }
+    });
+
+                
                 
 
-                    // 🔹 Adiciona evento para excluir múltiplas entradas do histórico
-                    document.getElementById("btnExcluirHistoricoSelecionado").addEventListener("click", async function () {
-                        const checkboxes = document.querySelectorAll(".historico-checkbox:checked");
-                        if (checkboxes.length === 0) {
-                            alert("Nenhuma entrada selecionada.");
-                            return;
-                        }
-                
-                        if (!confirm("Tem certeza que deseja excluir as entradas selecionadas?")) {
-                            return;
-                        }
-                
-                        const dadosParaExcluir = Array.from(checkboxes).map(cb => ({
-                            numero: cb.dataset.numero,
-                            data: cb.dataset.data
-                        }));
-                
-                        try {
-                            const response = await fetch(`${API_URL}/excluir-historico-multiplos`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ entradas: dadosParaExcluir })
-                            });
-                
-                            if (!response.ok) throw new Error("Erro ao excluir entradas.");
-                
-                            alert("Entradas excluídas com sucesso!");
-                            carregarProcessosDoBackend(); // Atualiza a tabela
-                        } catch (error) {
-                            console.error("Erro ao excluir histórico:", error);
-                        }
-                    });
+// 🔹 Adiciona evento para excluir múltiplas entradas do histórico
+document.getElementById("btnExcluirHistoricoSelecionado").addEventListener("click", async function () {
+    const checkboxes = document.querySelectorAll(".historico-checkbox:checked");
+    if (checkboxes.length === 0) {
+        alert("Nenhuma entrada selecionada.");
+        return;
+    }
+
+    if (!confirm("Tem certeza que deseja excluir as entradas selecionadas?")) {
+        return;
+    }
+
+    const dadosParaExcluir = Array.from(checkboxes).map(cb => ({
+        numero: cb.dataset.numero,
+        data: cb.dataset.data
+    }));
+
+    try {
+        const response = await fetch(`${API_URL}/excluir-historico-multiplos`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entradas: dadosParaExcluir })
+        });
+
+        if (!response.ok) throw new Error("Erro ao excluir entradas.");
+
+        alert("Entradas excluídas com sucesso!");
+        carregarProcessosDoBackend(); // Atualiza a tabela
+    } catch (error) {
+        console.error("Erro ao excluir histórico:", error);
+    }
+});
                     
                 
                     // 🔹 Depois de configurar os botões, carregamos os processos do backend
