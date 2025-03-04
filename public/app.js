@@ -1,7 +1,7 @@
 // app.js
-import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, uploadCSV } from "./api.js";
-import { createProcessRow, openModalHistorico, openModalTexto, closeModal } from "./dom.js";
 import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, excluirHistorico, uploadCSV } from "./api.js";
+import { createProcessRow, openModalHistorico, openModalTexto, closeModal } from "./dom.js";
+
 
 
 // Seleciona elementos do DOM
