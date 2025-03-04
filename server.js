@@ -214,15 +214,19 @@ app.post('/processos/atualizar', async (req, res) => {
         link: p.link || null
         };
 
+        function removeAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
         // Determina o status com base na última movimentação
         let status = "Em trâmite";
         if (p.ultima_movimentacao) {
-            const mov = p.ultima_movimentacao.toLowerCase();
+            const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
             if (mov.includes("decurso")) {
                 status = "Decurso";
-            }   else if (mov.includes("baixa")) {
+            } else if (mov.includes("baixa")) {
                 status = "Baixa";
-            }   else if (mov.includes("trânsito")) {
+            } else if (mov.includes("transito")) { // Sem acento
                 status = "Trânsito";
             }
         }
@@ -243,7 +247,11 @@ app.post('/processos/atualizar', async (req, res) => {
               $setOnInsert: { numero: p.numero } // Só define o número na primeira inserção
             },
             { upsert: true }
-          );          
+          );       
+
+        console.log("Última movimentação recebida:", p.ultima_movimentacao);
+        console.log("Status calculado para", p.numero, ":", status);
+        console.log(`Atualizando processo ${p.numero} para status: ${status}`);
 
 
     }
@@ -254,6 +262,7 @@ app.post('/processos/atualizar', async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
+
   
 // Rota para excluir um processo inteiro
 app.delete('/processos/:numero', async (req, res) => {
