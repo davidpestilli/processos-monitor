@@ -40,6 +40,8 @@ function normalizeNumero(numero) {
     normalized = normalized.replace(/\\(?![\\\/"bfnrt])/g, "\\\\");
     return normalized;
   }  
+
+  
   
 // Função para calcular a distância de Levenshtein entre duas strings
 function levenshtein(a, b) {
@@ -105,7 +107,7 @@ MongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true 
 // Rota para buscar todos os processos
 app.get('/processos', async (req, res) => {
     try {
-        const processos = await db.collection('processos').find({}).toArray();
+        const processos = await db.collection('processos').find({ status: "Em trâmite" }).toArray();
         res.json(processos);
     } catch (error) {
         console.error("Erro ao buscar processos:", error);
@@ -156,6 +158,19 @@ app.post('/processos/atualizar', async (req, res) => {
         p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
         p.link = normalizeText(p.link);
   
+        // Determina o status com base na última movimentação
+        let status = "Em trâmite";
+        if (p.ultima_movimentacao) {
+        const mov = p.ultima_movimentacao.toLowerCase();
+        if (mov.includes("decurso")) {
+            status = "Decurso";
+        } else if (mov.includes("baixa")) {
+            status = "Baixa";
+        } else if (mov.includes("trânsito")) {
+            status = "Trânsito";
+        }
+        }
+
         // Determina o valor de novo_despacho conforme a lógica:
         // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
         // Determina o valor de novoDespacho conforme sua lógica existente...
