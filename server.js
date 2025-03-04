@@ -213,24 +213,29 @@ app.post('/processos/atualizar', async (req, res) => {
         teor_ultimo_despacho: p.teor_ultimo_despacho || null,
         link: p.link || null
         };
-        
+
 
         function removeAccents(str) {
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         }
 
-        // Determina o status com base na última movimentação
+        // Determina o status com base apenas no teor da última movimentação
         let status = "Em trâmite";
-        if (p.ultima_movimentacao) {
-            const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
-            if (mov.includes("decurso")) {
+
+        if (p.teor_ultima_movimentacao) {
+            const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
+
+            if (teorMov.includes("decurso")) {
                 status = "Decurso";
-            } else if (mov.includes("baixa")) {
+            } else if (teorMov.includes("baixa")) {
                 status = "Baixa";
-            } else if (mov.includes("transito")) { // Sem acento
+            } else if (teorMov.includes("transito")) {
                 status = "Trânsito";
             }
         }
+
+// LOG DO STATUS AQUI
+console.log(`Status calculado para ${p.numero}: ${status}`);
 
         // LOG DO STATUS AQUI
         console.log(`Status calculado para ${p.numero}: ${status}`);
