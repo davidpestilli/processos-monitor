@@ -254,28 +254,6 @@ app.post('/processos/atualizar', async (req, res) => {
             }
         }
 
-// LOG DO STATUS AQUI
-console.log(`Status calculado para ${p.numero}: ${status}`);
-
-        // LOG DO STATUS AQUI
-        console.log(`Status calculado para ${p.numero}: ${status}`);
-
-        // Atualiza o processo no banco de dados
-        await db.collection('processos').findOneAndUpdate(
-            { numero: p.numero },
-            {
-                $set: {
-                    status, // Sempre atualiza o status ao atualizar a planilha
-                    ultima_pesquisa: new Date(),
-                    novo_despacho: novoDespacho
-                },
-                $push: { historico: historicoItem },
-                $setOnInsert: { numero: p.numero } // Apenas na primeira inserção
-            },
-            { upsert: true }
-        );
-
-
     }
   
       res.json({ message: "Processos atualizados com sucesso" });
