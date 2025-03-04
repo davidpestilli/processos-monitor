@@ -214,22 +214,6 @@ app.post('/processos/atualizar', async (req, res) => {
         link: p.link || null
         };
 
-        function removeAccents(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        }
-
-        // Determina o status com base na última movimentação
-        let status = "Em trâmite";
-        if (p.ultima_movimentacao) {
-            const mov = removeAccents(p.ultima_movimentacao.toLowerCase());
-            if (mov.includes("decurso")) {
-                status = "Decurso";
-            } else if (mov.includes("baixa")) {
-                status = "Baixa";
-            } else if (mov.includes("trânsito")) { // Sem acento
-                status = "Trânsito";
-            }
-        }
 
         await db.collection('processos').findOneAndUpdate(
             { numero: p.numero },
