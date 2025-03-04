@@ -113,7 +113,7 @@
   white-space: nowrap; /* Mantém o texto em uma única linha */
   overflow: hidden; /* Esconde o excesso de texto */
   text-overflow: ellipsis; /* Adiciona "..." ao final se o texto for muito longo */
-  max-width: 250px; /* Define uma largura máxima */
+  max-width: 150px; /* Define uma largura máxima */
   display: inline-block; /* Garante que a largura seja aplicada corretamente */
   }
 
