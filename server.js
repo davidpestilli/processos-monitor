@@ -152,14 +152,11 @@ app.post('/processos/atualizar', async (req, res) => {
       for (const p of processos) {
         // Aplica as funções de normalização
         p.numero = normalizeNumero(p.numero);
-        console.log("Verificando dados para o processo:", p.numero, "manual:", p.manual, "dados relevantes:", {
-            ultima_movimentacao: p.ultima_movimentacao,
-            teor_ultima_movimentacao: p.teor_ultima_movimentacao,
-            ultimo_despacho: p.ultimo_despacho,
-            teor_ultimo_despacho: p.teor_ultimo_despacho,
-            link: p.link
-        });
-  
+        p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
+        p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
+        p.ultimo_despacho = normalizeText(p.ultimo_despacho);
+        p.teor_ultimo_despacho = normalizeText(p.teor_ultimo_despacho);
+        p.link = normalizeText(p.link);
 
         // Determina o valor de novo_despacho conforme a lógica:
         // Se o payload já veio com novo_despacho, usa-o; senão, calcula com base no histórico
@@ -249,7 +246,7 @@ app.post('/processos/atualizar', async (req, res) => {
           );          
 
 
-      }
+    }
   
       res.json({ message: "Processos atualizados com sucesso" });
     } catch (error) {
