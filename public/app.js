@@ -182,6 +182,17 @@ document.addEventListener("DOMContentLoaded", () => {
   renderProcessos();
 });
 
+// Função para fechar o modal ao clicar fora dele
+document.addEventListener("click", (event) => {
+    const modais = document.querySelectorAll(".modal"); // Seleciona todas as modais
+    modais.forEach(modal => {
+        if (event.target === modal) { // Se o clique foi fora do conteúdo da modal
+            modal.style.display = "none";
+        }
+    });
+});
+
+
 const btnEnviarCSV = document.getElementById("btnEnviarCSV");
 if (btnEnviarCSV) {
     btnEnviarCSV.addEventListener("click", processarCSV);
