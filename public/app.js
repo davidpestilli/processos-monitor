@@ -24,30 +24,14 @@ function atualizarBotaoNovoDespacho(botao, processo) {
 
 async function alternarNovoDespacho(processo, botao) {
     try {
-        // Define o novo valor invertendo o atual
+        // Alterna o estado entre "Sim" e "Não" ao clique
         const novoValor = (processo.novo_despacho === "Sim") ? "Não" : "Sim";
 
-        console.log(`🔄 Alterando despacho do processo ${processo.numero} para ${novoValor}...`);
+        console.log(`🔄 Alternando despacho do processo ${processo.numero} para ${novoValor} manualmente...`);
 
-        // Envia a atualização para o backend
-        const response = await fetch(`${API_URL}/atualizar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                processos: [{ numero: processo.numero, novo_despacho: novoValor }]
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();  // Captura detalhes do erro do servidor
-            throw new Error(`Erro ao atualizar despacho no backend: ${errorText}`);
-        }
-
-        // Se o backend confirmou a mudança, atualiza o frontend
+        // Atualiza apenas a interface (sem lógica adicional)
         processo.novo_despacho = novoValor;
         atualizarBotaoNovoDespacho(botao, processo);
-        
-        console.log(`✅ Despacho do processo ${processo.numero} atualizado para ${novoValor}`);
 
     } catch (error) {
         console.error("❌ Erro ao alternar despacho:", error.message);
@@ -56,16 +40,16 @@ async function alternarNovoDespacho(processo, botao) {
 }
 
 
+
 // Renderiza os processos na tabela
 async function renderProcessos() {
     try {
-        const processos = await fetchProcessos(); // Obtém os processos do backend
-        tabelaBody.innerHTML = ""; // Limpa a tabela antes de renderizar
+        const processos = await fetchProcessos();
+        tabelaBody.innerHTML = "";
 
         processos.forEach(processo => {
             console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
 
-            // Cria a linha da tabela com os elementos necessários
             const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
 
             // Adiciona evento para abrir o modal de histórico
@@ -74,15 +58,14 @@ async function renderProcessos() {
                 openModalHistorico(processo);
             });
 
-            // Atualiza o botão de "Novo Despacho" conforme os dados vindos do backend
+            // Atualiza o botão conforme o backend
             atualizarBotaoNovoDespacho(btnNovoDespacho, processo);
 
-            // Adiciona evento para alternar entre Sim/Não ao clicar
+            // Evento para alternar "Sim"/"Não" manualmente ao clique
             btnNovoDespacho.addEventListener("click", async () => {
-                await alternarNovoDespacho(processo, btnNovoDespacho);
+                alternarNovoDespacho(processo, btnNovoDespacho);
             });
 
-            // Adiciona a linha processada na tabela
             tabelaBody.appendChild(row);
         });
 
@@ -90,6 +73,7 @@ async function renderProcessos() {
         console.error("❌ Erro ao renderizar processos:", error);
     }
 }
+
 
 
 // Configura o evento do formulário para adicionar um novo processo

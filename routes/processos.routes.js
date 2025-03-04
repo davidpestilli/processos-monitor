@@ -133,23 +133,28 @@ export function createProcessosRouter(db) {
                 teor_ultimo_despacho: p.teor_ultimo_despacho || null,
                 link: p.link || null
             };
+              // Atualiza ou insere o processo no MongoDB
+              const updateFields = { 
+                status, 
+                novo_despacho: novoDespachoStatus 
+              };
 
+              // Só atualiza `ultima_pesquisa` se a requisição vier de uma pesquisa manual
+              if (p.manual) {
+                updateFields.ultima_pesquisa = new Date();
+              }
             // Atualiza ou insere o processo no MongoDB
             await db.collection('processos').findOneAndUpdate(
-                { numero: p.numero },
-                {
-                    $set: { 
-                        status, 
-                        ultima_pesquisa: new Date(), 
-                        novo_despacho: novoDespachoStatus // Atualiza automaticamente o status do despacho
-                    },
-                    $push: { historico: historicoItem },
-                    $setOnInsert: { numero: p.numero }
-                },
-                { upsert: true, returnDocument: 'after' }
-            );
-
-            console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
+              { numero: p.numero },
+              {
+                  $set: updateFields,
+                  $push: { historico: historicoItem },
+                  $setOnInsert: { numero: p.numero }
+              },
+              { upsert: true, returnDocument: 'after' }
+          );
+          
+          console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
         }
 
         res.json({ message: "Processos atualizados com sucesso" });
