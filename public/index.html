@@ -21,23 +21,24 @@
     <section id="upload-section">
       <h2>Adicionar Processo</h2>
       
-      <div class="card">
+      <div class="form-container">
         <form id="formProcesso">
-          <div class="input-container">
-            <input type="text" id="numeroProcesso" name="numeroProcesso" required placeholder="Digite o número do processo">
-            <span class="icon">📜</span>
+          <label for="numeroProcesso">Número do Processo:</label>
+          <div class="input-group">
+            <input type="text" id="numeroProcesso" name="numeroProcesso" required placeholder="Ex: 1234567-89.2020.8.26.0100">
+            <button type="submit" id="btnAdicionar">Adicionar</button>
           </div>
-          <button type="submit" class="btn">➕ Adicionar</button>
         </form>
     
         <h3>Ou envie um arquivo CSV</h3>
-    
-        <label for="inputCSV" class="custom-file-upload">
-          📂 Escolher Arquivo CSV
-          <input type="file" id="inputCSV">
-        </label>
         
-        <button id="btnEnviarCSV" class="btn">📤 Enviar CSV</button>  
+        <div class="file-upload">
+          <input type="file" id="inputCSV">
+          <button id="btnEnviarCSV">Enviar CSV</button>    
+        </div>
+    
+        <!-- Área para mensagens de erro/sucesso -->
+        <p id="mensagemFeedback" class="hidden"></p>
       </div>
     </section>
 

@@ -74,6 +74,41 @@ async function renderProcessos() {
     }
 }
 
+const mensagemFeedback = document.getElementById("mensagemFeedback");
+
+function exibirMensagem(mensagem, tipo) {
+    mensagemFeedback.textContent = mensagem;
+    mensagemFeedback.className = tipo === "sucesso" ? "sucesso" : "erro";
+    mensagemFeedback.style.display = "block";
+
+    setTimeout(() => {
+        mensagemFeedback.style.display = "none";
+    }, 3000);
+}
+
+// Configura o evento do formulário para adicionar um novo processo
+if (formProcesso) {
+  formProcesso.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    if (!inputNumeroProcesso.value.trim()) {
+      exibirMensagem("Por favor, insira um número de processo válido.", "erro");
+      return;
+    }
+
+    const numeroProcesso = inputNumeroProcesso.value.trim();
+    
+    try {
+      await salvarProcesso({ numero: numeroProcesso, manual: true });
+      exibirMensagem("Processo adicionado com sucesso!", "sucesso");
+      renderProcessos();
+      inputNumeroProcesso.value = "";
+    } catch (error) {
+      console.error("Erro ao adicionar processo:", error);
+      exibirMensagem("Erro ao adicionar o processo.", "erro");
+    }
+  });
+}
 
 
 // Configura o evento do formulário para adicionar um novo processo
