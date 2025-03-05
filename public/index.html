@@ -20,16 +20,25 @@
     <!-- Seção para entrada de novos processos -->
     <section id="upload-section">
       <h2>Adicionar Processo</h2>
-      <form id="formProcesso">
-        <label for="numeroProcesso">Número do Processo:</label>
-        <input type="text" id="numeroProcesso" name="numeroProcesso" required placeholder="Ex: 1234567-89.2020.8.26.0100">
-        <button type="submit">Adicionar</button>
-      </form>
-
-      <h3>Ou envie um arquivo CSV</h3>
-      <input type="file" id="inputCSV">
-      <!-- Botão sem onclick inline; o evento será registrado no JS -->
-      <button id="btnEnviarCSV">Enviar CSV</button>    
+      
+      <div class="card">
+        <form id="formProcesso">
+          <div class="input-container">
+            <input type="text" id="numeroProcesso" name="numeroProcesso" required placeholder="Digite o número do processo">
+            <span class="icon">📜</span>
+          </div>
+          <button type="submit" class="btn">➕ Adicionar</button>
+        </form>
+    
+        <h3>Ou envie um arquivo CSV</h3>
+    
+        <label for="inputCSV" class="custom-file-upload">
+          📂 Escolher Arquivo CSV
+          <input type="file" id="inputCSV">
+        </label>
+        
+        <button id="btnEnviarCSV" class="btn">📤 Enviar CSV</button>  
+      </div>
     </section>
 
     <!-- Seção para exibição dos processos monitorados -->

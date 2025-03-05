@@ -35,6 +35,84 @@ main {
   margin: 0 auto;
 }
 
+/* Estilização da seção */
+#upload-section {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px var(--box-shadow-color);
+  text-align: center;
+}
+
+/* Estilização do card */
+.card {
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Estilização do input */
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.input-container .icon {
+  position: absolute;
+  right: 10px;
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+/* Estilização do botão */
+.btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.btn:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Botão estilizado para upload CSV */
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px;
+  width: 100%;
+  background: #e3e3e3;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.custom-file-upload input {
+  display: none;
+}
+
+
 /* Estilos para as seções */
 section {
   background: var(--white);
@@ -176,7 +254,6 @@ table tbody tr:nth-child(even) {
   top: 0;
   width: 100%;
   height: 100%;
-  max-height: 70vh;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
