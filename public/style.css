@@ -357,3 +357,74 @@ table tbody tr:nth-child(even) {
 .hidden {
   display: none;
 }
+
+/* Estilização do container de processos */
+.processes-container {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px var(--box-shadow-color);
+  margin-top: 20px;
+}
+
+.processes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.processes-header h2 {
+  margin: 0;
+}
+
+/* Estilização da tabela de processos */
+#tabelaProcessos {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#tabelaProcessos th {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 12px;
+  text-align: left;
+}
+
+#tabelaProcessos td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Alternância de cores nas linhas da tabela */
+#tabelaProcessos tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#tabelaProcessos tbody tr:hover {
+  background-color: #eef6ff;
+}
+
+/* Botão de exclusão múltipla */
+.btn-excluir-multiplo {
+  background-color: #dc3545;
+  color: var(--white);
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.btn-excluir-multiplo:hover {
+  background-color: #c82333;
+}
+
+/* Checkbox maior e mais clicável */
+#selecionarTodosProcessos {
+  transform: scale(1.2);
+  cursor: pointer;
+}
