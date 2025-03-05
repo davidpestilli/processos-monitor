@@ -428,3 +428,68 @@ table tbody tr:nth-child(even) {
   transform: scale(1.2);
   cursor: pointer;
 }
+
+/* Fonte personalizada para o site */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Estilização do cabeçalho */
+#site-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: var(--white);
+  text-align: center;
+  padding: 30px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px var(--box-shadow-color);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Efeito hover para dar um destaque sutil */
+#site-header:hover {
+  transform: scale(1.02);
+}
+
+/* Container do logo e título */
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* Logo */
+#logo-site {
+  width: 50px;
+  height: auto;
+  filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+/* Nome do site */
+#site-header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Tagline abaixo do nome */
+.tagline {
+  font-size: 1.1rem;
+  font-weight: 300;
+  margin-top: 5px;
+  opacity: 0.9;
+}
+
+/* Animação de entrada suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

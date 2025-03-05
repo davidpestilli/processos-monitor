@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoramento de Processos no STF</title>
+  <title>STF Watch - Acompanhe Processos em Tempo Real</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="container">
-    <h1>Monitoramento de Processos no STF</h1>
+
+  <!-- Cabeçalho melhorado -->
+  <header id="site-header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo STF Watch" id="logo-site">
+      <h1>STF Watch</h1>
+    </div>
+    <p class="tagline">Acompanhe processos em tempo real</p>
   </header>
 
   <main>
@@ -43,31 +48,6 @@
     </section>
 
     <!-- Seção para exibição dos processos monitorados -->
-    <section id="processes-section">
-      <h2>Processos Monitorados</h2>
-      <table id="tabelaProcessos">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" id="selecionarTodosProcessos">
-            </th>
-            <th>Número do Processo</th>
-            <th>Status</th>
-            <th>Última Pesquisa</th>
-            <th>Última Movimentação</th>
-            <th>Teor da Última Movimentação</th>
-            <th>Último Despacho</th>
-            <th>Teor do Último Despacho</th>
-            <th>Novo Despacho?</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaBody">
-          <!-- Os processos serão inseridos dinamicamente pelo app.js -->
-        </tbody>
-      </table>
-      <button id="btnExcluirSelecionados" class="btn-excluir-multiplo">Excluir Selecionados</button>
-    </section>
-
     <!-- 
     Seção de Login
     <section id="login-section">
