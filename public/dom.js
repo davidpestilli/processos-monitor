@@ -52,7 +52,7 @@ export function createProcessRow(processo) {
   teorMovLink.href = "#";
   teorMovLink.classList.add("teor-movimentacao");
   const teorMovText = ultimoHistorico.teor_ultima_movimentacao
-    ? limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 80)
+    ? limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 100)
     : "-";
   teorMovLink.textContent = teorMovText;
   teorMovLink.addEventListener("click", (e) => {
@@ -72,7 +72,7 @@ export function createProcessRow(processo) {
   const teorDespachoLink = document.createElement("a");
   teorDespachoLink.href = "#";
   teorDespachoLink.classList.add("teor-despacho");
-  teorDespachoLink.textContent = limitarTexto(ultimoHistorico.teor_ultimo_despacho, 80);
+  teorDespachoLink.textContent = limitarTexto(ultimoHistorico.teor_ultimo_despacho, 100);
   teorDespachoLink.addEventListener("click", (e) => {
     e.preventDefault();
     openModalTexto(ultimoHistorico.teor_ultimo_despacho || "-", "Teor do Último Despacho", ultimoHistorico.link || null);
