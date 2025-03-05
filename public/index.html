@@ -47,39 +47,34 @@
 
   <!-- Seção de Processos Monitorados -->
   <section id="processes-section">
-    <div class="processes-container">
-      
-      <div class="processes-header">
+    <div class="processos-header">
+        <button id="btnExcluirSelecionados" class="btn-excluir-multiplo">Excluir Selecionados</button>
         <h2>Processos Monitorados</h2>
-        <button id="btnExcluirSelecionados" class="btn-excluir-multiplo">
-          🗑️ Excluir Selecionados
-        </button>
-      </div>
-
-      <table id="tabelaProcessos">
+    </div>
+    <table id="tabelaProcessos">
         <thead>
-          <tr>
-            <th><input type="checkbox" id="selecionarTodosProcessos"></th>
-            <th>Número do Processo</th>
-            <th>Status</th>
-            <th>Última Pesquisa</th>
-            <th>Última Movimentação</th>
-            <th>Teor da Última Movimentação</th>
-            <th>Último Despacho</th>
-            <th>Teor do Último Despacho</th>
-            <th>Novo Despacho?</th>
-          </tr>
+            <tr>
+                <th><input type="checkbox" id="selecionarTodosProcessos"></th>
+                <th>Número do Processo</th>
+                <th>Status</th>
+                <th>Última Pesquisa</th>
+                <th>Última Movimentação</th>
+                <th>Teor da Última Movimentação</th>
+                <th>Último Despacho</th>
+                <th>Teor do Último Despacho</th>
+                <th>Novo Despacho?</th>
+            </tr>
         </thead>
         <tbody id="tabelaBody">
-          <!-- Os processos serão inseridos dinamicamente pelo app.js -->
+            <!-- Processos serão inseridos aqui dinamicamente -->
         </tbody>
-      </table>
-    </div>
-  </section>
+    </table>
+</section>
+
 
   <!-- Scripts -->
   <script type="module" src="app.js"></script>
-  
+
 
     <!-- Seção para exibição dos processos monitorados -->
     <!-- 

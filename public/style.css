@@ -523,3 +523,15 @@ header {
   align-items: center;
   justify-content: center;
 }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Adiciona um pequeno espaço entre o logo e o título */
+  padding: 10px;
+}
+
+#logo {
+  height: 50px; /* Ajuste conforme necessário */
+}
