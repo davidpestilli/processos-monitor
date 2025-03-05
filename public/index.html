@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoramento de Processos</title>
+  <title>Monitoramento de Processos no STF</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,31 +12,35 @@
 <body>
   <header>
     <div class="container">
-      <h1>Monitoramento de Processos</h1>
-    </div>
+    <h1>Monitoramento de Processos no STF</h1>
   </header>
 
-  <main class="container">
-    <section id="upload-section" class="card">
+  <main>
+    <main class="container">
+    <!-- Seção para entrada de novos processos -->
+    <section id="upload-section">
       <h2>Adicionar Processo</h2>
       <form id="formProcesso">
         <label for="numeroProcesso">Número do Processo:</label>
         <input type="text" id="numeroProcesso" name="numeroProcesso" required placeholder="Ex: 1234567-89.2020.8.26.0100">
-        <button type="submit" class="btn">Adicionar</button>
+        <button type="submit">Adicionar</button>
       </form>
-      <div class="file-upload">
-        <h3>Ou envie um arquivo CSV</h3>
-        <input type="file" id="inputCSV">
-        <button id="btnEnviarCSV" class="btn">Enviar CSV</button>
-      </div>
+
+      <h3>Ou envie um arquivo CSV</h3>
+      <input type="file" id="inputCSV">
+      <!-- Botão sem onclick inline; o evento será registrado no JS -->
+      <button id="btnEnviarCSV">Enviar CSV</button>    
     </section>
 
-    <section id="processes-section" class="card">
+    <!-- Seção para exibição dos processos monitorados -->
+    <section id="processes-section">
       <h2>Processos Monitorados</h2>
       <table id="tabelaProcessos">
         <thead>
           <tr>
-            <th><input type="checkbox" id="selecionarTodosProcessos"></th>
+            <th>
+              <input type="checkbox" id="selecionarTodosProcessos">
+            </th>
             <th>Número do Processo</th>
             <th>Status</th>
             <th>Última Pesquisa</th>
@@ -48,12 +52,80 @@
           </tr>
         </thead>
         <tbody id="tabelaBody">
+          <!-- Os processos serão inseridos dinamicamente pelo app.js -->
         </tbody>
       </table>
-      <button id="btnExcluirSelecionados" class="btn btn-danger">Excluir Selecionados</button>
+      <button id="btnExcluirSelecionados" class="btn-excluir-multiplo">Excluir Selecionados</button>
+    </section>
+
+    <!-- Seção de Login -->
+    <section id="login-section">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <div>
+          <label for="email">E-mail:</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+          <label for="password">Senha:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Entrar</button>
+      </form>
+      <!-- Elemento para exibir erros de login -->
+      <p id="loginError" style="color: red; margin-top: 10px;"></p>
+    </section>
+
+    <!-- Seção de Registro de Usuário -->
+    <section id="register-section">
+      <h2>Registrar Usuário</h2>
+      <form id="registerForm">
+        <div>
+          <label for="registerEmail">E-mail:</label>
+          <input type="email" id="registerEmail" name="registerEmail" required>
+        </div>
+        <div>
+          <label for="registerPassword">Senha:</label>
+          <input type="password" id="registerPassword" name="registerPassword" required>
+        </div>
+        <button type="submit">Registrar</button>
+      </form>
     </section>
   </main>
 
+  <!-- Scripts -->
   <script type="module" src="app.js"></script>
+
+  <!-- Modal para exibir o despacho -->
+  <div id="modalDespacho" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalDespachoTitle">
+    <div class="modal-content">
+      <span id="fecharDespacho" class="close" tabindex="0" aria-label="Fechar">&times;</span>
+      <h2 id="modalDespachoTitle" class="sr-only">Despacho</h2>
+      <p id="modalTextoDespacho"></p>
+      <a id="modalLinkDespacho" href="#" target="_blank">Ver despacho no STF</a>
+    </div>
+  </div>
+
+  <!-- Modal para exibir o histórico do processo -->
+  <div id="modalHistorico" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalHistoricoTitle">
+    <div class="modal-content">
+      <span id="fecharHistorico" class="close" tabindex="0" aria-label="Fechar">&times;</span>
+      <h2 id="modalHistoricoTitle" class="sr-only">Histórico do Processo</h2>
+      <div id="modalConteudoHistorico"></div>
+      <button id="btnExcluirHistoricoSelecionado" class="btn-excluir-multiplo">Excluir Selecionados</button>
+    </div>
+  </div>
+
+  <!-- Modal genérico para exibir teor de movimentação e despacho -->
+  <div id="modalGenerico" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalGenericoTitle">
+    <div class="modal-content">
+      <span id="fecharModalGenerico" class="close" tabindex="0" aria-label="Fechar">&times;</span>
+      <h2 id="modalGenericoTitle" class="sr-only">Detalhes</h2>
+      <h2 id="modalTituloGenerico"></h2>
+      <p id="modalTextoGenerico"></p>
+      <a id="modalLinkGenerico" href="#" target="_blank" style="display: none;">Ver decisão no STF</a>
+    </div>
+  </div>
 </body>
 </html>
+S
