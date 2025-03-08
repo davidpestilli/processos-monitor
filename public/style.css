@@ -937,16 +937,43 @@ td.gap, td.resumo {
 }
 
 
-<<<<<<< HEAD
-=======
-/* 🔹 Ajuste específico para o modal "Resumo Detalhado" */
-#modalResumoDetalhado .modal-content {
-  max-width: 600px;
-}
-
->>>>>>> 40fc2d1fb029a61d377dc164bf5b77a8544258ac
 /* 🔹 Ajuste para garantir que o conteúdo do modal tenha rolagem se for grande */
 .modal-content {
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* 🔥 Ajusta o tamanho do modal de histórico */
+#modalHistorico .modal-content {
+  width: 90%; /* Ajusta para ocupar 90% da largura da tela */
+  max-width: 1200px; /* Limite máximo para evitar que fique muito grande */
+  max-height: 80vh; /* Garante que o modal não fique muito alto */
+  overflow-y: auto; /* Adiciona rolagem se o conteúdo for grande */
+}
+
+/* 🔥 Ajuste do título do modal */
+#modalHistorico h2 {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* 🔥 Ajuste do conteúdo dentro do modal */
+#modalHistorico table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#modalHistorico table th, 
+#modalHistorico table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* 🔥 Melhoria para que a tabela se ajuste bem dentro do modal */
+#modalHistorico .modal-content {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fff;
 }
