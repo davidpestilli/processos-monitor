@@ -382,13 +382,14 @@ if (btnExcluirHistorico) {
 
 
 //evento para botões dos modais da coluna resumo
-btnIncluirResumo.addEventListener("click", () => {
+document.getElementById("btnIncluirResumo").addEventListener("click", () => {
   if (window.currentProcesso) {
-    openModalIncluirResumo(window.currentProcesso); // ✅ Agora `processo` está garantido
+    openModalIncluirResumo(window.currentProcesso); // ✅ Agora sempre passamos um processo válido
   } else {
     console.error("❌ ERRO: Nenhum processo selecionado para incluir resumo.");
   }
 });
+
 
 
   document.getElementById("fecharModalResumos").addEventListener("click", () => {
