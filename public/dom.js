@@ -120,19 +120,44 @@ export function createProcessRow(processo) {
 
 }
 
-// Função para abrir o modal genérico (para exibir textos completos)
 export function openModalTexto(text, title, link = null) {
-  document.getElementById("modalTextoGenerico").textContent = text;
-  document.getElementById("modalTituloGenerico").textContent = title;
+  const modal = document.getElementById("modalGenerico");
+  const modalTitulo = document.getElementById("modalTituloGenerico");
+  const modalTexto = document.getElementById("modalTextoGenerico");
   const modalLink = document.getElementById("modalLinkGenerico");
+
+  console.log(`🟢 Abrindo modal: ${title}`);
+
+  // Define o título e o texto do modal
+  modalTitulo.textContent = title;
+  modalTexto.textContent = text || "Nenhum conteúdo disponível.";
+
+  // Exibe o link se existir
   if (link) {
-    modalLink.href = link;
-    modalLink.style.display = "block";
+      modalLink.href = link;
+      modalLink.style.display = "block";
   } else {
-    modalLink.style.display = "none";
+      modalLink.style.display = "none";
   }
-  document.getElementById("modalGenerico").style.display = "block";
+
+  modal.style.display = "block";
 }
+
+// Fecha o modal ao clicar no "X"
+document.getElementById("fecharModalGenerico").addEventListener("click", () => {
+  console.log("🔴 Fechando modal genérico.");
+  document.getElementById("modalGenerico").style.display = "none";
+});
+
+// Fecha o modal ao clicar fora dele
+window.addEventListener("click", (event) => {
+  const modal = document.getElementById("modalGenerico");
+  if (event.target === modal) {
+      console.log("🔴 Fechando modal genérico ao clicar fora.");
+      modal.style.display = "none";
+  }
+});
+
 
 // Função para abrir o modal de histórico de um processo
 export function openModalHistorico(processo) {
