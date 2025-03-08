@@ -136,7 +136,9 @@ export function createProcessosRouter(db) {
               // Atualiza ou insere o processo no MongoDB
               const updateFields = { 
                 status, 
-                novo_despacho: novoDespachoStatus 
+                novo_despacho: novoDespachoStatus, 
+                gap: p.gap || processoExistente?.gap || "", // Mantém o assistente salvo caso não seja atualizado
+                resumo: p.resumo || "" 
               };
 
               // Só atualiza `ultima_pesquisa` se a requisição vier de uma pesquisa manual

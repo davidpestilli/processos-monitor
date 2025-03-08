@@ -86,6 +86,94 @@ function exibirMensagem(mensagem, tipo) {
     }, 3000);
 }
 
+//lógica do modal GAP
+function abrirModalGAP(processo) {
+  console.log(`🟢 Abrindo modal GAP para o processo: ${processo.numero}`);
+
+  const modal = document.getElementById("modalGAP");
+  const inputAssistente = document.getElementById("inputNomeAssistente");
+  const btnIncluir = document.getElementById("btnIncluirAssistente");
+  const mensagem = document.getElementById("mensagemGAP");
+
+  // Resetando o campo de entrada e mensagem ao abrir o modal
+  inputAssistente.value = "";
+  mensagem.textContent = "";
+
+  modal.style.display = "block";
+
+  btnIncluir.onclick = async () => {
+    const nomeAssistente = inputAssistente.value.trim();
+    
+    if (!nomeAssistente) {
+        console.warn("⚠️ Nenhum nome foi digitado para o assistente.");
+        mensagem.textContent = "Por favor, insira um nome.";
+        return;
+    }
+
+    console.log(`📨 Enviando solicitação para atualizar o assistente do processo ${processo.numero} para "${nomeAssistente}"...`);
+
+    try {
+        const response = await fetch(`${API_URL}/atualizar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                processos: [{ numero: processo.numero, gap: nomeAssistente }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro na resposta do servidor: ${response.status}`);
+        }
+
+        console.log(`✅ Assistente "${nomeAssistente}" incluído com sucesso no processo ${processo.numero}.`);
+
+        mensagem.textContent = `O assistente ${nomeAssistente} foi incluído.`;
+        processo.gap = nomeAssistente;
+
+        // 🔹 Busca a célula correta na tabela usando dataset
+        const gapCell = document.querySelector(`td.gap-cell[data-numero="${processo.numero}"]`);
+
+        if (gapCell) {
+            gapCell.textContent = nomeAssistente;
+            console.log(`🖊️ Atualização bem-sucedida: assistente visível na tabela → "${nomeAssistente}".`);
+        } else {
+            console.warn(`⚠️ ERRO: A célula GAP do processo ${processo.numero} não foi encontrada na tabela.`);
+            console.log("📌 Verifique se o número do processo no dataset corresponde ao número do processo salvo.");
+        }
+
+        setTimeout(() => {
+            console.log("🔒 Fechando modal GAP...");
+            modal.style.display = "none";
+        }, 1000);
+
+    } catch (error) {
+        console.error(`❌ Erro ao salvar o assistente para o processo ${processo.numero}:`, error);
+        mensagem.textContent = "Erro ao salvar assistente.";
+    }
+};
+
+}
+
+// 🔽 Torna a função global para `dom.js` poder chamá-la 🔽
+window.abrirModalGAP = abrirModalGAP;
+
+// Fecha o modal ao clicar no "X"
+document.getElementById("fecharModalGAP").addEventListener("click", () => {
+  console.log("🔴 Fechando modal GAP manualmente.");
+  document.getElementById("modalGAP").style.display = "none";
+});
+
+// Fecha o modal ao clicar fora dele
+window.addEventListener("click", (event) => {
+  const modal = document.getElementById("modalGAP");
+  if (event.target === modal) {
+      console.log("🔴 Fechando modal GAP ao clicar fora.");
+      modal.style.display = "none";
+  }
+});
+
+
+
 // Configura o evento do formulário para adicionar um novo processo
 if (formProcesso) {
   formProcesso.addEventListener("submit", async (e) => {

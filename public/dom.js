@@ -94,7 +94,30 @@ export function createProcessRow(processo) {
   novoDespachoCell.appendChild(btnNovoDespacho);
   row.appendChild(novoDespachoCell);
 
+
+  // Célula GAP
+  const gapCell = document.createElement("td");
+  gapCell.classList.add("gap-cell");
+  gapCell.dataset.numero = processo.numero; // Adiciona o número do processo para referência
+  gapCell.textContent = processo.gap || "—"; // Se não houver assistente, mostra "—"
+
+  // Adiciona evento de clique para abrir o modal
+  gapCell.addEventListener("click", () => {
+    console.log(`🟢 Clicado na célula GAP do processo ${processo.numero}`);
+    abrirModalGAP(processo);
+  });
+
+  row.appendChild(gapCell);
+
+
+
+  // Célula Resumo
+  const resumoCell = document.createElement("td");
+  resumoCell.textContent = processo.resumo || "-";
+  row.appendChild(resumoCell);
+
   return { row, numeroLink, btnNovoDespacho, checkbox };
+
 }
 
 // Função para abrir o modal genérico (para exibir textos completos)

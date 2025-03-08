@@ -535,3 +535,11 @@ header {
 #logo {
   height: 50px; /* Ajuste conforme necessário */
 }
+
+/* Estilo para as novas colunas */
+td.gap, td.resumo {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
