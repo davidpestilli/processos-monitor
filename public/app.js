@@ -104,6 +104,11 @@ async function renderProcessos() {
   }
 }
 
+// Chamar a função ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🟢 DOM carregado, chamando renderProcessos()...");
+  renderProcessos();
+});
 
 const mensagemFeedback = document.getElementById("mensagemFeedback");
 

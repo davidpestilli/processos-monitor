@@ -11,27 +11,43 @@ import { computeDifferencePercentage, normalizeNumero, normalizeText, removeAcce
 export function createProcessosRouter(db) {
   const router = express.Router();
 
-  // GET /processos - Retorna todos os processos
   router.get("/", async (req, res) => {
     try {
-      const processos = await db.collection("processos").find().toArray();
-      res.json(processos.map(processo => ({
-        numero: processo.numero,
-        status: processo.status,
-        ultima_pesquisa: processo.ultima_pesquisa,
-        ultima_movimentacao: processo.ultima_movimentacao || "-", // Última Movimentação
-        teor_ultima_movimentacao: processo.teor_ultima_movimentacao || "-", // Teor da Última Movimentação
-        ultimo_despacho: processo.ultimo_despacho || "-", // Último Despacho
-        teor_ultimo_despacho: processo.teor_ultimo_despacho || "-", // Teor do Último Despacho
-        novo_despacho: processo.novo_despacho,
-        gap: processo.gap,
-        resumos: processo.resumos || [] // 🔹 Garante que `resumos` seja sempre um array
-      })));
+        console.log("🔎 Buscando processos no MongoDB...");
+
+        const processos = await db.collection("processos").find().toArray();
+
+        if (!processos || processos.length === 0) {
+            console.warn("⚠️ Nenhum processo encontrado no banco de dados.");
+        } else {
+            console.log(`📊 ${processos.length} processos encontrados.`);
+        }
+
+        // 🔥 Garantindo a ordem correta dos campos
+        const processosFormatados = processos.map(processo => ({
+            historico: processo.historico || [],  
+            numero: processo.numero || "-",
+            status: processo.status || "-",
+            ultima_pesquisa: processo.ultima_pesquisa || "-",
+            ultima_movimentacao: processo.ultima_movimentacao || "-",
+            teor_ultima_movimentacao: processo.teor_ultima_movimentacao || "-",
+            ultimo_despacho: processo.ultimo_despacho || "-",
+            teor_ultimo_despacho: processo.teor_ultimo_despacho || "-",
+            gap: processo.gap || "-",
+            resumos: processo.resumos || []
+        }));
+
+        console.log("📤 Enviando processos completos para o frontend:", JSON.stringify(processosFormatados, null, 2));
+
+        res.json(processosFormatados);
     } catch (error) {
-      console.error("❌ Erro ao buscar processos:", error);
-      res.status(500).json({ error: "Erro ao buscar processos." });
+        console.error("❌ Erro ao buscar processos:", error);
+        res.status(500).json({ error: "Erro ao buscar processos." });
     }
-  });
+});
+
+
+
   
 
   // GET /processos/numeros - Retorna os números dos processos com status "Em trâmite"
@@ -138,23 +154,30 @@ export function createProcessosRouter(db) {
 
             // Atualiza ou insere o processo no MongoDB
             // Primeiro, atualiza os demais campos do processo
-            const updateFields = { 
-              status, 
-              novo_despacho: novoDespachoStatus, 
-              gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", 
-              resumo: p.resumo || "" 
+            // Garante que `updateFields` inclua TODOS os campos, preservando valores existentes
+            const updateFields = {
+              status,
+              novo_despacho: novoDespachoStatus,
+              gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "",
+              resumo: p.resumo || "",
+              ultima_movimentacao: p.ultima_movimentacao !== undefined ? p.ultima_movimentacao : processoExistente?.ultima_movimentacao,
+              teor_ultima_movimentacao: p.teor_ultima_movimentacao !== undefined ? p.teor_ultima_movimentacao : processoExistente?.teor_ultima_movimentacao,
+              ultimo_despacho: p.ultimo_despacho !== undefined ? p.ultimo_despacho : processoExistente?.ultimo_despacho,
+              teor_ultimo_despacho: p.teor_ultimo_despacho !== undefined ? p.teor_ultimo_despacho : processoExistente?.teor_ultimo_despacho
             };
 
+            // Atualiza a última pesquisa apenas se for uma requisição manual
             if (p.manual) {
               updateFields.ultima_pesquisa = new Date();
             }
 
-            // Atualiza os dados principais do processo
+            // Atualiza o banco com todos os campos preservados
             await db.collection('processos').findOneAndUpdate(
               { numero: p.numero },
               { $set: updateFields },
               { upsert: true, returnDocument: 'after' }
             );
+
 
             // Agora, se houver histórico novo, adiciona separadamente
             if (historicoItem) {

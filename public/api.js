@@ -27,7 +27,6 @@ export async function fetchProcessos() {
     
     const response = await fetch(`${API_URL}?_=${cacheBuster}`, { cache: "no-store" });
 
-    // Log de status da resposta HTTP
     console.log(`📡 Resposta da API: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
@@ -36,19 +35,20 @@ export async function fetchProcessos() {
 
     const processos = await response.json();
     
-    // Verifica se os dados estão corretos
-    if (!Array.isArray(processos)) {
-      console.error("❌ API retornou um formato inválido. Dados recebidos:", processos);
-      return [];
-    }
-
     console.log("📊 Processos recebidos do backend:", processos);
+
     return processos;
   } catch (error) {
     console.error("❌ Erro ao buscar processos:", error);
     return [];
   }
 }
+
+// 🚀 Teste a função chamando-a diretamente
+fetchProcessos().then(processos => {
+  console.log("🟢 Teste direto no navegador - Processos recebidos:", processos);
+});
+
 
 
 // Função para atualizar o campo "Novo Despacho"
