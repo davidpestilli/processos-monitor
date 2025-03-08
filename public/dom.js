@@ -139,11 +139,15 @@ export function createProcessRow(processo) {
       return;
     }
 
-      // 🔹 Atualiza a variável global antes de abrir o modal
-    window.currentProcesso = processo;
+  // 🔹 Atualiza a variável global antes de abrir o modal
+  window.currentProcesso = processo;
 
-    console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
-    openModalResumos(processo);
+  // 🔹 O modal sempre será aberto, mesmo sem resumos
+  resumoCell.addEventListener("click", () => {
+  console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
+  });
+
+  openModalResumos(processo);
   });
   
 
