@@ -108,34 +108,48 @@ export function createProcessosRouter(db) {
                 : `⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`
             );
 
-            // Define o estado anterior do botão
-            const estadoAnterior = processoExistente ? (processoExistente.novo_despacho || "Não") : "Não";
-            let novoDespachoStatus = estadoAnterior;
 
-            const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
-            let diferenca = teorNovo ? computeDifferencePercentage(teorAnterior, teorNovo) : 0;
+          // Define o estado anterior do botão "Novo Despacho"
+          const estadoAnterior = processoExistente ? (processoExistente.novo_despacho || "Não") : "Não";
+          let novoDespachoStatus = estadoAnterior;
 
-            console.log(`🔍 Comparando despachos para ${p.numero}`);
-            console.log(`📝 Anterior: "${teorAnterior}"`);
-            console.log(`🆕 Novo: "${teorNovo}"`);
-            console.log(`📊 Diferença: ${diferenca}%`);
+          // Se há um novo teor de despacho, calcula a diferença
+          const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
+          let diferenca = 0;
 
-            if (diferenca >= 5 && estadoAnterior === "Não") {
-                novoDespachoStatus = "Sim";
-                console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim".`);
-            } else {
-                console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
-            }
+          if (teorNovo) {
+              diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
 
-            // Determina o status com base no teor da última movimentação
+              console.log(`🔍 Comparando despachos para ${p.numero}`);
+              console.log(`📝 Anterior: "${teorAnterior}"`);
+              console.log(`🆕 Novo: "${teorNovo}"`);
+              console.log(`📊 Diferença: ${diferenca}%`);
+
+              // Se a diferença for maior que 5% e o estado anterior era "Não", muda para "Sim"
+              if (diferenca >= 5 && estadoAnterior === "Não") {
+                  novoDespachoStatus = "Sim";
+                  console.log(`✅ Diferença >= 5% e estava "Não". Atualizando novo_despacho para "Sim".`);
+              } else {
+                  console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
+              }
+          }
+
+
+            // Atualiza o status baseado no teor da última movimentação
             let status = "Em trâmite";
             if (p.teor_ultima_movimentacao) {
                 const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
-                if (teorMov.includes("decurso")) status = "Decurso";
-                else if (teorMov.includes("baixa")) status = "Baixa";
-                else if (teorMov.includes("transito")) status = "Trânsito";
-                else if (teorMov.includes("origem")) status = "Origem";
+                if (teorMov.includes("decurso")) {
+                    status = "Decurso";
+                } else if (teorMov.includes("baixa")) {
+                    status = "Baixa";
+                } else if (teorMov.includes("transito")) {
+                    status = "Trânsito";
+                } else if (teorMov.includes("origem")) {
+                    status = "Origem";
+                }
             }
+
 
             // Declara historicoItem no escopo correto antes de usar
             let historicoItem = null;
