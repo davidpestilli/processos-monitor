@@ -144,8 +144,6 @@ export function createProcessosRouter(db) {
                 teor_ultimo_despacho: p.teor_ultimo_despacho || null,
                 link: p.link || null
             };
-            updateFields.historico = processoExistente.historico || [];
-            updateFields.historico.push(historicoItem); // Apenas adiciona ao histórico se houver mudanças nele
         }            
               // Atualiza ou insere o processo no MongoDB
               const updateFields = { 
@@ -155,6 +153,12 @@ export function createProcessosRouter(db) {
                 resumo: p.resumo || "" 
               };
 
+              // Se houver um histórico existente, adiciona o novo item ao histórico
+              if (historicoModificado) { 
+                updateFields.historico = processoExistente.historico || [];
+                updateFields.historico.push(historicoItem);
+              }
+              
               // Só atualiza `ultima_pesquisa` se a requisição vier de uma pesquisa manual
               if (p.manual) {
                 updateFields.ultima_pesquisa = new Date();
@@ -251,9 +255,6 @@ router.get("/:numero/resumos", async (req, res) => {
   }
 });
 
-
-
-
 router.post("/:numero/resumos", async (req, res) => {
   try {
     const numero = req.params.numero;
@@ -274,7 +275,6 @@ router.post("/:numero/resumos", async (req, res) => {
     res.status(500).json({ error: "Erro ao salvar resumo." });
   }
 });
-
 
 return router;
 }
