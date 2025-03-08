@@ -70,110 +70,95 @@ export function createProcessosRouter(db) {
             // Obtém o processo existente no banco de dados
             const processoExistente = await db.collection('processos').findOne(
               { numero: p.numero },
-              { projection: { teor_ultimo_despacho: 1, historico: 1, novo_despacho: 1, gap: 1 } } // 🔹 Incluindo GAP na consulta
+              { projection: { teor_ultimo_despacho: 1, historico: 1, novo_despacho: 1, gap: 1 } } 
             );
             
-          
-          // Garante que o último despacho seja corretamente identificado
-          let teorAnterior = "";
-          if (processoExistente) {
-              if (processoExistente.teor_ultimo_despacho) {
-                  teorAnterior = normalizeText(processoExistente.teor_ultimo_despacho);
-              } else if (processoExistente.historico && processoExistente.historico.length > 0) {
-                  const historicoOrdenado = processoExistente.historico.sort((a, b) => new Date(b.data) - new Date(a.data));
-                  teorAnterior = normalizeText(historicoOrdenado[0].teor_ultimo_despacho || "");
-              }
-          }
-          
-          if (teorAnterior) {
-              console.log(`📜 Último despacho encontrado para ${p.numero}: "${teorAnterior}"`);
-          } else {
-              console.log(`⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`);
-          }
-          
-          // Define o estado anterior do botão
-          const estadoAnterior = processoExistente ? (processoExistente.novo_despacho || "Não") : "Não";
-          
-          let novoDespachoStatus = estadoAnterior; // Mantém o estado salvo no banco por padrão
-          
-          // Se há um novo teor de despacho, calcula a diferença
-          const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
-          let diferenca = 0; // Inicializa a variável
-          
-          if (teorNovo) {
-              diferenca = computeDifferencePercentage(teorAnterior, teorNovo);
-          
-              console.log(`🔍 Comparando despachos para ${p.numero}`);
-              console.log(`📝 Anterior: "${teorAnterior}"`);
-              console.log(`🆕 Novo: "${teorNovo}"`);
-              console.log(`📊 Diferença: ${diferenca}%`);
-          
-              // Se a diferença for maior que 5% e o estado anterior era "Não", muda para "Sim"
-              if (diferenca >= 5 && estadoAnterior === "Não") {
-                  novoDespachoStatus = "Sim";
-                  console.log(`✅ Diferença >= 5% e estava "Não". Atualizando novo_despacho para "Sim"`);
-              } else {
-                  console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
-              }  
+            let teorAnterior = "";
+            if (processoExistente) {
+                if (processoExistente.teor_ultimo_despacho) {
+                    teorAnterior = normalizeText(processoExistente.teor_ultimo_despacho);
+                } else if (processoExistente.historico && processoExistente.historico.length > 0) {
+                    const historicoOrdenado = processoExistente.historico.sort((a, b) => new Date(b.data) - new Date(a.data));
+                    teorAnterior = normalizeText(historicoOrdenado[0].teor_ultimo_despacho || "");
+                }
+            }
             
+            console.log(teorAnterior 
+                ? `📜 Último despacho encontrado para ${p.numero}: "${teorAnterior}"`
+                : `⚠️ Nenhum despacho anterior encontrado no campo principal nem no histórico.`
+            );
+
+            // Define o estado anterior do botão
+            const estadoAnterior = processoExistente ? (processoExistente.novo_despacho || "Não") : "Não";
+            let novoDespachoStatus = estadoAnterior;
+
+            const teorNovo = p.teor_ultimo_despacho ? normalizeText(p.teor_ultimo_despacho) : "";
+            let diferenca = teorNovo ? computeDifferencePercentage(teorAnterior, teorNovo) : 0;
+
+            console.log(`🔍 Comparando despachos para ${p.numero}`);
+            console.log(`📝 Anterior: "${teorAnterior}"`);
+            console.log(`🆕 Novo: "${teorNovo}"`);
+            console.log(`📊 Diferença: ${diferenca}%`);
+
+            if (diferenca >= 5 && estadoAnterior === "Não") {
+                novoDespachoStatus = "Sim";
+                console.log(`✅ Diferença >= 5%. Atualizando novo_despacho para "Sim".`);
+            } else {
+                console.log(`🔹 Diferença < 5% OU já estava "Sim". Mantendo estado atual.`);
             }
 
             // Determina o status com base no teor da última movimentação
             let status = "Em trâmite";
             if (p.teor_ultima_movimentacao) {
                 const teorMov = removeAccents(p.teor_ultima_movimentacao.toLowerCase());
-                if (teorMov.includes("decurso")) {
-                    status = "Decurso";
-                } else if (teorMov.includes("baixa")) {
-                    status = "Baixa";
-                } else if (teorMov.includes("transito")) {
-                    status = "Trânsito";
-                } else if (teorMov.includes("origem")) {
-                    status = "Origem";
-                }
+                if (teorMov.includes("decurso")) status = "Decurso";
+                else if (teorMov.includes("baixa")) status = "Baixa";
+                else if (teorMov.includes("transito")) status = "Trânsito";
+                else if (teorMov.includes("origem")) status = "Origem";
             }
-        // ⚠️ Só adiciona uma nova entrada ao histórico se os campos de movimentação ou despacho foram alterados
-        const historicoModificado = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho;
-        if (historicoModificado) {          
-        // Cria um item para o histórico
-            const historicoItem = {
-                data: new Date(),
-                ultima_movimentacao: p.ultima_movimentacao || null,
-                teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
-                ultimo_despacho: p.ultimo_despacho || null,
-                teor_ultimo_despacho: p.teor_ultimo_despacho || null,
-                link: p.link || null
-            };
-        }            
-              // Atualiza ou insere o processo no MongoDB
-              const updateFields = { 
+
+            // Declara historicoItem no escopo correto antes de usar
+            let historicoItem = null;
+            const historicoModificado = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho;
+            
+            if (historicoModificado) {          
+                historicoItem = {
+                    data: new Date(),
+                    ultima_movimentacao: p.ultima_movimentacao || null,
+                    teor_ultima_movimentacao: p.teor_ultima_movimentacao || null,
+                    ultimo_despacho: p.ultimo_despacho || null,
+                    teor_ultimo_despacho: p.teor_ultimo_despacho || null,
+                    link: p.link || null
+                };
+            }
+
+            // Atualiza ou insere o processo no MongoDB
+            const updateFields = { 
                 status, 
                 novo_despacho: novoDespachoStatus, 
-                gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", // Mantém o GAP atual se não houver novo valor
+                gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", 
                 resumo: p.resumo || "" 
-              };
+            };
 
-              // Se houver um histórico existente, adiciona o novo item ao histórico
-              if (historicoModificado) { 
-                updateFields.historico = processoExistente.historico || [];
+            if (historicoModificado && historicoItem) { 
+                updateFields.historico = [...(processoExistente?.historico || [])]; 
                 updateFields.historico.push(historicoItem);
-              }
-              
-              // Só atualiza `ultima_pesquisa` se a requisição vier de uma pesquisa manual
-              if (p.manual) {
+            }
+
+            if (p.manual) {
                 updateFields.ultima_pesquisa = new Date();
-              }
-            // Atualiza ou insere o processo no MongoDB
+            }
+
             await db.collection('processos').findOneAndUpdate(
-              { numero: p.numero },
-              {
-                  $set: updateFields,
-                  ...(historicoModificado ? { $push: { historico: historicoItem } } : {}) // Só adiciona ao histórico se necessário
-              },
-              { upsert: true, returnDocument: 'after' }
-          );
-          
-          console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
+                { numero: p.numero },
+                {
+                    $set: updateFields,
+                    ...(historicoItem ? { $push: { historico: historicoItem } } : {}) 
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+
+            console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
         }
 
         res.json({ message: "Processos atualizados com sucesso" });
@@ -183,6 +168,7 @@ export function createProcessosRouter(db) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
   
   // POST /processos/excluir-multiplos - Exclui vários processos
