@@ -133,33 +133,33 @@ export function createProcessosRouter(db) {
             }
 
             // Atualiza ou insere o processo no MongoDB
+            // Primeiro, atualiza os demais campos do processo
             const updateFields = { 
-                status, 
-                novo_despacho: novoDespachoStatus, 
-                gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", 
-                resumo: p.resumo || "" 
+              status, 
+              novo_despacho: novoDespachoStatus, 
+              gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", 
+              resumo: p.resumo || "" 
             };
 
-            if (historicoModificado && historicoItem) { 
-                updateFields.historico = [...(processoExistente?.historico || [])]; 
-                updateFields.historico.push(historicoItem);
-            }
-
             if (p.manual) {
-                updateFields.ultima_pesquisa = new Date();
+              updateFields.ultima_pesquisa = new Date();
             }
 
+            // Atualiza os dados principais do processo
             await db.collection('processos').findOneAndUpdate(
               { numero: p.numero },
-              {
-                  $set: updateFields,
-                  ...(historicoItem ? 
-                      (processoExistente?.historico ? { $push: { historico: historicoItem } } : { $set: { historico: [historicoItem] } }) 
-                      : {})
-              },
+              { $set: updateFields },
               { upsert: true, returnDocument: 'after' }
-          );
-          
+            );
+
+            // Agora, se houver histórico novo, adiciona separadamente
+            if (historicoItem) {
+              await db.collection('processos').updateOne(
+                  { numero: p.numero },
+                  { $push: { historico: historicoItem } }
+              );
+            }
+
 
             console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
         }
