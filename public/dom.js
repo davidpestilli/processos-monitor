@@ -118,7 +118,6 @@ export function createProcessRow(processo) {
   const resumoCell = document.createElement("td");
   resumoCell.classList.add("resumo-cell");
   resumoCell.style.cursor = "pointer";
-  resumoCell.style.color = "blue"; // 🔹 Define cor azul para indicar que é clicável
   resumoCell.dataset.processo = JSON.stringify(processo);
 
   // 🔹 Se houver um resumo, exibe os primeiros 50 caracteres
@@ -132,24 +131,14 @@ export function createProcessRow(processo) {
 
   console.log(`✅ Célula de resumo criada para processo ${processo.numero}:`, resumoCell.textContent);
 
-  // Adiciona evento de clique para abrir o modal de resumos, apenas se houver um resumo disponível
-  resumoCell.addEventListener("click", () => {
-    if (!ultimoResumo) {
-      console.warn(`⚠️ Nenhum resumo disponível para o processo ${processo.numero}`);
-      return;
-    }
-
   // 🔹 Atualiza a variável global antes de abrir o modal
   window.currentProcesso = processo;
 
   // 🔹 O modal sempre será aberto, mesmo sem resumos
   resumoCell.addEventListener("click", () => {
   console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
-  });
-
   openModalResumos(processo);
   });
-  
 
   row.appendChild(resumoCell);
 
