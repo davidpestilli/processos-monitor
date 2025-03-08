@@ -33,6 +33,7 @@ export function createProcessosRouter(db) {
             teor_ultima_movimentacao: processo.teor_ultima_movimentacao || "-",
             ultimo_despacho: processo.ultimo_despacho || "-",
             teor_ultimo_despacho: processo.teor_ultimo_despacho || "-",
+            novo_despacho: processo.novo_despacho !== undefined ? processo.novo_despacho : "Não",
             gap: processo.gap || "-",
             resumos: processo.resumos || []
         }));
