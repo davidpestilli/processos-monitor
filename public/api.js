@@ -95,7 +95,10 @@ export async function buscarResumos(numero) {
 }
 
 export async function salvarResumo(numero, texto, assistente) {
-  console.log(`📨 Enviando resumo para o processo ${numero}:`, { texto, assistente });
+  console.log(`📤 Enviando resumo para API...`);
+  console.log(`📌 Processo: ${numero}`);
+  console.log(`✏️ Texto: ${texto}`);
+  console.log(`🧑 Assistente: ${assistente}`);
 
   const response = await fetch(`${API_URL}/${numero}/resumos`, {
     method: "POST",

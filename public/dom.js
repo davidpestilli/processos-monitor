@@ -132,13 +132,19 @@ export function createProcessRow(processo) {
 
   console.log(`✅ Célula de resumo criada para processo ${processo.numero}:`, resumoCell.textContent);
 
-  // 🔹 Atualiza a variável global antes de abrir o modal
-  window.currentProcesso = processo;
 
   // 🔹 O modal sempre será aberto, mesmo sem resumos
   resumoCell.addEventListener("click", () => {
-  console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
-  openModalResumos(processo);
+    if (!processo || !processo.numero) {
+      console.error("❌ ERRO: Processo indefinido ao clicar na célula de resumo.", processo);
+      return;
+    }
+
+    // 🔹 Atualiza a variável global antes de abrir o modal
+    window.currentProcesso = processo; 
+    console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
+
+    openModalResumos(processo);
   });
 
   row.appendChild(resumoCell);
@@ -394,6 +400,7 @@ export function openModalIncluirResumo(processo) {
 
   // 🔹 Armazena o número do processo no botão para evitar que ele se perca
   btnSalvarResumo.dataset.numeroProcesso = processo.numero;
+  console.log(`✅ Botão "Salvar Tudo" recebeu o número do processo: ${btnSalvarResumo.dataset.numeroProcesso}`);
 
   // 🔹 Adiciona evento para salvar resumo
   btnSalvarResumo.onclick = async () => {
