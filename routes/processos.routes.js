@@ -1,7 +1,7 @@
 // routes/processos.routes.js
 
 import express from 'express';
-import { computeDifferencePercentage, normalizeNumero, normalizeText, removeAccents } from '../utils.js';
+import { computeDifferencePercentage, normalizeNumero, normalizeText, removeAccents } from '../public/utils.js';
 
 
 /**
