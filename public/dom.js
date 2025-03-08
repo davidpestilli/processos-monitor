@@ -456,3 +456,13 @@ export function openModalResumoDetalhado(texto) {
   document.getElementById("textoResumoDetalhado").textContent = texto;
   document.getElementById("modalResumoDetalhado").style.display = "block";
 }
+
+// 🔹 Evento para fechar o modal "Incluir Novo Resumo" ao clicar no "X"
+document.getElementById("fecharModalResumo").addEventListener("click", () => {
+  closeModal("modalIncluirResumo");
+});
+
+// 🔹 Evento para fechar o modal "Resumo Detalhado" ao clicar no "X"
+document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
+  closeModal("modalResumoDetalhado");
+});

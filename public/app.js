@@ -397,10 +397,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("modalResumos").style.display = "none";
   });
 
-  document.getElementById("fecharModalIncluirResumo").addEventListener("click", () => {
-    document.getElementById("modalIncluirResumo").style.display = "none";
+  document.addEventListener("DOMContentLoaded", () => {
+    const fecharResumo = document.getElementById("fecharModalIncluirResumo");
+    if (fecharResumo) {
+      fecharResumo.addEventListener("click", () => {
+        document.getElementById("modalIncluirResumo").style.display = "none";
+      });
+    } else {
+      console.error("❌ ERRO: O botão 'X' do modal Incluir Novo Resumo não foi encontrado!");
+    }
   });
-
+  
   document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
     document.getElementById("modalResumoDetalhado").style.display = "none";
   });

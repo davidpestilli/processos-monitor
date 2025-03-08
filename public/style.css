@@ -727,8 +727,9 @@ td.gap, td.resumo {
   text-align: center;
 }
 
-/* Para deixar o conteúdo do resumo detalhado mais legível */
+/* 🔹 Alinha o texto do resumo detalhado à esquerda */
 #modalResumoDetalhado p {
+  text-align: left; /* 🔹 Garante que o texto fique alinhado à esquerda */
   font-size: 1rem;
   color: var(--text-color);
   line-height: 1.6;
@@ -739,6 +740,7 @@ td.gap, td.resumo {
   background-color: #f9f9f9;
   border: 1px solid var(--border-color);
 }
+
 
 /* Deixar os resumos clicáveis como links */
 .clicavel {
@@ -825,8 +827,42 @@ td.gap, td.resumo {
   font-weight: bold;
 }
 
-/* 🔹 Botão de fechar (X) */
-#fecharModalResumo {
+/* 🔹 RESET GERAL PARA OS MODAIS */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo escurecido */
+  display: flex;
+  align-items: center; /* 🔹 Centraliza verticalmente */
+  justify-content: center; /* 🔹 Centraliza horizontalmente */
+}
+
+/* 🔹 Ajusta a aparência do conteúdo do modal */
+.modal-content {
+  position: relative; /* 🔹 Define um contexto para o botão "X" */
+  padding: 20px;
+  background-color: var(--white);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* 🔹 Ajusta o título dentro do modal */
+.modal-content h2 {
+  font-size: 1.6rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+/* 🔹 Botão "X" de Fechar Modais */
+.close {
   position: absolute;
   top: 10px;
   right: 15px;
@@ -834,8 +870,74 @@ td.gap, td.resumo {
   font-weight: bold;
   color: var(--text-color);
   cursor: pointer;
+  z-index: 10;
 }
 
-#fecharModalResumo:hover {
+.close:hover {
   color: var(--primary-color);
+}
+
+/* 🔹 Campos de entrada dentro dos modais */
+.modal-content textarea,
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+/* 🔹 Botões dentro dos modais */
+.modal-content button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.modal-content button:hover {
+  background-color: var(--secondary-color);
+}
+
+.modal-content button:active {
+  transform: scale(0.98);
+}
+
+/* 🔹 Mensagem de Feedback */
+.mensagem-feedback {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* 🔹 Ajuste para tornar o modal "Incluir Novo Resumo" maior */
+#modalIncluirResumo .modal-content {
+  max-width: 80%; /* 🔹 Agora ocupa 80% da largura da tela */
+  max-height: 90vh; /* 🔹 Ocupa até 90% da altura da tela */
+  padding: 30px;
+}
+
+/* 🔹 Ajuste para aumentar a área de texto */
+#novoResumoTexto {
+  height: 250px; /* 🔹 Faz o campo de texto ser bem maior */
+  font-size: 1.2rem; /* 🔹 Torna o texto dentro do campo mais legível */
+}
+
+
+/* 🔹 Ajuste específico para o modal "Resumo Detalhado" */
+#modalResumoDetalhado .modal-content {
+  max-width: 600px;
+}
+
+/* 🔹 Ajuste para garantir que o conteúdo do modal tenha rolagem se for grande */
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
 }
