@@ -1,5 +1,5 @@
 /* Importação das variáveis */
-@import 'variables.css';
+@import './variables.css';
 
 /* Reset e configurações básicas */
 * {
@@ -120,6 +120,9 @@ table td {
   padding: 12px;
   border: 1px solid #ddd;
   text-align: left;
+  white-space: normal; /* Garante que o conteúdo não fique escondido */
+  word-wrap: break-word; /* Permite que o texto quebre */
+  max-width: 250px; /* Ajuste conforme necessário */
 }
 
 /* Para as células de largura fixa */

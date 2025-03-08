@@ -19,16 +19,37 @@ export function limitarTexto(texto, limite = 80) {
   return texto.length > limite ? texto.substring(0, limite) + "..." : texto;
 }
 
-// Função para buscar os processos na API
+// Função para buscar os processos na API com melhor tratamento de erros
 export async function fetchProcessos() {
   const cacheBuster = new Date().getTime();
-  const response = await fetch(`${API_URL}?_=${cacheBuster}`, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error("Erro ao buscar processos.");
+  try {
+    console.log(`🔍 Buscando processos da API: ${API_URL}?_=${cacheBuster}`);
+    
+    const response = await fetch(`${API_URL}?_=${cacheBuster}`, { cache: "no-store" });
+
+    // Log de status da resposta HTTP
+    console.log(`📡 Resposta da API: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar processos: ${response.statusText}`);
+    }
+
+    const processos = await response.json();
+    
+    // Verifica se os dados estão corretos
+    if (!Array.isArray(processos)) {
+      console.error("❌ API retornou um formato inválido. Dados recebidos:", processos);
+      return [];
+    }
+
+    console.log("📊 Processos recebidos do backend:", processos);
+    return processos;
+  } catch (error) {
+    console.error("❌ Erro ao buscar processos:", error);
+    return [];
   }
-  const processos = await response.json();
-  return processos;
 }
+
 
 // Função para atualizar o campo "Novo Despacho"
 export async function updateNovoDespacho(numero, novoValor) {

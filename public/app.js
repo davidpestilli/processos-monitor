@@ -40,21 +40,23 @@ async function alternarNovoDespacho(processo, botao) {
 }
 
 
-// Renderiza os processos na tabela
+
 // Renderiza os processos na tabela
 async function renderProcessos() {
   try {
       console.log("🔄 Buscando processos...");
       const processos = await fetchProcessos();
+      console.log("📊 Dados recebidos no frontend:", processos); // 🔍 Adiciona este log para depuração
       tabelaBody.innerHTML = "";
 
       processos.forEach(processo => {
+        console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
           if (!processo || !processo.numero) {
               console.warn("⚠️ Processo inválido encontrado na lista e será ignorado:", processo);
               return;
           }
 
-          console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
+          
 
           // Criando a linha corretamente
           const resultado = createProcessRow(processo);
