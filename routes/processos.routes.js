@@ -19,6 +19,10 @@ export function createProcessosRouter(db) {
         numero: processo.numero,
         status: processo.status,
         ultima_pesquisa: processo.ultima_pesquisa,
+        ultima_movimentacao: processo.ultima_movimentacao || "-", // Última Movimentação
+        teor_ultima_movimentacao: processo.teor_ultima_movimentacao || "-", // Teor da Última Movimentação
+        ultimo_despacho: processo.ultimo_despacho || "-", // Último Despacho
+        teor_ultimo_despacho: processo.teor_ultimo_despacho || "-", // Teor do Último Despacho
         novo_despacho: processo.novo_despacho,
         gap: processo.gap,
         resumos: processo.resumos || [] // 🔹 Garante que `resumos` seja sempre um array
