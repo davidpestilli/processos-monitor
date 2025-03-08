@@ -150,13 +150,16 @@ export function createProcessosRouter(db) {
             }
 
             await db.collection('processos').findOneAndUpdate(
-                { numero: p.numero },
-                {
-                    $set: updateFields,
-                    ...(historicoItem ? { $push: { historico: historicoItem } } : {}) 
-                },
-                { upsert: true, returnDocument: 'after' }
-            );
+              { numero: p.numero },
+              {
+                  $set: updateFields,
+                  ...(historicoItem ? 
+                      (processoExistente?.historico ? { $push: { historico: historicoItem } } : { $set: { historico: [historicoItem] } }) 
+                      : {})
+              },
+              { upsert: true, returnDocument: 'after' }
+          );
+          
 
             console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
         }
