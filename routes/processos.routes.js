@@ -12,15 +12,23 @@ export function createProcessosRouter(db) {
   const router = express.Router();
 
   // GET /processos - Retorna todos os processos
-  router.get('/', async (req, res) => {
+  router.get("/", async (req, res) => {
     try {
-      const processos = await db.collection('processos').find().toArray();
-      res.json(processos);
+      const processos = await db.collection("processos").find().toArray();
+      res.json(processos.map(processo => ({
+        numero: processo.numero,
+        status: processo.status,
+        ultima_pesquisa: processo.ultima_pesquisa,
+        novo_despacho: processo.novo_despacho,
+        gap: processo.gap,
+        resumos: processo.resumos || [] // 🔹 Garante que `resumos` seja sempre um array
+      })));
     } catch (error) {
-      console.error("Erro ao buscar processos:", error);
+      console.error("❌ Erro ao buscar processos:", error);
       res.status(500).json({ error: "Erro ao buscar processos." });
     }
   });
+  
 
   // GET /processos/numeros - Retorna os números dos processos com status "Em trâmite"
   router.get('/numeros', async (req, res) => {

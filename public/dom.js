@@ -10,9 +10,15 @@ export function createProcessRow(processo) {
     return null;
   }
 
+  // Obtém o histórico cadastrado, se existir
   const ultimoHistorico = (processo.historico && processo.historico.length)
     ? processo.historico[processo.historico.length - 1]
     : {};
+
+  // Obtém o último resumo cadastrado, se existir
+  const ultimoResumo = (processo.resumos && processo.resumos.length > 0)
+    ? processo.resumos[processo.resumos.length - 1].texto
+    : null;
 
   console.log(`📌 Criando linha para o processo ${processo.numero}`);
 
@@ -111,21 +117,31 @@ export function createProcessRow(processo) {
   // Criar a célula de Resumo
   const resumoCell = document.createElement("td");
   resumoCell.classList.add("resumo-cell");
-  resumoCell.textContent = processo.resumo ? processo.resumo.substring(0, 50) + "..." : "-";
   resumoCell.style.cursor = "pointer";
+  resumoCell.style.color = "blue"; // 🔹 Define cor azul para indicar que é clicável
   resumoCell.dataset.processo = JSON.stringify(processo);
+
+  // 🔹 Se houver um resumo, exibe os primeiros 50 caracteres
+  if (ultimoResumo) {
+    resumoCell.textContent = ultimoResumo.length > 50 ? ultimoResumo.substring(0, 50) + "..." : ultimoResumo;
+  } else {
+    resumoCell.textContent = "-"; // Se não houver resumos, exibe um traço
+    resumoCell.style.color = "black"; // 🔹 Mantém cor padrão para indicar que não há nada a ser clicado
+    resumoCell.style.cursor = "default"; // Remove indicação de clique se não houver resumos
+  }
 
   console.log(`✅ Célula de resumo criada para processo ${processo.numero}:`, resumoCell.textContent);
 
+  // Adiciona evento de clique para abrir o modal de resumos, apenas se houver um resumo disponível
   resumoCell.addEventListener("click", () => {
-    if (!processo || !processo.numero) {
-      console.error("❌ ERRO: Processo indefinido ao clicar na célula de resumo.", processo);
+    if (!ultimoResumo) {
+      console.warn(`⚠️ Nenhum resumo disponível para o processo ${processo.numero}`);
       return;
     }
 
       // 🔹 Atualiza a variável global antes de abrir o modal
     window.currentProcesso = processo;
-    
+
     console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
     openModalResumos(processo);
   });
