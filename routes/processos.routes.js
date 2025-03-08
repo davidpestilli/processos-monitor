@@ -124,8 +124,10 @@ export function createProcessosRouter(db) {
                     status = "Origem";
                 }
             }
-
-            // Cria um item para o histórico
+        // ⚠️ Só adiciona uma nova entrada ao histórico se os campos de movimentação ou despacho foram alterados
+        const historicoModificado = p.ultima_movimentacao || p.teor_ultima_movimentacao || p.ultimo_despacho || p.teor_ultimo_despacho;
+        if (historicoModificado) {          
+        // Cria um item para o histórico
             const historicoItem = {
                 data: new Date(),
                 ultima_movimentacao: p.ultima_movimentacao || null,
@@ -134,6 +136,9 @@ export function createProcessosRouter(db) {
                 teor_ultimo_despacho: p.teor_ultimo_despacho || null,
                 link: p.link || null
             };
+            updateFields.historico = processoExistente.historico || [];
+            updateFields.historico.push(historicoItem); // Apenas adiciona ao histórico se houver mudanças nele
+        }            
               // Atualiza ou insere o processo no MongoDB
               const updateFields = { 
                 status, 
@@ -151,8 +156,7 @@ export function createProcessosRouter(db) {
               { numero: p.numero },
               {
                   $set: updateFields,
-                  $push: { historico: historicoItem },
-                  $setOnInsert: { numero: p.numero }
+                  ...(historicoModificado ? { $push: { historico: historicoItem } } : {}) // Só adiciona ao histórico se necessário
               },
               { upsert: true, returnDocument: 'after' }
           );
