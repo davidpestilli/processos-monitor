@@ -1,6 +1,6 @@
 // app.js
 import { fetchProcessos, updateNovoDespacho, salvarProcesso, excluirProcessos, excluirHistorico, uploadCSV } from "./api.js";
-import { createProcessRow, openModalHistorico, openModalTexto, closeModal } from "./dom.js";
+import { createProcessRow, openModalHistorico, openModalTexto, closeModal, openModalResumos, openModalIncluirResumo } from "./dom.js";
 
 const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
@@ -350,3 +350,30 @@ if (btnExcluirHistorico) {
     }
   });
 }
+
+
+//evento para botões dos modais da coluna resumo
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".resumo-cell").forEach(cell => {
+    cell.addEventListener("click", () => {
+      const processo = JSON.parse(cell.dataset.processo);
+      openModalResumos(processo);
+    });
+  });
+
+  document.getElementById("btnIncluirResumo").addEventListener("click", () => {
+    openModalIncluirResumo(window.currentProcesso);
+  });
+
+  document.getElementById("fecharModalResumos").addEventListener("click", () => {
+    document.getElementById("modalResumos").style.display = "none";
+  });
+
+  document.getElementById("fecharModalIncluirResumo").addEventListener("click", () => {
+    document.getElementById("modalIncluirResumo").style.display = "none";
+  });
+
+  document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
+    document.getElementById("modalResumoDetalhado").style.display = "none";
+  });
+});

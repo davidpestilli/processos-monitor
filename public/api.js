@@ -86,3 +86,20 @@ export async function uploadCSV(processos) {
   if (!response.ok) throw new Error("Erro ao enviar os processos.");
   return response;
 }
+
+//funções para coluna resumo
+export async function buscarResumos(numero) {
+  const response = await fetch(`${API_URL}/${numero}/resumos`);
+  if (!response.ok) throw new Error("Erro ao buscar resumos.");
+  return response.json();
+}
+
+export async function salvarResumo(numero, texto, assistente) {
+  const response = await fetch(`${API_URL}/${numero}/resumos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ texto, assistente })
+  });
+  if (!response.ok) throw new Error("Erro ao salvar resumo.");
+  return response.json();
+}

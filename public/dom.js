@@ -1,5 +1,5 @@
 // dom.js
-import { formatDate, limitarTexto } from "./api.js";
+import { formatDate, limitarTexto, salvarResumo, buscarResumos } from "./api.js";
 
 // Cria uma linha da tabela para exibir um processo
 export function createProcessRow(processo) {
@@ -277,4 +277,73 @@ export function openModalHistorico(processo) {
 // Função para fechar um modal, dado o ID do elemento
 export function closeModal(modalId) {
   document.getElementById(modalId).style.display = "none";
+}
+
+
+
+//funções para manipular modais da coluna resumo
+export function openModalResumos(processo) {
+  const modal = document.getElementById("modalResumos");
+  const tabelaBody = document.querySelector("#tabelaResumos tbody");
+
+  console.log(`🟢 Abrindo modal de resumos para o processo ${processo.numero}`);
+
+  tabelaBody.innerHTML = "";
+
+  buscarResumos(processo.numero).then(resumos => {
+    resumos.forEach(resumo => {
+      const tr = document.createElement("tr");
+
+      const tdAssistente = document.createElement("td");
+      tdAssistente.textContent = resumo.assistente;
+      tr.appendChild(tdAssistente);
+
+      const tdResumo = document.createElement("td");
+      tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
+      tdResumo.classList.add("clicavel");
+      tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto));
+      tr.appendChild(tdResumo);
+
+      const tdData = document.createElement("td");
+      tdData.textContent = formatDate(resumo.data); // Apenas use, sem reimportar
+      tr.appendChild(tdData);
+
+      tabelaBody.appendChild(tr);
+    });
+  });
+
+  modal.style.display = "block";
+}
+
+export function openModalIncluirResumo(processo) {
+  const modal = document.getElementById("modalIncluirResumo");
+  document.getElementById("btnSalvarResumo").onclick = async () => {
+    const texto = document.getElementById("novoResumoTexto").value.trim();
+    const assistente = document.getElementById("nomeAssistente").value.trim();
+
+    if (!texto || !assistente) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
+    console.log(`📨 Salvando novo resumo para o processo ${processo.numero}`);
+
+    try {
+      await salvarResumo(processo.numero, texto, assistente);
+      alert("Resumo salvo com sucesso!");
+      openModalResumos(processo); // Atualiza a tabela de resumos
+      modal.style.display = "none";
+    } catch (error) {
+      console.error("❌ Erro ao salvar resumo:", error);
+      alert("Erro ao salvar resumo.");
+    }
+  };
+
+  modal.style.display = "block";
+}
+
+export function openModalResumoDetalhado(texto) {
+  console.log("🟢 Exibindo resumo detalhado");
+  document.getElementById("textoResumoDetalhado").textContent = texto;
+  document.getElementById("modalResumoDetalhado").style.display = "block";
 }

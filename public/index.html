@@ -159,6 +159,45 @@
   </div>
 </div>
 
+<!-- Modal para Histórico de Resumos -->
+<div id="modalResumos" class="modal">
+  <div class="modal-content">
+    <span id="fecharModalResumos" class="close">&times;</span>
+    <h2>Histórico de Resumos</h2>
+    <table id="tabelaResumos">
+      <thead>
+        <tr>
+          <th>Assistente</th>
+          <th>Resumo</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="btnIncluirResumo">Incluir Novo Resumo</button>
+  </div>
+</div>
+
+<!-- Modal para Incluir Novo Resumo -->
+<div id="modalIncluirResumo" class="modal">
+  <div class="modal-content">
+    <span id="fecharModalIncluirResumo" class="close">&times;</span>
+    <h2>Incluir Novo Resumo</h2>
+    <textarea id="novoResumoTexto" placeholder="Digite o resumo..."></textarea>
+    <input type="text" id="nomeAssistente" placeholder="Nome do Assistente">
+    <button id="btnSalvarResumo">Salvar Tudo</button>
+  </div>
+</div>
+
+<!-- Modal para Exibir Resumo Detalhado -->
+<div id="modalResumoDetalhado" class="modal">
+  <div class="modal-content">
+    <span id="fecharModalResumoDetalhado" class="close">&times;</span>
+    <h2>Resumo Completo</h2>
+    <p id="textoResumoDetalhado"></p>
+  </div>
+</div>
+
 
 </body>
 </html>

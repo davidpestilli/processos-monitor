@@ -717,3 +717,36 @@ td.gap, td.resumo {
 #fecharModalGenerico:hover {
   color: var(--primary-color);
 }
+
+/* Específico para o modal de histórico de resumos */
+#modalResumos .modal-content,
+#modalIncluirResumo .modal-content,
+#modalResumoDetalhado .modal-content {
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+}
+
+/* Para deixar o conteúdo do resumo detalhado mais legível */
+#modalResumoDetalhado p {
+  font-size: 1rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid var(--border-color);
+}
+
+/* Deixar os resumos clicáveis como links */
+.clicavel {
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--primary-color);
+}
+
+.clicavel:hover {
+  color: var(--secondary-color);
+}
