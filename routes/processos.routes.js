@@ -288,24 +288,42 @@ router.get("/:numero/resumos", async (req, res) => {
 
 router.post("/:numero/resumos", async (req, res) => {
   try {
-    const numero = req.params.numero;
-    const { texto, assistente } = req.body;
-    const novoResumo = { texto, assistente, data: new Date() };
+      const numero = req.params.numero;
+      const { texto, assistente } = req.body;
+      const novoResumo = { texto, assistente, data: new Date() };
 
-    console.log(`📥 Salvando resumo para o processo ${numero}`);
+      console.log(`📥 Salvando resumo para o processo ${numero}`);
 
-    await db.collection("processos").updateOne(
-      { numero },
-      { $push: { resumos: novoResumo } },
-      { upsert: true }
-    );
+      // Buscar o processo para preservar o status atual
+      const processoExistente = await db.collection("processos").findOne({ numero });
 
-    res.json({ message: "Resumo salvo com sucesso." });
+      if (!processoExistente) {
+          return res.status(404).json({ error: "Processo não encontrado." });
+      }
+
+      // 🔥 Agora garantimos que o status e outros campos não sejam perdidos
+      await db.collection("processos").updateOne(
+          { numero },
+          {
+              $push: { resumos: novoResumo },
+              $set: {
+                  status: processoExistente.status, // Mantém o status atual
+                  ultima_movimentacao: processoExistente.ultima_movimentacao,
+                  teor_ultima_movimentacao: processoExistente.teor_ultima_movimentacao,
+                  ultimo_despacho: processoExistente.ultimo_despacho,
+                  teor_ultimo_despacho: processoExistente.teor_ultimo_despacho
+              }
+          },
+          { upsert: true }
+      );
+
+      res.json({ message: "Resumo salvo com sucesso." });
   } catch (error) {
-    console.error("❌ Erro ao salvar resumo:", error);
-    res.status(500).json({ error: "Erro ao salvar resumo." });
+      console.error("❌ Erro ao salvar resumo:", error);
+      res.status(500).json({ error: "Erro ao salvar resumo." });
   }
 });
+
 
 return router;
 }
