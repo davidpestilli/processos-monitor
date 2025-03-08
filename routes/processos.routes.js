@@ -62,8 +62,9 @@ export function createProcessosRouter(db) {
             // Obtém o processo existente no banco de dados
             const processoExistente = await db.collection('processos').findOne(
               { numero: p.numero },
-              { projection: { teor_ultimo_despacho: 1, historico: 1, novo_despacho: 1 } }
-          );
+              { projection: { teor_ultimo_despacho: 1, historico: 1, novo_despacho: 1, gap: 1 } } // 🔹 Incluindo GAP na consulta
+            );
+            
           
           // Garante que o último despacho seja corretamente identificado
           let teorAnterior = "";
@@ -137,7 +138,7 @@ export function createProcessosRouter(db) {
               const updateFields = { 
                 status, 
                 novo_despacho: novoDespachoStatus, 
-                gap: p.gap || processoExistente?.gap || "", // Mantém o assistente salvo caso não seja atualizado
+                gap: p.gap !== undefined ? p.gap : processoExistente?.gap || "", // Mantém o GAP atual se não houver novo valor
                 resumo: p.resumo || "" 
               };
 
