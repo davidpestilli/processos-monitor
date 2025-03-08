@@ -317,6 +317,7 @@ export function openModalResumos(processo) {
 
   console.log(`🟢 Abrindo modal de resumos para o processo ${processo.numero}`);
 
+  // 🔹 NÃO alteramos `window.currentProcesso` aqui, apenas usamos o processo correto
   const modal = document.getElementById("modalResumos");
   const tabelaBody = document.querySelector("#tabelaResumos tbody");
   tabelaBody.innerHTML = ""; // Limpa a tabela antes de adicionar novos dados
@@ -325,19 +326,16 @@ export function openModalResumos(processo) {
     .then(resumos => {
       console.log(`📜 Resumos recebidos para o processo ${processo.numero}:`, resumos);
 
-      // Se não houver resumos, exibir uma mensagem no modal
       if (!resumos || resumos.length === 0) {
         console.warn(`⚠️ Nenhum resumo encontrado para o processo ${processo.numero}.`);
-        
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.colSpan = 3; // Faz com que a mensagem ocupe toda a tabela
+        td.colSpan = 3;
         td.textContent = "Nenhum resumo encontrado.";
         td.style.textAlign = "center";
         tr.appendChild(td);
         tabelaBody.appendChild(tr);
-
-        return; // Evita continuar a execução
+        return;
       }
 
       resumos.forEach(resumo => {
@@ -350,13 +348,7 @@ export function openModalResumos(processo) {
         const tdResumo = document.createElement("td");
         tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
         tdResumo.classList.add("clicavel");
-
-        // Adiciona evento de clique para abrir o modal detalhado do resumo
-        tdResumo.addEventListener("click", () => {
-          console.log(`🔍 Exibindo resumo detalhado: ${resumo.texto}`);
-          openModalResumoDetalhado(resumo.texto);
-        });
-
+        tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto));
         tr.appendChild(tdResumo);
 
         const tdData = document.createElement("td");
@@ -400,7 +392,7 @@ export function openModalIncluirResumo(processo) {
   inputTextoResumo.value = "";
   inputNomeAssistente.value = "";
 
-  // 🔹 Salva o número do processo no botão
+  // 🔹 Armazena o número do processo no botão para evitar que ele se perca
   btnSalvarResumo.dataset.numeroProcesso = processo.numero;
 
   // 🔹 Adiciona evento para salvar resumo
@@ -432,8 +424,6 @@ export function openModalIncluirResumo(processo) {
 
   modal.style.display = "block";
 }
-
-
 
 export function openModalResumoDetalhado(texto) {
   console.log("🟢 Exibindo resumo detalhado");

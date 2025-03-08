@@ -384,7 +384,6 @@ if (btnExcluirHistorico) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM carregado. Iniciando eventos...");
 
-  // 🔹 Agora garantimos que este evento só será adicionado quando o DOM estiver pronto
   document.getElementById("btnIncluirResumo").addEventListener("click", () => {
     if (window.currentProcesso) {
       openModalIncluirResumo(window.currentProcesso);
