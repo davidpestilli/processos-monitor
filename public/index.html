@@ -181,19 +181,27 @@
 <!-- Modal para Incluir Novo Resumo -->
 <div id="modalIncluirResumo" class="modal">
   <div class="modal-content">
-    <span id="fecharModalIncluirResumo" class="close">&times;</span>
+    <span id="fecharModalResumo" class="close">&times;</span>
     <h2>Incluir Novo Resumo</h2>
-    <textarea id="novoResumoTexto" placeholder="Digite o resumo..."></textarea>
-    <input type="text" id="nomeAssistente" placeholder="Nome do Assistente">
-    <button id="btnSalvarResumo">Salvar Tudo</button>
+    
+    <label for="novoResumoTexto">Resumo:</label>
+    <textarea id="novoResumoTexto" placeholder="Digite o resumo aqui..." rows="4"></textarea>
+
+    <label for="nomeAssistente">Nome do Assistente:</label>
+    <input type="text" id="nomeAssistente" placeholder="Digite o nome do assistente">
+
+    <button id="btnSalvarResumo">Salvar Resumo</button>
+
+    <p id="mensagemResumo" class="mensagem-feedback"></p>
   </div>
 </div>
 
-<!-- Modal para Exibir Resumo Detalhado -->
+
+<!-- Modal para Resumo Detalhado -->
 <div id="modalResumoDetalhado" class="modal">
   <div class="modal-content">
     <span id="fecharModalResumoDetalhado" class="close">&times;</span>
-    <h2>Resumo Completo</h2>
+    <h2>Resumo Detalhado</h2>
     <p id="textoResumoDetalhado"></p>
   </div>
 </div>
