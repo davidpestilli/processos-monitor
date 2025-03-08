@@ -384,44 +384,57 @@ export function openModalResumos(processo) {
 
 
 
-export function openModalIncluirResumo(processo) {
-  if (!processo || !processo.numero) {
-    console.error("❌ ERRO: Processo indefinido ao tentar incluir um resumo.", processo);
-    return;
-  }
 
-  const modal = document.getElementById("modalIncluirResumo");
-  document.getElementById("btnSalvarResumo").onclick = async () => {
-    const texto = document.getElementById("novoResumoTexto").value.trim();
-    const assistente = document.getElementById("nomeAssistente").value.trim();
-
-    if (!texto || !assistente) {
-      alert("Preencha todos os campos!");
+  export function openModalIncluirResumo(processo) {
+    if (!processo || !processo.numero) {
+      console.error("❌ ERRO: Processo indefinido ao tentar incluir um resumo.", processo);
       return;
     }
-
-    console.log(`📨 Salvando novo resumo para o processo ${processo.numero}`);
-
-    try {
-      await salvarResumo(processo.numero, texto, assistente);
-      alert("Resumo salvo com sucesso!");
-
-      // ✅ Garantimos que `processo` está definido antes de chamar `openModalResumos`
-      if (processo && processo.numero) {
-        openModalResumos(processo); // Atualiza a tabela de resumos
-      } else {
-        console.warn("⚠️ Processo indefinido ao tentar atualizar a tabela de resumos.");
+  
+    console.log(`📌 Abrindo modal para incluir resumo no processo ${processo.numero}`);
+  
+    const modal = document.getElementById("modalIncluirResumo");
+    const inputTextoResumo = document.getElementById("novoResumoTexto");
+    const inputNomeAssistente = document.getElementById("nomeAssistente");
+    const btnSalvarResumo = document.getElementById("btnSalvarResumo");
+  
+    // 🔹 Limpa os campos antes de abrir
+    inputTextoResumo.value = "";
+    inputNomeAssistente.value = "";
+  
+    // 🔹 Armazena o número do processo no botão para evitar que ele se perca
+    btnSalvarResumo.dataset.numeroProcesso = processo.numero;
+  
+    // 🔹 Adiciona evento para salvar resumo
+    btnSalvarResumo.onclick = async () => {
+      const texto = inputTextoResumo.value.trim();
+      const assistente = inputNomeAssistente.value.trim();
+      const numeroProcesso = btnSalvarResumo.dataset.numeroProcesso; // 🔹 Obtém o número salvo no botão
+  
+      if (!texto || !assistente) {
+        alert("Preencha todos os campos antes de salvar!");
+        return;
       }
-
-      modal.style.display = "none";
-    } catch (error) {
-      console.error("❌ Erro ao salvar resumo:", error);
-      alert("Erro ao salvar resumo.");
-    }
-  };
-
-  modal.style.display = "block";
-}
+  
+      console.log(`📨 Salvando novo resumo para o processo ${numeroProcesso}`);
+  
+      try {
+        await salvarResumo(numeroProcesso, texto, assistente);
+        alert("Resumo salvo com sucesso!");
+  
+        // 🔹 Atualiza a lista de resumos após salvar
+        openModalResumos({ numero: numeroProcesso });
+  
+        modal.style.display = "none";
+      } catch (error) {
+        console.error("❌ Erro ao salvar resumo:", error);
+        alert("Erro ao salvar resumo.");
+      }
+    };
+  
+    modal.style.display = "block";
+  }
+  
 
 
 export function openModalResumoDetalhado(texto) {
