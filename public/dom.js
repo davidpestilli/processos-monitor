@@ -122,6 +122,10 @@ export function createProcessRow(processo) {
       console.error("❌ ERRO: Processo indefinido ao clicar na célula de resumo.", processo);
       return;
     }
+
+      // 🔹 Atualiza a variável global antes de abrir o modal
+    window.currentProcesso = processo;
+    
     console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
     openModalResumos(processo);
   });

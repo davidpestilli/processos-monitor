@@ -381,17 +381,19 @@ if (btnExcluirHistorico) {
 }
 
 
-//evento para botões dos modais da coluna resumo
-document.getElementById("btnIncluirResumo").addEventListener("click", () => {
-  if (window.currentProcesso) {
-    openModalIncluirResumo(window.currentProcesso); // ✅ Agora sempre passamos um processo válido
-  } else {
-    console.error("❌ ERRO: Nenhum processo selecionado para incluir resumo.");
-  }
-});
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM carregado. Iniciando eventos...");
 
+  // 🔹 Agora garantimos que este evento só será adicionado quando o DOM estiver pronto
+  document.getElementById("btnIncluirResumo").addEventListener("click", () => {
+    if (window.currentProcesso) {
+      openModalIncluirResumo(window.currentProcesso);
+    } else {
+      console.error("❌ ERRO: Nenhum processo selecionado para incluir resumo.");
+    }
+  });
 
-
+  // 🔹 Também garantimos que os modais sejam fechados corretamente
   document.getElementById("fecharModalResumos").addEventListener("click", () => {
     document.getElementById("modalResumos").style.display = "none";
   });
@@ -403,3 +405,5 @@ document.getElementById("btnIncluirResumo").addEventListener("click", () => {
   document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
     document.getElementById("modalResumoDetalhado").style.display = "none";
   });
+});
+
