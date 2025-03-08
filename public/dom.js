@@ -123,6 +123,7 @@ export function createProcessRow(processo) {
   // 🔹 Se houver um resumo, exibe os primeiros 50 caracteres
   if (ultimoResumo) {
     resumoCell.textContent = ultimoResumo.length > 50 ? ultimoResumo.substring(0, 50) + "..." : ultimoResumo;
+    resumoCell.classList.add("clicavel"); // 🔹 Aplica a classe para usar o CSS correto
   } else {
     resumoCell.textContent = "-"; // Se não houver resumos, exibe um traço
     resumoCell.style.color = "black"; // 🔹 Mantém cor padrão para indicar que não há nada a ser clicado
