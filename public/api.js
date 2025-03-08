@@ -95,11 +95,18 @@ export async function buscarResumos(numero) {
 }
 
 export async function salvarResumo(numero, texto, assistente) {
+  console.log(`📨 Enviando resumo para o processo ${numero}:`, { texto, assistente });
+
   const response = await fetch(`${API_URL}/${numero}/resumos`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ texto, assistente })
   });
-  if (!response.ok) throw new Error("Erro ao salvar resumo.");
+
+  if (!response.ok) {
+    throw new Error(`Erro ao salvar resumo: ${response.statusText}`);
+  }
+
   return response.json();
 }
+

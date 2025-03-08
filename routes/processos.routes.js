@@ -260,6 +260,8 @@ router.post("/:numero/resumos", async (req, res) => {
     const { texto, assistente } = req.body;
     const novoResumo = { texto, assistente, data: new Date() };
 
+    console.log(`📥 Salvando resumo para o processo ${numero}`);
+
     await db.collection("processos").updateOne(
       { numero },
       { $push: { resumos: novoResumo } },
@@ -268,10 +270,11 @@ router.post("/:numero/resumos", async (req, res) => {
 
     res.json({ message: "Resumo salvo com sucesso." });
   } catch (error) {
-    console.error("Erro ao salvar resumo:", error);
+    console.error("❌ Erro ao salvar resumo:", error);
     res.status(500).json({ error: "Erro ao salvar resumo." });
   }
 });
+
 
 return router;
 }
