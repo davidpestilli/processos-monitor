@@ -95,63 +95,59 @@ function abrirModalGAP(processo) {
   const btnIncluir = document.getElementById("btnIncluirAssistente");
   const mensagem = document.getElementById("mensagemGAP");
 
-  // Resetando o campo de entrada e mensagem ao abrir o modal
-  inputAssistente.value = "";
+  inputAssistente.value = ""; // Limpa o campo ao abrir o modal
   mensagem.textContent = "";
+  mensagem.style.color = ""; // Reseta cor
 
   modal.style.display = "block";
 
   btnIncluir.onclick = async () => {
-    const nomeAssistente = inputAssistente.value.trim();
-    
-    if (!nomeAssistente) {
-        console.warn("⚠️ Nenhum nome foi digitado para o assistente.");
-        mensagem.textContent = "Por favor, insira um nome.";
-        return;
-    }
+      const nomeAssistente = inputAssistente.value.trim();
+      
+      if (!nomeAssistente) {
+          mensagem.textContent = "Por favor, insira um nome.";
+          mensagem.style.color = "red";
+          return;
+      }
 
-    console.log(`📨 Enviando solicitação para atualizar o assistente do processo ${processo.numero} para "${nomeAssistente}"...`);
+      console.log(`📨 Atualizando assistente do processo ${processo.numero} para "${nomeAssistente}"...`);
 
-    try {
-        const response = await fetch(`${API_URL}/atualizar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                processos: [{ numero: processo.numero, gap: nomeAssistente }]
-            })
-        });
+      try {
+          const response = await fetch(`${API_URL}/atualizar`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  processos: [{ numero: processo.numero, gap: nomeAssistente }]
+              })
+          });
 
-        if (!response.ok) {
-            throw new Error(`Erro na resposta do servidor: ${response.status}`);
-        }
+          if (!response.ok) {
+              throw new Error(`Erro no servidor: ${response.status}`);
+          }
 
-        console.log(`✅ Assistente "${nomeAssistente}" incluído com sucesso no processo ${processo.numero}.`);
+          console.log(`✅ Assistente "${nomeAssistente}" incluído no processo ${processo.numero}.`);
 
-        mensagem.textContent = `O assistente ${nomeAssistente} foi incluído.`;
-        processo.gap = nomeAssistente;
+          mensagem.textContent = `Assistente ${nomeAssistente} incluído!`;
+          mensagem.style.color = "green";
+          processo.gap = nomeAssistente;
 
-        // 🔹 Busca a célula correta na tabela usando dataset
-        const gapCell = document.querySelector(`td.gap-cell[data-numero="${processo.numero}"]`);
+          // Atualiza a célula GAP na tabela
+          const gapCell = document.querySelector(`td.gap-cell[data-numero="${processo.numero}"]`);
+          if (gapCell) {
+              gapCell.textContent = nomeAssistente;
+          }
 
-        if (gapCell) {
-            gapCell.textContent = nomeAssistente;
-            console.log(`🖊️ Atualização bem-sucedida: assistente visível na tabela → "${nomeAssistente}".`);
-        } else {
-            console.warn(`⚠️ ERRO: A célula GAP do processo ${processo.numero} não foi encontrada na tabela.`);
-            console.log("📌 Verifique se o número do processo no dataset corresponde ao número do processo salvo.");
-        }
+          // Fecha o modal após 1 segundo
+          setTimeout(() => {
+              modal.style.display = "none";
+          }, 1000);
 
-        setTimeout(() => {
-            console.log("🔒 Fechando modal GAP...");
-            modal.style.display = "none";
-        }, 1000);
-
-    } catch (error) {
-        console.error(`❌ Erro ao salvar o assistente para o processo ${processo.numero}:`, error);
-        mensagem.textContent = "Erro ao salvar assistente.";
-    }
-};
-
+      } catch (error) {
+          console.error(`❌ Erro ao salvar assistente para o processo ${processo.numero}:`, error);
+          mensagem.textContent = "Erro ao salvar assistente.";
+          mensagem.style.color = "red";
+      }
+  };
 }
 
 // 🔽 Torna a função global para `dom.js` poder chamá-la 🔽
@@ -159,7 +155,6 @@ window.abrirModalGAP = abrirModalGAP;
 
 // Fecha o modal ao clicar no "X"
 document.getElementById("fecharModalGAP").addEventListener("click", () => {
-  console.log("🔴 Fechando modal GAP manualmente.");
   document.getElementById("modalGAP").style.display = "none";
 });
 
@@ -167,11 +162,9 @@ document.getElementById("fecharModalGAP").addEventListener("click", () => {
 window.addEventListener("click", (event) => {
   const modal = document.getElementById("modalGAP");
   if (event.target === modal) {
-      console.log("🔴 Fechando modal GAP ao clicar fora.");
       modal.style.display = "none";
   }
 });
-
 
 
 // Configura o evento do formulário para adicionar um novo processo

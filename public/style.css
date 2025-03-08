@@ -543,3 +543,101 @@ td.gap, td.resumo {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Estilo para o texto da coluna GAP */
+.gap-cell {
+  color: var(--primary-color); /* Azul, igual aos links das outras células */
+  cursor: pointer;
+  text-decoration: underline; /* Simula um link */
+}
+
+.gap-cell:hover {
+  color: var(--secondary-color); /* Azul mais escuro ao passar o mouse */
+}
+
+/* 🔹 Estilização do modal GAP */
+#modalGAP {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* Fundo escurecido */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔹 Estilização do conteúdo do modal */
+#modalGAP .modal-content {
+  background-color: var(--white);
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px; /* Evita um modal muito grande */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+  text-align: center;
+}
+
+/* 🔹 Melhor espaçamento do título */
+#modalGAP h2 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+/* 🔹 Estilização do campo de entrada */
+#inputNomeAssistente {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+/* 🔹 Botão "Incluir" melhorado */
+#btnIncluirAssistente {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+/* 🔹 Efeito hover e clique no botão */
+#btnIncluirAssistente:hover {
+  background-color: var(--secondary-color);
+}
+
+#btnIncluirAssistente:active {
+  transform: scale(0.98);
+}
+
+/* 🔹 Mensagem de feedback abaixo do botão */
+#mensagemGAP {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* 🔹 Botão de fechar (X) */
+#fecharModalGAP {
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+#fecharModalGAP:hover {
+  color: var(--primary-color);
+}

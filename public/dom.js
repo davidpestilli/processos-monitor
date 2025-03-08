@@ -95,9 +95,10 @@ export function createProcessRow(processo) {
   row.appendChild(novoDespachoCell);
 
 
+
   // Célula GAP
   const gapCell = document.createElement("td");
-  gapCell.classList.add("gap-cell");
+  gapCell.classList.add("gap-cell"); // Aplica a classe para estilização
   gapCell.dataset.numero = processo.numero; // Adiciona o número do processo para referência
   gapCell.textContent = processo.gap || "—"; // Se não houver assistente, mostra "—"
 
@@ -108,7 +109,6 @@ export function createProcessRow(processo) {
   });
 
   row.appendChild(gapCell);
-
 
 
   // Célula Resumo
