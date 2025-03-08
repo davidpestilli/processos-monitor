@@ -118,9 +118,14 @@ export function createProcessRow(processo) {
   console.log(`✅ Célula de resumo criada para processo ${processo.numero}:`, resumoCell.textContent);
 
   resumoCell.addEventListener("click", () => {
+    if (!processo || !processo.numero) {
+      console.error("❌ ERRO: Processo indefinido ao clicar na célula de resumo.", processo);
+      return;
+    }
     console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
     openModalResumos(processo);
   });
+  
 
   row.appendChild(resumoCell);
 
@@ -291,39 +296,86 @@ export function closeModal(modalId) {
 
 //funções para manipular modais da coluna resumo
 export function openModalResumos(processo) {
-  const modal = document.getElementById("modalResumos");
-  const tabelaBody = document.querySelector("#tabelaResumos tbody");
+  if (!processo || !processo.numero) {
+    console.error("❌ ERRO: Processo indefinido ao abrir modal de resumos.", processo);
+    return;
+  }
 
   console.log(`🟢 Abrindo modal de resumos para o processo ${processo.numero}`);
 
-  tabelaBody.innerHTML = "";
+  const modal = document.getElementById("modalResumos");
+  const tabelaBody = document.querySelector("#tabelaResumos tbody");
+  tabelaBody.innerHTML = ""; // Limpa a tabela antes de adicionar novos dados
 
-  buscarResumos(processo.numero).then(resumos => {
-    resumos.forEach(resumo => {
+  buscarResumos(processo.numero)
+    .then(resumos => {
+      console.log(`📜 Resumos recebidos para o processo ${processo.numero}:`, resumos);
+
+      // Se não houver resumos, exibir uma mensagem no modal
+      if (!resumos || resumos.length === 0) {
+        console.warn(`⚠️ Nenhum resumo encontrado para o processo ${processo.numero}.`);
+        
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 3; // Faz com que a mensagem ocupe toda a tabela
+        td.textContent = "Nenhum resumo encontrado.";
+        td.style.textAlign = "center";
+        tr.appendChild(td);
+        tabelaBody.appendChild(tr);
+
+        return; // Evita continuar a execução
+      }
+
+      resumos.forEach(resumo => {
+        const tr = document.createElement("tr");
+
+        const tdAssistente = document.createElement("td");
+        tdAssistente.textContent = resumo.assistente || "Desconhecido";
+        tr.appendChild(tdAssistente);
+
+        const tdResumo = document.createElement("td");
+        tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
+        tdResumo.classList.add("clicavel");
+
+        // Adiciona evento de clique para abrir o modal detalhado do resumo
+        tdResumo.addEventListener("click", () => {
+          console.log(`🔍 Exibindo resumo detalhado: ${resumo.texto}`);
+          openModalResumoDetalhado(resumo.texto);
+        });
+
+        tr.appendChild(tdResumo);
+
+        const tdData = document.createElement("td");
+        tdData.textContent = resumo.data ? formatDate(resumo.data) : "Data desconhecida";
+        tr.appendChild(tdData);
+
+        tabelaBody.appendChild(tr);
+      });
+    })
+    .catch(error => {
+      console.error("❌ Erro ao buscar resumos:", error);
+
       const tr = document.createElement("tr");
-
-      const tdAssistente = document.createElement("td");
-      tdAssistente.textContent = resumo.assistente;
-      tr.appendChild(tdAssistente);
-
-      const tdResumo = document.createElement("td");
-      tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
-      tdResumo.classList.add("clicavel");
-      tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto));
-      tr.appendChild(tdResumo);
-
-      const tdData = document.createElement("td");
-      tdData.textContent = formatDate(resumo.data); // Apenas use, sem reimportar
-      tr.appendChild(tdData);
-
+      const td = document.createElement("td");
+      td.colSpan = 3;
+      td.textContent = "Erro ao carregar resumos.";
+      td.style.color = "red";
+      td.style.textAlign = "center";
+      tr.appendChild(td);
       tabelaBody.appendChild(tr);
     });
-  });
 
   modal.style.display = "block";
 }
 
+
+
 export function openModalIncluirResumo(processo) {
+  if (!processo || !processo.numero) {
+    console.error("❌ ERRO: Processo indefinido ao tentar incluir um resumo.", processo);
+    return;
+  }
+
   const modal = document.getElementById("modalIncluirResumo");
   document.getElementById("btnSalvarResumo").onclick = async () => {
     const texto = document.getElementById("novoResumoTexto").value.trim();
@@ -339,7 +391,14 @@ export function openModalIncluirResumo(processo) {
     try {
       await salvarResumo(processo.numero, texto, assistente);
       alert("Resumo salvo com sucesso!");
-      openModalResumos(processo); // Atualiza a tabela de resumos
+
+      // ✅ Garantimos que `processo` está definido antes de chamar `openModalResumos`
+      if (processo && processo.numero) {
+        openModalResumos(processo); // Atualiza a tabela de resumos
+      } else {
+        console.warn("⚠️ Processo indefinido ao tentar atualizar a tabela de resumos.");
+      }
+
       modal.style.display = "none";
     } catch (error) {
       console.error("❌ Erro ao salvar resumo:", error);
@@ -349,6 +408,7 @@ export function openModalIncluirResumo(processo) {
 
   modal.style.display = "block";
 }
+
 
 export function openModalResumoDetalhado(texto) {
   console.log("🟢 Exibindo resumo detalhado");

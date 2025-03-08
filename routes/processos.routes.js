@@ -223,17 +223,26 @@ router.get("/:numero/resumos", async (req, res) => {
       { projection: { resumos: 1 } }
     );
 
-    if (!processo || !processo.resumos) {
-      console.warn(`⚠️ Nenhum resumo encontrado para o processo ${numero}`);
-      return res.status(404).json({ error: "Nenhum resumo encontrado." });
+    if (!processo) {
+      console.warn(`⚠️ Processo ${numero} não encontrado no banco de dados.`);
+      return res.status(404).json({ error: "Processo não encontrado." });
     }
 
+    // 🔹 Se não houver resumos, retorna um array vazio ao invés de 404
+    if (!processo.resumos || processo.resumos.length === 0) {
+      console.warn(`⚠️ Processo ${numero} não possui resumos.`);
+      return res.status(200).json([]); 
+    }
+
+    console.log(`✅ Resumos encontrados para ${numero}:`, processo.resumos);
     res.json(processo.resumos);
+
   } catch (error) {
     console.error("❌ Erro ao buscar resumos:", error);
     res.status(500).json({ error: "Erro ao buscar resumos." });
   }
 });
+
 
 
 
