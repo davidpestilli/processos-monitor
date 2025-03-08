@@ -2,10 +2,19 @@
 import { formatDate, limitarTexto, salvarResumo, buscarResumos } from "./api.js";
 
 // Cria uma linha da tabela para exibir um processo
+//console.log(`📌 Criando linha para o processo ${processo.numero}`);
+
 export function createProcessRow(processo) {
+  if (!processo || !processo.numero) {
+    console.error("❌ ERRO: Tentativa de criar linha para um processo indefinido ou sem número:", processo);
+    return null;
+  }
+
   const ultimoHistorico = (processo.historico && processo.historico.length)
     ? processo.historico[processo.historico.length - 1]
     : {};
+
+  console.log(`📌 Criando linha para o processo ${processo.numero}`);
 
   const row = document.createElement("tr");
 
@@ -20,7 +29,7 @@ export function createProcessRow(processo) {
 
   // Célula com número do processo (link)
   const numeroCell = document.createElement("td");
-  const numeroLink = document.createElement("a");
+  const numeroLink = document.createElement("a"); // 🔹 Armazenamos numeroLink
   numeroLink.href = "#";
   numeroLink.textContent = processo.numero;
   numeroLink.dataset.processo = JSON.stringify(processo);
@@ -51,10 +60,9 @@ export function createProcessRow(processo) {
   const teorMovLink = document.createElement("a");
   teorMovLink.href = "#";
   teorMovLink.classList.add("teor-movimentacao");
-  const teorMovText = ultimoHistorico.teor_ultima_movimentacao
+  teorMovLink.textContent = ultimoHistorico.teor_ultima_movimentacao
     ? limitarTexto(ultimoHistorico.teor_ultima_movimentacao, 100)
     : "-";
-  teorMovLink.textContent = teorMovText;
   teorMovLink.addEventListener("click", (e) => {
     e.preventDefault();
     openModalTexto(ultimoHistorico.teor_ultima_movimentacao || "-", "Teor da Última Movimentação");
@@ -82,43 +90,43 @@ export function createProcessRow(processo) {
 
   // Célula com botão de "Novo Despacho"
   const novoDespachoCell = document.createElement("td");
-  const btnNovoDespacho = document.createElement("button");
-  if (processo.novo_despacho === "Sim") {
-    btnNovoDespacho.innerHTML = `<span class="icon-check">✔</span> Sim`;
-    btnNovoDespacho.className = "btn-sim";
-  } else {
-    btnNovoDespacho.innerHTML = `<span class="icon-cross">✖</span> Não`;
-    btnNovoDespacho.className = "btn-nao";
-  }
+  const btnNovoDespacho = document.createElement("button"); // 🔹 Armazenamos btnNovoDespacho
+  btnNovoDespacho.textContent = processo.novo_despacho === "Sim" ? "✔ Sim" : "❌ Não";
+  btnNovoDespacho.className = processo.novo_despacho === "Sim" ? "btn-sim" : "btn-nao";
   btnNovoDespacho.dataset.teorDespacho = ultimoHistorico.teor_ultimo_despacho || "";
   novoDespachoCell.appendChild(btnNovoDespacho);
   row.appendChild(novoDespachoCell);
 
-
-
   // Célula GAP
   const gapCell = document.createElement("td");
-  gapCell.classList.add("gap-cell"); // Aplica a classe para estilização
-  gapCell.dataset.numero = processo.numero; // Adiciona o número do processo para referência
-  gapCell.textContent = processo.gap || "—"; // Se não houver assistente, mostra "—"
-
-  // Adiciona evento de clique para abrir o modal
+  gapCell.classList.add("gap-cell");
+  gapCell.dataset.numero = processo.numero;
+  gapCell.textContent = processo.gap || "—";
   gapCell.addEventListener("click", () => {
     console.log(`🟢 Clicado na célula GAP do processo ${processo.numero}`);
     abrirModalGAP(processo);
   });
-
   row.appendChild(gapCell);
 
-
-  // Célula Resumo
+  // Criar a célula de Resumo
   const resumoCell = document.createElement("td");
-  resumoCell.textContent = processo.resumo || "-";
+  resumoCell.classList.add("resumo-cell");
+  resumoCell.textContent = processo.resumo ? processo.resumo.substring(0, 50) + "..." : "-";
+  resumoCell.style.cursor = "pointer";
+  resumoCell.dataset.processo = JSON.stringify(processo);
+
+  console.log(`✅ Célula de resumo criada para processo ${processo.numero}:`, resumoCell.textContent);
+
+  resumoCell.addEventListener("click", () => {
+    console.log(`🟢 Clicado na célula de resumo do processo ${processo.numero}`);
+    openModalResumos(processo);
+  });
+
   row.appendChild(resumoCell);
 
-  return { row, numeroLink, btnNovoDespacho, checkbox };
-
+  return { row, numeroLink, btnNovoDespacho, resumoCell }; // 🔹 Agora retorna todas as variáveis necessárias
 }
+
 
 export function openModalTexto(text, title, link = null) {
   const modal = document.getElementById("modalGenerico");

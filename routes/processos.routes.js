@@ -173,7 +173,6 @@ export function createProcessosRouter(db) {
 });
 
   
-
   // POST /processos/excluir-multiplos - Exclui vários processos
   router.post("/excluir-multiplos", async (req, res) => {
     try {
@@ -211,5 +210,51 @@ export function createProcessosRouter(db) {
     }
   });
 
-  return router;
+
+
+//endpoints para armazenar e recuperar resumos
+router.get("/:numero/resumos", async (req, res) => {
+  try {
+    const numero = req.params.numero;
+    console.log(`🔍 Buscando resumos para o processo ${numero}`);
+
+    const processo = await db.collection("processos").findOne(
+      { numero },
+      { projection: { resumos: 1 } }
+    );
+
+    if (!processo || !processo.resumos) {
+      console.warn(`⚠️ Nenhum resumo encontrado para o processo ${numero}`);
+      return res.status(404).json({ error: "Nenhum resumo encontrado." });
+    }
+
+    res.json(processo.resumos);
+  } catch (error) {
+    console.error("❌ Erro ao buscar resumos:", error);
+    res.status(500).json({ error: "Erro ao buscar resumos." });
+  }
+});
+
+
+
+router.post("/:numero/resumos", async (req, res) => {
+  try {
+    const numero = req.params.numero;
+    const { texto, assistente } = req.body;
+    const novoResumo = { texto, assistente, data: new Date() };
+
+    await db.collection("processos").updateOne(
+      { numero },
+      { $push: { resumos: novoResumo } },
+      { upsert: true }
+    );
+
+    res.json({ message: "Resumo salvo com sucesso." });
+  } catch (error) {
+    console.error("Erro ao salvar resumo:", error);
+    res.status(500).json({ error: "Erro ao salvar resumo." });
+  }
+});
+
+return router;
 }

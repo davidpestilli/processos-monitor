@@ -40,39 +40,68 @@ async function alternarNovoDespacho(processo, botao) {
 }
 
 
-
+// Renderiza os processos na tabela
 // Renderiza os processos na tabela
 async function renderProcessos() {
-    try {
-        const processos = await fetchProcessos();
-        tabelaBody.innerHTML = "";
+  try {
+      console.log("🔄 Buscando processos...");
+      const processos = await fetchProcessos();
+      tabelaBody.innerHTML = "";
 
-        processos.forEach(processo => {
-            console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
+      processos.forEach(processo => {
+          if (!processo || !processo.numero) {
+              console.warn("⚠️ Processo inválido encontrado na lista e será ignorado:", processo);
+              return;
+          }
 
-            const { row, numeroLink, btnNovoDespacho } = createProcessRow(processo);
+          console.log(`🔄 Renderizando processo ${processo.numero} com novo_despacho = ${processo.novo_despacho}`);
 
-            // Adiciona evento para abrir o modal de histórico
-            numeroLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                openModalHistorico(processo);
-            });
+          // Criando a linha corretamente
+          const resultado = createProcessRow(processo);
+          
+          if (!resultado || !resultado.row) {
+              console.warn(`⚠️ Linha não criada para processo ${processo.numero}`);
+              return;
+          }
 
-            // Atualiza o botão conforme o backend
-            atualizarBotaoNovoDespacho(btnNovoDespacho, processo);
+          const { row, numeroLink, btnNovoDespacho } = resultado;
 
-            // Evento para alternar "Sim"/"Não" manualmente ao clique
-            btnNovoDespacho.addEventListener("click", async () => {
-                alternarNovoDespacho(processo, btnNovoDespacho);
-            });
+          // Adiciona a linha na tabela
+          tabelaBody.appendChild(row);
+          console.log(`✅ Linha adicionada à tabela para o processo ${processo.numero}`);
 
-            tabelaBody.appendChild(row);
-        });
+          // Verificação de existência antes de adicionar evento
+          if (numeroLink) {
+              numeroLink.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  console.log(`📜 Abrindo modal de histórico para o processo ${processo.numero}`);
+                  openModalHistorico(processo);
+              });
+          } else {
+              console.warn(`⚠️ numeroLink não encontrado para processo ${processo.numero}`);
+          }
 
-    } catch (error) {
-        console.error("❌ Erro ao renderizar processos:", error);
-    }
+          // Atualiza o botão conforme o backend
+          if (btnNovoDespacho) {
+              atualizarBotaoNovoDespacho(btnNovoDespacho, processo);
+
+              // Evento para alternar "Sim"/"Não" manualmente ao clique
+              btnNovoDespacho.addEventListener("click", async () => {
+                  console.log(`🔄 Alternando novo despacho para o processo ${processo.numero}`);
+                  alternarNovoDespacho(processo, btnNovoDespacho);
+              });
+          } else {
+              console.warn(`⚠️ btnNovoDespacho não encontrado para processo ${processo.numero}`);
+          }
+      });
+
+      console.log("✅ Processos renderizados com sucesso!");
+
+  } catch (error) {
+      console.error("❌ Erro ao renderizar processos:", error);
+  }
 }
+
 
 const mensagemFeedback = document.getElementById("mensagemFeedback");
 
@@ -353,14 +382,6 @@ if (btnExcluirHistorico) {
 
 
 //evento para botões dos modais da coluna resumo
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".resumo-cell").forEach(cell => {
-    cell.addEventListener("click", () => {
-      const processo = JSON.parse(cell.dataset.processo);
-      openModalResumos(processo);
-    });
-  });
-
   document.getElementById("btnIncluirResumo").addEventListener("click", () => {
     openModalIncluirResumo(window.currentProcesso);
   });
@@ -376,4 +397,3 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
     document.getElementById("modalResumoDetalhado").style.display = "none";
   });
-});
