@@ -167,6 +167,7 @@
     <table id="tabelaResumos">
       <thead>
         <tr>
+          <th><input type="checkbox" id="selecionarTodosResumos"></th> <!-- Bulk Selection -->
           <th>Assistente</th>
           <th>Resumo</th>
           <th>Data</th>
@@ -174,9 +175,11 @@
       </thead>
       <tbody></tbody>
     </table>
+    <button id="btnExcluirSelecionadosResumos" class="btn-excluir-multiplo">Excluir Selecionados</button>
     <button id="btnIncluirResumo">Incluir Novo Resumo</button>
   </div>
 </div>
+
 
 <!-- Modal para Incluir Novo Resumo -->
 <div id="modalIncluirResumo" class="modal">

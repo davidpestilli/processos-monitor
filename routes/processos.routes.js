@@ -325,5 +325,48 @@ router.post("/:numero/resumos", async (req, res) => {
 });
 
 
+router.post("/excluir-resumos", async (req, res) => {
+  console.log("🟢 Recebida solicitação para excluir resumos...");
+
+  try {
+    // Extrai a lista de resumos do corpo da requisição
+    const { resumos } = req.body;
+
+    // Verifica se a lista de resumos é válida
+    if (!resumos || !Array.isArray(resumos)) {
+      console.warn("⚠️ Lista de resumos inválida recebida:", resumos);
+      return res.status(400).json({ error: "Lista de resumos inválida." });
+    }
+
+    console.log(`📌 Total de resumos a excluir: ${resumos.length}`);
+
+    // Percorre cada resumo a ser excluído
+    for (const resumo of resumos) {
+      console.log(`🔹 Excluindo resumo do processo ${resumo.numero}: "${resumo.texto.substring(0, 50)}..."`);
+
+      // Atualiza o banco de dados para remover o resumo correspondente
+      const resultado = await db.collection("processos").updateOne(
+        { numero: resumo.numero },
+        { $pull: { resumos: { texto: resumo.texto } } }
+      );
+
+      // Verifica se alguma modificação foi feita no banco de dados
+      if (resultado.modifiedCount > 0) {
+        console.log(`✅ Resumo removido com sucesso para o processo ${resumo.numero}`);
+      } else {
+        console.warn(`⚠️ Nenhuma alteração feita para o processo ${resumo.numero}. Resumo pode não existir.`);
+      }
+    }
+
+    // Responde com uma mensagem de sucesso
+    console.log("✅ Todos os resumos selecionados foram processados para exclusão.");
+    res.json({ message: "Resumos excluídos com sucesso." });
+
+  } catch (error) {
+    console.error("❌ Erro ao excluir resumos:", error);
+    res.status(500).json({ error: "Erro ao excluir resumos." });
+  }
+});
+
 return router;
 }

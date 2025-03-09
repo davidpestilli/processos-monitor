@@ -336,7 +336,7 @@ export function openModalResumos(processo) {
         console.warn(`⚠️ Nenhum resumo encontrado para o processo ${processo.numero}.`);
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.colSpan = 3;
+        td.colSpan = 4;
         td.textContent = "Nenhum resumo encontrado.";
         td.style.textAlign = "center";
         tr.appendChild(td);
@@ -347,10 +347,22 @@ export function openModalResumos(processo) {
       resumos.forEach(resumo => {
         const tr = document.createElement("tr");
 
+        // 🔹 Adiciona o checkbox para seleção múltipla
+        const tdCheckbox = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("resumo-checkbox");
+        checkbox.dataset.processo = processo.numero;
+        checkbox.dataset.texto = resumo.texto; // 🔹 Armazena o resumo no dataset para exclusão
+        tdCheckbox.appendChild(checkbox);
+        tr.appendChild(tdCheckbox);
+
+        // 🔹 Assistente
         const tdAssistente = document.createElement("td");
         tdAssistente.textContent = resumo.assistente || "Desconhecido";
         tr.appendChild(tdAssistente);
 
+        // 🔹 Resumo
         const tdResumo = document.createElement("td");
         tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
         tdResumo.classList.add("clicavel");
@@ -362,6 +374,7 @@ export function openModalResumos(processo) {
         
         tr.appendChild(tdResumo);
 
+        // 🔹 Data
         const tdData = document.createElement("td");
         tdData.textContent = resumo.data ? formatDate(resumo.data) : "Data desconhecida";
         tr.appendChild(tdData);
@@ -374,7 +387,7 @@ export function openModalResumos(processo) {
 
       const tr = document.createElement("tr");
       const td = document.createElement("td");
-      td.colSpan = 3;
+      td.colSpan = 4;
       td.textContent = "Erro ao carregar resumos.";
       td.style.color = "red";
       td.style.textAlign = "center";
@@ -455,8 +468,6 @@ export function openModalIncluirResumo(processo, textoExistente = "") {
   modal.classList.add("modal-aberto");
 }
 
-
-
 export function openModalResumoDetalhado(texto, processo) {
   console.log("🟢 Exibindo resumo detalhado");
 
@@ -487,3 +498,66 @@ document.getElementById("fecharModalResumo").addEventListener("click", () => {
 document.getElementById("fecharModalResumoDetalhado").addEventListener("click", () => {
   closeModal("modalResumoDetalhado");
 });
+
+
+//Função para Excluir Resumos Selecionados
+export function excluirResumosSelecionados() {
+  console.log("🟢 Iniciando exclusão de resumos selecionados...");
+
+  // Seleciona todos os checkboxes marcados na tabela de resumos
+  const checkboxes = document.querySelectorAll(".resumo-checkbox:checked");
+
+   // Se nenhum resumo foi selecionado, exibe um alerta e encerra a função
+  if (checkboxes.length === 0) {
+    console.warn("⚠️ Nenhum resumo foi selecionado para exclusão.");
+    alert("Nenhum resumo selecionado.");
+    return;
+  }
+
+  // Confirma com o usuário antes de excluir os resumos selecionados
+  if (!confirm(`Tem certeza que deseja excluir ${checkboxes.length} resumos?`)) {
+    return;
+  }
+
+  // Mapeia os resumos selecionados para extrair os dados necessários (número do processo e texto)
+  const resumosParaExcluir = Array.from(checkboxes).map(cb => ({
+    numero: cb.dataset.processo,
+    texto: cb.dataset.texto
+  }));
+
+  console.log(`📌 Resumos a serem excluídos:`, resumosParaExcluir);
+
+
+  // Envia uma requisição POST para excluir os resumos no backend
+  fetch("/processos/excluir-resumos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resumos: resumosParaExcluir })
+  })
+
+  .then(response => {
+    console.log("🔄 Enviando solicitação de exclusão para o servidor...");
+    if (!response.ok) {
+      throw new Error("Erro ao excluir resumos.");
+    }
+    return response.json();
+  })
+
+  .then(() => {
+    console.log("✅ Resumos excluídos com sucesso!");
+    alert("Resumos excluídos com sucesso!");
+
+    // Atualiza a lista de resumos no modal se houver um processo em exibição
+    if (window.currentProcesso) {
+      openModalResumos(window.currentProcesso); // 🔹 Atualiza a tabela após exclusão
+    }
+  })
+  
+  .catch(error => {
+    console.error("❌ Erro ao excluir resumos:", error);
+    alert("Erro ao excluir resumos.");
+  });
+}
+
+//Event Listener ao Botão de Exclusão
+document.getElementById("btnExcluirSelecionadosResumos").addEventListener("click", excluirResumosSelecionados);
