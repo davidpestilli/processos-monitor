@@ -395,8 +395,8 @@ export function openModalIncluirResumo(processo) {
   const mensagemFeedback = document.getElementById("mensagemResumo");
 
 
-  // 🔹 Limpa os campos antes de abrir
-  inputTextoResumo.value = textoExistente; // Se houver um texto, ele já entra no campo
+  // 🔹 Preenche os campos (limpa apenas se não for edição)
+  inputTextoResumo.value = textoExistente || ""; // Se houver um texto, ele já entra no campo
   inputNomeAssistente.value = "";
   mensagemFeedback.textContent = ""; // Limpa mensagens anteriores
 
@@ -460,6 +460,11 @@ export function openModalResumoDetalhado(texto, processo) {
 
   // Configurar o botão "Editar"
   const btnEditarResumo = document.getElementById("btnEditarResumo");
+
+  if (!btnEditarResumo) {
+    console.error("❌ ERRO: Botão 'Editar' não encontrado no DOM.");
+    return;
+  }
   btnEditarResumo.onclick = () => {
     openModalIncluirResumo(processo, texto); // Chama o modal de inclusão com o texto existente
   };
