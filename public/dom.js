@@ -354,7 +354,7 @@ export function openModalResumos(processo) {
         const tdResumo = document.createElement("td");
         tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
         tdResumo.classList.add("clicavel");
-        tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto));
+        tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto, processo));
         tr.appendChild(tdResumo);
 
         const tdData = document.createElement("td");
@@ -394,8 +394,9 @@ export function openModalIncluirResumo(processo) {
   const btnSalvarResumo = document.getElementById("btnSalvarResumo");
   const mensagemFeedback = document.getElementById("mensagemResumo");
 
+
   // 🔹 Limpa os campos antes de abrir
-  inputTextoResumo.value = "";
+  inputTextoResumo.value = textoExistente; // Se houver um texto, ele já entra no campo
   inputNomeAssistente.value = "";
   mensagemFeedback.textContent = ""; // Limpa mensagens anteriores
 
@@ -451,11 +452,19 @@ export function openModalIncluirResumo(processo) {
 
 
 
-export function openModalResumoDetalhado(texto) {
+export function openModalResumoDetalhado(texto, processo) {
   console.log("🟢 Exibindo resumo detalhado");
+
   document.getElementById("textoResumoDetalhado").textContent = texto;
   document.getElementById("modalResumoDetalhado").style.display = "block";
+
+  // Configurar o botão "Editar"
+  const btnEditarResumo = document.getElementById("btnEditarResumo");
+  btnEditarResumo.onclick = () => {
+    openModalIncluirResumo(processo, texto); // Chama o modal de inclusão com o texto existente
+  };
 }
+
 
 // 🔹 Evento para fechar o modal "Incluir Novo Resumo" ao clicar no "X"
 document.getElementById("fecharModalResumo").addEventListener("click", () => {
