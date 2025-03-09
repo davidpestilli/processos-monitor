@@ -977,3 +977,54 @@ td.gap, td.resumo {
   border-radius: 8px;
   background-color: #fff;
 }
+
+.resumo-buttons {
+  display: flex;
+  justify-content: space-between; /* Mantém um espaço entre os botões */
+  margin-top: 10px;
+  align-items: center; /* Alinha verticalmente os botões */
+}
+
+.resumo-buttons button {
+  margin: 0 5px; /* Adiciona um pequeno espaçamento lateral entre os botões */
+}
+
+#btnExcluirSelecionadosResumos {
+  background-color: #dc3545; /* Cor vermelha (Bootstrap Danger) */
+  color: white;
+  border: none;
+  padding: 8px 12px; /* Tamanho reduzido */
+  font-size: 14px; /* Fonte menor */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  flex: 0.3; /* Ocupa menos espaço dentro do flexbox */
+}
+
+#btnExcluirSelecionadosResumos:hover {
+  background-color: #c82333; /* Vermelho mais escuro ao passar o mouse */
+}
+
+#btnExcluirSelecionadosResumos:active {
+  transform: scale(0.95);
+}
+
+#btnIncluirResumo {
+  background-color: var(--primary-color); /* Mantém a cor principal */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  flex: 1; /* Ocupa mais espaço do que o botão de exclusão */
+}
+
+#btnIncluirResumo:hover {
+  background-color: var(--secondary-color);
+}
+
+#btnIncluirResumo:active {
+  transform: scale(0.98);
+}

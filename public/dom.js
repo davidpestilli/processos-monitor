@@ -406,55 +406,74 @@ export function openModalIncluirResumo(processo, textoExistente = "") {
 
   console.log(`📌 Abrindo modal para incluir resumo no processo ${processo.numero}`);
 
+  // Obtém os elementos do modal
   const modal = document.getElementById("modalIncluirResumo");
   const inputTextoResumo = document.getElementById("novoResumoTexto");
   const inputNomeAssistente = document.getElementById("nomeAssistente");
   const btnSalvarResumo = document.getElementById("btnSalvarResumo");
   const mensagemFeedback = document.getElementById("mensagemResumo");
 
-
-  // 🔹 Preenche os campos (limpa apenas se não for edição)
-  inputTextoResumo.value = textoExistente || ""; // Se houver um texto, ele já entra no campo
+  // 🔹 Preenche os campos (se for edição, mantém o texto existente)
+  inputTextoResumo.value = textoExistente || "";
   inputNomeAssistente.value = "";
-  mensagemFeedback.textContent = ""; // Limpa mensagens anteriores
+  mensagemFeedback.textContent = "";
 
-  // 🔹 Armazena o número do processo no botão
+  // 🔹 Armazena o número do processo no botão para referência
   btnSalvarResumo.dataset.numeroProcesso = processo.numero;
   console.log(`✅ Botão "Salvar" recebeu o número do processo: ${btnSalvarResumo.dataset.numeroProcesso}`);
 
-  // 🔹 Adiciona evento para salvar resumo
+  // 🔹 Define a função de clique para salvar o resumo
   btnSalvarResumo.onclick = async () => {
     const texto = inputTextoResumo.value.trim();
     const assistente = inputNomeAssistente.value.trim();
-    const numeroProcesso = btnSalvarResumo.dataset.numeroProcesso; // 🔹 Obtém o número correto do processo
+    const numeroProcesso = btnSalvarResumo.dataset.numeroProcesso; // Obtém o número correto do processo
 
+    // Validação: impede o salvamento se algum campo estiver vazio
     if (!texto || !assistente) {
       mensagemFeedback.textContent = "⚠️ Preencha todos os campos antes de salvar!";
       mensagemFeedback.style.color = "red";
+      console.warn("⚠️ Tentativa de salvar resumo com campos vazios.");
       return;
     }
 
-    console.log(`📨 Salvando novo resumo para o processo ${numeroProcesso}`);
+    console.log(`📨 Enviando resumo para o processo ${numeroProcesso}...`);
 
     try {
+      // Chama a API para salvar o resumo
       await salvarResumo(numeroProcesso, texto, assistente);
 
+      // Exibe feedback de sucesso no modal
       mensagemFeedback.textContent = "✅ Resumo salvo com sucesso!";
       mensagemFeedback.style.color = "green";
 
-      // 🔹 Atualiza a célula do resumo na tabela
-      const resumoCell = document.querySelector(`td.resumo[data-numero="${numeroProcesso}"]`);
-      if (resumoCell) {
-        resumoCell.textContent = texto;
-      }
+      // 🔹 Aguarda um pequeno tempo antes de atualizar a célula na tabela principal
+      setTimeout(() => {
+        // Tenta encontrar a célula correspondente na tabela principal
+        const resumoCell = document.querySelector(`td.resumo-cell.clicavel[numero="${numeroProcesso}"]`);
 
-      // 🔹 Fecha o modal após um pequeno delay para o usuário ver o feedback
+        if (resumoCell) {
+          resumoCell.textContent = texto.length > 50 ? texto.substring(0, 50) + "..." : texto;
+          resumoCell.classList.add("clicavel");
+          console.log(`✅ Célula de resumo atualizada na tabela principal para o processo ${numeroProcesso}`);
+        } else {
+          console.warn(`⚠️ Não foi encontrada uma célula de resumo para o processo ${numeroProcesso}`);
+        }
+
+      }, 500); // 🔹 Pequeno atraso para garantir que a célula foi renderizada antes da atualização
+
+      // 🔹 Atualiza o objeto `processo` localmente para refletir o novo resumo
+      processo.resumos = processo.resumos || [];
+      processo.resumos.push({ texto, assistente, data: new Date() });
+
+      console.log(`✅ Novo resumo adicionado localmente ao processo ${numeroProcesso}`);
+
+      // 🔹 Fecha o modal após um pequeno delay para permitir que o usuário veja o feedback
       setTimeout(() => {
         modal.style.display = "none";
       }, 1000);
 
-      // 🔹 Atualiza a lista de resumos no modal principal
-      openModalResumos({ numero: numeroProcesso });
+      // 🔹 Atualiza o modal de Histórico de Resumos para refletir a nova entrada
+      openModalResumos(processo);
 
     } catch (error) {
       console.error("❌ Erro ao salvar resumo:", error);
@@ -467,6 +486,7 @@ export function openModalIncluirResumo(processo, textoExistente = "") {
   modal.style.display = "block";
   modal.classList.add("modal-aberto");
 }
+
 
 export function openModalResumoDetalhado(texto, processo) {
   console.log("🟢 Exibindo resumo detalhado");
@@ -552,7 +572,7 @@ export function excluirResumosSelecionados() {
       openModalResumos(window.currentProcesso); // 🔹 Atualiza a tabela após exclusão
     }
   })
-  
+
   .catch(error => {
     console.error("❌ Erro ao excluir resumos:", error);
     alert("Erro ao excluir resumos.");
@@ -561,3 +581,16 @@ export function excluirResumosSelecionados() {
 
 //Event Listener ao Botão de Exclusão
 document.getElementById("btnExcluirSelecionadosResumos").addEventListener("click", excluirResumosSelecionados);
+
+document.getElementById("selecionarTodosResumos").addEventListener("change", function () {
+  console.log(`🔄 Checkbox "Selecionar Todos" alterado. Estado: ${this.checked}`);
+
+  // Seleciona todos os checkboxes de resumos
+  const checkboxes = document.querySelectorAll(".resumo-checkbox");
+  
+  checkboxes.forEach(cb => {
+    cb.checked = this.checked; // Define o estado de cada checkbox com base no principal
+  });
+
+  console.log(`✅ Todos os checkboxes foram ${this.checked ? "marcados" : "desmarcados"}.`);
+});
