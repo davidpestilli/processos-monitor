@@ -385,7 +385,7 @@ export function openModalResumos(processo) {
   modal.style.display = "block";
 }
 
-export function openModalIncluirResumo(processo) {
+export function openModalIncluirResumo(processo, textoExistente = "") {
   if (!processo || !processo.numero) {
     console.error("❌ ERRO: Processo indefinido ao tentar incluir um resumo.", processo);
     return;
