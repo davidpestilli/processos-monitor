@@ -448,15 +448,35 @@ export function openModalIncluirResumo(processo, textoExistente = "") {
 
       // 🔹 Aguarda um pequeno tempo antes de atualizar a célula na tabela principal
       setTimeout(() => {
-        // Tenta encontrar a célula correspondente na tabela principal
-        const resumoCell = document.querySelector(`td.resumo-cell.clicavel[numero="${numeroProcesso}"]`);
+        // 🔍 Seleciona todas as células de resumo
+        const resumoCells = document.querySelectorAll("td.resumo-cell.clicavel");
+        let resumoCellEncontrada = null;
 
-        if (resumoCell) {
-          resumoCell.textContent = texto.length > 50 ? texto.substring(0, 50) + "..." : texto;
-          resumoCell.classList.add("clicavel");
+        resumoCells.forEach(cell => {
+          // 🔹 Extrai o conteúdo do atributo `data-processo`
+          const dataProcesso = cell.getAttribute("data-processo");
+
+          if (dataProcesso) {
+            try {
+              // 🔹 Converte a string JSON para um objeto JavaScript
+              const processoObj = JSON.parse(dataProcesso.replace(/&quot;/g, '"'));
+
+              // 🔹 Verifica se o número do processo corresponde ao esperado
+              if (processoObj.numero === numeroProcesso) {
+                resumoCellEncontrada = cell;
+              }
+            } catch (error) {
+              console.error("❌ Erro ao converter `data-processo` para JSON:", error);
+            }
+          }
+        });
+
+        // 🔹 Atualiza a célula de resumo correta
+        if (resumoCellEncontrada) {
+          resumoCellEncontrada.textContent = texto.length > 50 ? texto.substring(0, 50) + "..." : texto;
           console.log(`✅ Célula de resumo atualizada na tabela principal para o processo ${numeroProcesso}`);
         } else {
-          console.warn(`⚠️ Não foi encontrada uma célula de resumo para o processo ${numeroProcesso}`);
+          console.warn(`⚠️ A célula de resumo para o processo ${numeroProcesso} ainda não foi encontrada.`);
         }
 
       }, 500); // 🔹 Pequeno atraso para garantir que a célula foi renderizada antes da atualização
