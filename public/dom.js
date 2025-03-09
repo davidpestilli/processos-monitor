@@ -354,7 +354,12 @@ export function openModalResumos(processo) {
         const tdResumo = document.createElement("td");
         tdResumo.textContent = resumo.texto.length > 50 ? resumo.texto.substring(0, 50) + "..." : resumo.texto;
         tdResumo.classList.add("clicavel");
-        tdResumo.addEventListener("click", () => openModalResumoDetalhado(resumo.texto, processo));
+
+        tdResumo.addEventListener("click", () => {
+          console.log(`📜 Clicado no resumo do processo ${processo.numero}, abrindo modal detalhado.`);
+          openModalResumoDetalhado(resumo.texto, processo); // 🔹 Passando corretamente o processo e o texto do resumo
+        });
+        
         tr.appendChild(tdResumo);
 
         const tdData = document.createElement("td");
@@ -458,15 +463,17 @@ export function openModalResumoDetalhado(texto, processo) {
   document.getElementById("textoResumoDetalhado").textContent = texto;
   document.getElementById("modalResumoDetalhado").style.display = "block";
 
-  // Configurar o botão "Editar"
+  // Verifica se o botão "Editar" existe no DOM
   const btnEditarResumo = document.getElementById("btnEditarResumo");
 
   if (!btnEditarResumo) {
     console.error("❌ ERRO: Botão 'Editar' não encontrado no DOM.");
     return;
   }
+  // Garantindo que o evento seja redefinido corretamente
   btnEditarResumo.onclick = () => {
-    openModalIncluirResumo(processo, texto); // Chama o modal de inclusão com o texto existente
+    console.log(`🟢 Botão 'Editar' clicado. Chamando openModalIncluirResumo com texto: "${texto}"`);
+    openModalIncluirResumo(processo, texto); // 🔹 Certifique-se de que "texto" está sendo passado
   };
 }
 
