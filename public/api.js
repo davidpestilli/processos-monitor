@@ -159,6 +159,7 @@ export async function salvarResumo(numero, texto, assistente) {
   if (!response.ok) {
     throw new Error(`Erro ao salvar resumo: ${response.statusText}`);
   }
+  
 
   return response.json();
 }

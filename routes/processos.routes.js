@@ -373,5 +373,28 @@ router.post("/excluir-resumos", async (req, res) => {
   }
 });
 
+router.get("/filtrados", async (req, res) => {
+  try {
+      const { tribunal } = req.query;
+
+      if (!tribunal || (tribunal !== "STF" && tribunal !== "STJ")) {
+          return res.status(400).json({ error: "Tribunal inválido. Use STF ou STJ." });
+      }
+
+      console.log(`🔍 Buscando processos do tribunal: ${tribunal}`);
+
+      const processos = await db.collection("processos").find({ tribunal }).toArray();
+
+      console.log(`📊 ${processos.length} processos encontrados para ${tribunal}.`);
+      
+      res.json(processos);
+  } catch (error) {
+      console.error("❌ Erro ao buscar processos filtrados:", error);
+      res.status(500).json({ error: "Erro ao buscar processos." });
+  }
+});
+
+
+
 return router;
 }
