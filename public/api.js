@@ -65,38 +65,43 @@ export async function updateNovoDespacho(numero, novoValor) {
 }
 
 // Modifica a função para salvar um novo processo
+let contadorEnvios = 0; // 🔹 Contador global de envios de processos
+
 export async function salvarProcesso(processo) {
-  // 🔍 Verifica se o objeto do processo é válido
+  contadorEnvios++; // 🔹 Incrementa o contador a cada envio
+  console.log(`📌 Função salvarProcesso chamada (${contadorEnvios}ª vez)`);
+  console.log("🔍 Dados recebidos:", JSON.stringify(processo, null, 2));
+
   if (!processo || !processo.numero || !processo.tribunal) {
     console.error("🔴 ERRO: Dados do processo inválidos.", processo);
     throw new Error("Dados do processo inválidos.");
   }
 
-  console.log(`📤 Enviando processo ${processo.numero} (${processo.tribunal}) para API...`);
+  console.log(`📤 Preparando para enviar processo ${processo.numero} (${processo.tribunal}) para API... (Tentativa ${contadorEnvios})`);
 
   try {
-    // 🔄 Envia o processo para a API
     const response = await fetch(`${API_URL}/atualizar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ processos: [processo] })
     });
 
-    // ❌ Se a resposta não for bem-sucedida, exibe erro detalhado
+    console.log(`📡 Resposta da API recebida (Tentativa ${contadorEnvios}):`, response.status, response.statusText);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Erro na API (HTTP ${response.status}):`, errorText);
+      console.error(`❌ Erro na API (HTTP ${response.status}) na tentativa ${contadorEnvios}:`, errorText);
       throw new Error("Erro ao enviar processo.");
     }
 
-    console.log(`✅ Processo ${processo.numero} enviado com sucesso!`);
+    console.log(`✅ Processo ${processo.numero} enviado com sucesso! (Total de tentativas: ${contadorEnvios})`);
     return response;
   } catch (error) {
-    // ❗ Captura erros de conexão ou falha na requisição
-    console.error("❌ Erro ao conectar à API:", error);
+    console.error(`❌ Erro ao conectar à API na tentativa ${contadorEnvios}:`, error);
     throw error;
   }
 }
+
 
 
 // Função para excluir múltiplos processos
