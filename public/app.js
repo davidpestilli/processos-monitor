@@ -7,7 +7,6 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 // Seleciona elementos do DOM
 const tabelaBody = document.querySelector("#tabelaProcessos tbody");
-const inputNumeroProcesso = document.querySelector("#numeroProcesso");
 const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
 const inputCSV = document.querySelector("#inputCSV");
 
