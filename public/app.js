@@ -25,13 +25,13 @@ formProcesso.addEventListener("submit", handleFormSubmit);
  * Retorna o valor correto ou exibe um erro no console.
  */
 function getTribunalSelecionado() {
+  console.log("📌 Chamando getTribunalSelecionado()");
   const selecionado = document.querySelector("input[name='tribunal']:checked");
-  console.log("📌 getTribunalSelecionado() chamado");
   if (!selecionado) {
     console.warn("⚠️ Nenhum tribunal selecionado.");
     return null;
   }
-  console.log(`📌 Tribunal selecionado: ${selecionado.value}`);
+  console.log(`✅ Tribunal capturado com sucesso: ${selecionado.value}`);
   return selecionado.value;
 }
 
@@ -50,7 +50,10 @@ async function handleFormSubmit(e) {
   const numeroProcesso = inputNumeroProcesso.value.trim();
   let tribunalSelecionado = getTribunalSelecionado();
 
-  console.log(`📝 Tentativa de cadastro: Processo=${numeroProcesso}, Tribunal=${tribunalSelecionado || "Não informado"}`);
+  console.log("🔍 Dados capturados antes da validação:", {
+    numeroProcesso,
+    tribunalSelecionado
+  });
 
   if (!numeroProcesso) {
     console.warn("⚠️ Número do processo não informado.");
@@ -69,7 +72,7 @@ async function handleFormSubmit(e) {
   try {
     // 🔹 Criando uma cópia do objeto para garantir que os dados permaneçam íntegros
     const processoData = { numero: numeroProcesso, tribunal: tribunalSelecionado, manual: true };
-    console.log(`📤 Enviando processo para API:`, processoData);
+    console.log("📤 Dados preparados para envio:", JSON.stringify(processoData, null, 2));
 
     await salvarProcesso(processoData);
 
