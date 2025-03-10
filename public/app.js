@@ -16,23 +16,22 @@ const formProcesso = document.querySelector("#formProcesso");
 const radioTribunais = document.querySelectorAll("input[name='tribunal']");
 const btnAdicionar = document.querySelector("#btnAdicionar"); // Botão de envio, evita múltiplos cliques
 
-// 🔹 Remove eventos duplicados antes de registrar um novo
+// 🔹 Evita múltiplos eventos de submit removendo qualquer um já existente
 formProcesso.removeEventListener("submit", handleFormSubmit);
 formProcesso.addEventListener("submit", handleFormSubmit);
 
 /**
  * Função que captura o tribunal selecionado pelo usuário.
- * Se nenhum for selecionado, retorna null.
+ * Retorna o valor correto ou gera um erro se não houver seleção.
  */
 function getTribunalSelecionado() {
-  let tribunal = null;
-  radioTribunais.forEach(radio => {
-    if (radio.checked) {
-      tribunal = radio.value;
-    }
-  });
-  console.log(`📌 Tribunal selecionado: ${tribunal || "Nenhum"}`);
-  return tribunal;
+  const selecionado = document.querySelector("input[name='tribunal']:checked");
+  if (!selecionado) {
+    console.warn("⚠️ Nenhum tribunal selecionado.");
+    return null;
+  }
+  console.log(`📌 Tribunal selecionado: ${selecionado.value}`);
+  return selecionado.value;
 }
 
 /**
@@ -67,7 +66,7 @@ async function handleFormSubmit(e) {
   }
 
   try {
-    // 🔹 Clonagem do objeto para evitar modificações acidentais antes do envio
+    // 🔹 Criando uma cópia do objeto para garantir que os dados permaneçam íntegros
     const processoData = { numero: numeroProcesso, tribunal: tribunalSelecionado, manual: true };
     console.log(`📤 Enviando processo para API:`, processoData);
 
