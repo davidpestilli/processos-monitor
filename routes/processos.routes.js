@@ -75,6 +75,8 @@ export function createProcessosRouter(db) {
         }
 
         for (const p of processos) {
+          console.log(`📥 Recebendo processo:`, p);
+
           if (!p.numero || !p.tribunal) {
               console.error("🔴 ERRO: Número do processo e tribunal são obrigatórios.");
               return res.status(400).json({ error: "Número do processo e tribunal são obrigatórios." });
@@ -189,6 +191,7 @@ export function createProcessosRouter(db) {
             }
 
             // Atualiza o banco com todos os campos preservados
+            console.log("🔄 Atualizando processo no banco de dados...");
             await db.collection('processos').findOneAndUpdate(
               { numero: p.numero },
               { $set: updateFields },
@@ -207,7 +210,7 @@ export function createProcessosRouter(db) {
 
             console.log(`✅ Processo ${p.numero} atualizado com novo_despacho = ${novoDespachoStatus}`);
         }
-
+        console.log("✅ Todos os processos foram processados com sucesso!");
         res.json({ message: "Processos atualizados com sucesso" });
 
     } catch (error) {
