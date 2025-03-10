@@ -26,8 +26,9 @@ formProcesso.addEventListener("submit", handleFormSubmit);
  */
 function getTribunalSelecionado() {
   const selecionado = document.querySelector("input[name='tribunal']:checked");
+  console.log("📌 getTribunalSelecionado() chamado");
   if (!selecionado) {
-    console.warn("⚠️ Nenhum tribunal selecionado. Forçando exibição de erro no front.");
+    console.warn("⚠️ Nenhum tribunal selecionado.");
     return null;
   }
   console.log(`📌 Tribunal selecionado: ${selecionado.value}`);
