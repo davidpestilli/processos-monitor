@@ -16,6 +16,8 @@ const formProcesso = document.querySelector("#formProcesso");
 const radioTribunais = document.querySelectorAll("input[name='tribunal']");
 const btnAdicionar = document.querySelector("#btnAdicionar"); // Botão de envio, evita múltiplos cliques
 
+let envioEmAndamento = false; // 🔹 Variável para impedir múltiplos envios
+
 // 🔹 Evita múltiplos eventos de submit removendo qualquer um já existente
 formProcesso.removeEventListener("submit", handleFormSubmit);
 formProcesso.addEventListener("submit", handleFormSubmit);
@@ -41,6 +43,12 @@ function getTribunalSelecionado() {
 async function handleFormSubmit(e) {
   e.preventDefault();
 
+  if (envioEmAndamento) {
+    console.warn("⚠️ Um envio já está em andamento. Ignorando nova tentativa.");
+    return;
+  }
+  envioEmAndamento = true;
+
   console.log("🟢 Evento de submit disparado");
 
   // 🔹 Impede múltiplos envios ao desativar o botão
@@ -59,6 +67,7 @@ async function handleFormSubmit(e) {
     console.warn("⚠️ Número do processo não informado.");
     exibirMensagem("Por favor, insira um número de processo válido.", "erro");
     btnAdicionar.disabled = false;
+    envioEmAndamento = false;
     return;
   }
 
@@ -66,6 +75,7 @@ async function handleFormSubmit(e) {
     console.warn("⚠️ Tribunal não selecionado. Bloqueando envio.");
     exibirMensagem("Por favor, selecione o tribunal (STJ ou STF).", "erro");
     btnAdicionar.disabled = false;
+    envioEmAndamento = false;
     return;
   }
 
@@ -85,8 +95,10 @@ async function handleFormSubmit(e) {
   } finally {
     // 🔹 Reativa o botão após a requisição ser concluída
     btnAdicionar.disabled = false;
+    envioEmAndamento = false;
   }
 }
+
 
 
 
