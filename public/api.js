@@ -66,16 +66,36 @@ export async function updateNovoDespacho(numero, novoValor) {
 
 // Modifica a função para salvar um novo processo
 export async function salvarProcesso(processo) {
+  // 🔍 Verifica se o objeto do processo é válido
+  if (!processo || !processo.numero || !processo.tribunal) {
+    console.error("🔴 ERRO: Dados do processo inválidos.", processo);
+    throw new Error("Dados do processo inválidos.");
+  }
+
   console.log(`📤 Enviando processo ${processo.numero} (${processo.tribunal}) para API...`);
 
-  const response = await fetch(`${API_URL}/atualizar`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ processos: [processo] })
-  });
+  try {
+    // 🔄 Envia o processo para a API
+    const response = await fetch(`${API_URL}/atualizar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ processos: [processo] })
+    });
 
-  if (!response.ok) throw new Error("Erro ao enviar processo.");
-  return response;
+    // ❌ Se a resposta não for bem-sucedida, exibe erro detalhado
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Erro na API (HTTP ${response.status}):`, errorText);
+      throw new Error("Erro ao enviar processo.");
+    }
+
+    console.log(`✅ Processo ${processo.numero} enviado com sucesso!`);
+    return response;
+  } catch (error) {
+    // ❗ Captura erros de conexão ou falha na requisição
+    console.error("❌ Erro ao conectar à API:", error);
+    throw error;
+  }
 }
 
 
