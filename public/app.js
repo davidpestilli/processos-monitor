@@ -16,11 +16,13 @@ const formProcesso = document.querySelector("#formProcesso");
 const radioTribunais = document.querySelectorAll("input[name='tribunal']");
 const btnAdicionar = document.querySelector("#btnAdicionar"); // Botão de envio, evita múltiplos cliques
 
-let envioEmAndamento = false; // 🔹 Variável para impedir múltiplos envios
+// 🔹 Garante que o evento não seja registrado múltiplas vezes
+if (!formProcesso.dataset.eventRegistered) {
+  formProcesso.dataset.eventRegistered = "true";
+  formProcesso.addEventListener("submit", handleFormSubmit);
+}
 
-// 🔹 Evita múltiplos eventos de submit removendo qualquer um já existente
-formProcesso.removeEventListener("submit", handleFormSubmit);
-formProcesso.addEventListener("submit", handleFormSubmit);
+let envioEmAndamento = false; // 🔹 Variável para impedir múltiplos envios
 
 /**
  * Função que captura o tribunal selecionado pelo usuário.
@@ -89,6 +91,11 @@ async function handleFormSubmit(e) {
     console.log(`✅ Processo ${numeroProcesso} cadastrado com sucesso!`);
     exibirMensagem("Processo adicionado com sucesso!", "sucesso");
     inputNumeroProcesso.value = "";
+
+    // 🔹 Atualiza a tabela automaticamente após o envio bem-sucedido
+    console.log("🔄 Atualizando tabela de processos...");
+    await renderProcessos();
+    console.log("✅ Tabela atualizada com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao adicionar processo:", error);
     exibirMensagem("Erro ao adicionar o processo.", "erro");
@@ -98,9 +105,6 @@ async function handleFormSubmit(e) {
     envioEmAndamento = false;
   }
 }
-
-
-
 
 function atualizarBotaoNovoDespacho(botao, processo) {
     if (processo.novo_despacho === "Sim") {
