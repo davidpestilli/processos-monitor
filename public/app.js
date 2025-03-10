@@ -22,12 +22,12 @@ formProcesso.addEventListener("submit", handleFormSubmit);
 
 /**
  * Função que captura o tribunal selecionado pelo usuário.
- * Retorna o valor correto ou gera um erro se não houver seleção.
+ * Retorna o valor correto ou exibe um erro no console.
  */
 function getTribunalSelecionado() {
   const selecionado = document.querySelector("input[name='tribunal']:checked");
   if (!selecionado) {
-    console.warn("⚠️ Nenhum tribunal selecionado.");
+    console.warn("⚠️ Nenhum tribunal selecionado. Forçando exibição de erro no front.");
     return null;
   }
   console.log(`📌 Tribunal selecionado: ${selecionado.value}`);
@@ -47,7 +47,7 @@ async function handleFormSubmit(e) {
 
   // 🔹 Captura o número do processo e o tribunal selecionado
   const numeroProcesso = inputNumeroProcesso.value.trim();
-  const tribunalSelecionado = getTribunalSelecionado();
+  let tribunalSelecionado = getTribunalSelecionado();
 
   console.log(`📝 Tentativa de cadastro: Processo=${numeroProcesso}, Tribunal=${tribunalSelecionado || "Não informado"}`);
 
@@ -59,7 +59,7 @@ async function handleFormSubmit(e) {
   }
 
   if (!tribunalSelecionado) {
-    console.warn("⚠️ Tribunal não selecionado.");
+    console.warn("⚠️ Tribunal não selecionado. Bloqueando envio.");
     exibirMensagem("Por favor, selecione o tribunal (STJ ou STF).", "erro");
     btnAdicionar.disabled = false;
     return;
@@ -70,7 +70,7 @@ async function handleFormSubmit(e) {
     const processoData = { numero: numeroProcesso, tribunal: tribunalSelecionado, manual: true };
     console.log(`📤 Enviando processo para API:`, processoData);
 
-    await salvarProcesso({ ...processoData });
+    await salvarProcesso(processoData);
 
     console.log(`✅ Processo ${numeroProcesso} cadastrado com sucesso!`);
     exibirMensagem("Processo adicionado com sucesso!", "sucesso");
