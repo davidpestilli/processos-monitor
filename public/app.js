@@ -293,52 +293,6 @@ window.addEventListener("click", (event) => {
 });
 
 
-// Configura o evento do formulário para adicionar um novo processo
-if (formProcesso) {
-  formProcesso.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    if (!inputNumeroProcesso.value.trim()) {
-      exibirMensagem("Por favor, insira um número de processo válido.", "erro");
-      return;
-    }
-
-    const numeroProcesso = inputNumeroProcesso.value.trim();
-    
-    try {
-      await salvarProcesso({ numero: numeroProcesso, manual: true });
-      exibirMensagem("Processo adicionado com sucesso!", "sucesso");
-      renderProcessos();
-      inputNumeroProcesso.value = "";
-    } catch (error) {
-      console.error("Erro ao adicionar processo:", error);
-      exibirMensagem("Erro ao adicionar o processo.", "erro");
-    }
-  });
-}
-
-
-// Configura o evento do formulário para adicionar um novo processo
-if (formProcesso) {
-  formProcesso.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!inputNumeroProcesso.value.trim()) {
-      alert("Por favor, insira um número de processo válido.");
-      return;
-    }
-    const numeroProcesso = inputNumeroProcesso.value.trim();
-    try {
-      await salvarProcesso({ numero: numeroProcesso, manual: true });
-      alert("Processo adicionado com sucesso!");
-      renderProcessos();
-      inputNumeroProcesso.value = "";
-    } catch (error) {
-      console.error("Erro ao adicionar processo:", error);
-      alert("Erro ao adicionar o processo. Verifique o console.");
-    }
-  });
-}
-
 // Configura o evento para exclusão múltipla de processos
 if (btnExcluirSelecionados) {
   btnExcluirSelecionados.addEventListener("click", async () => {
