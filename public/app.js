@@ -7,10 +7,81 @@ const API_URL = "https://processos-monitor-production.up.railway.app/processos";
 
 // Seleciona elementos do DOM
 const tabelaBody = document.querySelector("#tabelaProcessos tbody");
-const formProcesso = document.querySelector("#formProcesso");
 const inputNumeroProcesso = document.querySelector("#numeroProcesso");
 const btnExcluirSelecionados = document.getElementById("btnExcluirSelecionados");
 const inputCSV = document.querySelector("#inputCSV");
+
+
+// 🔹 Captura os elementos do formulário e dos radio buttons
+const formProcesso = document.querySelector("#formProcesso");
+const radioTribunais = document.querySelectorAll("input[name='tribunal']");
+
+/**
+ * Retorna o tribunal selecionado pelo usuário.
+ * Se nenhum for selecionado, retorna uma string vazia.
+ */
+function getTribunalSelecionado() {
+  let tribunal = "";
+  radioTribunais.forEach(radio => {
+    if (radio.checked) {
+      tribunal = radio.value;
+    }
+  });
+  console.log(`📌 Tribunal selecionado: ${tribunal || "Nenhum"}`);
+  return tribunal;
+}
+
+/**
+ * Adiciona um evento de submissão ao formulário de cadastro de processos.
+ * Valida a entrada do usuário antes de enviar os dados para a API.
+ */
+formProcesso.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // Captura o número do processo e o tribunal selecionado
+  const numeroProcesso = document.querySelector("#numeroProcesso").value.trim();
+  const tribunalSelecionado = getTribunalSelecionado();
+
+  console.log(`📝 Tentativa de cadastro: Processo=${numeroProcesso}, Tribunal=${tribunalSelecionado || "Não informado"}`);
+
+  // Validação do número do processo
+  if (!numeroProcesso) {
+    console.warn("⚠️ Número do processo não informado.");
+    mensagemFeedback.textContent = "Por favor, insira um número de processo válido.";
+    mensagemFeedback.className = "erro";
+    mensagemFeedback.style.display = "block";
+    return;
+  }
+
+  // Validação da seleção do tribunal
+  if (!tribunalSelecionado) {
+    console.warn("⚠️ Tribunal não selecionado.");
+    mensagemFeedback.textContent = "Por favor, selecione o tribunal (STJ ou STF).";
+    mensagemFeedback.className = "erro";
+    mensagemFeedback.style.display = "block";
+    return;
+  }
+
+  try {
+    console.log(`📤 Enviando processo ${numeroProcesso} (${tribunalSelecionado}) para API...`);
+    await salvarProcesso({ numero: numeroProcesso, tribunal: tribunalSelecionado, manual: true });
+    console.log(`✅ Processo ${numeroProcesso} cadastrado com sucesso!`);
+    
+    // Exibe mensagem de sucesso
+    mensagemFeedback.textContent = "Processo adicionado com sucesso!";
+    mensagemFeedback.className = "sucesso";
+    mensagemFeedback.style.display = "block";
+
+    // Limpa o campo de entrada
+    document.querySelector("#numeroProcesso").value = "";
+  } catch (error) {
+    console.error("❌ Erro ao adicionar processo:", error);
+    mensagemFeedback.textContent = "Erro ao adicionar o processo.";
+    mensagemFeedback.className = "erro";
+    mensagemFeedback.style.display = "block";
+  }
+});
+
 
 function atualizarBotaoNovoDespacho(botao, processo) {
     if (processo.novo_despacho === "Sim") {

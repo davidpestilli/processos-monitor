@@ -1028,3 +1028,31 @@ td.gap, td.resumo {
 #btnIncluirResumo:active {
   transform: scale(0.98);
 }
+
+/* Estilização para manter a entrada de dados organizada */
+.input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.input-box {
+  flex: 1;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px var(--box-shadow-color);
+}
+
+/* Centralização da escolha do tribunal */
+.tribunal-selection {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.tribunal-selection label {
+  font-weight: bold;
+  cursor: pointer;
+}

@@ -20,10 +20,11 @@
   </header>
 
   <!-- Seção de Adicionar Processo -->
-  <section id="upload-section">
-    <h2>Adicionar Processo</h2>
-    
-    <div class="form-container">
+<section id="upload-section">
+  <h2>Adicionar Processo</h2>
+
+  <div class="input-container">
+    <div class="input-box">
       <form id="formProcesso">
         <label for="numeroProcesso">Número do Processo:</label>
         <div class="input-group">
@@ -31,18 +32,26 @@
           <button type="submit" id="btnAdicionar">Adicionar</button>
         </div>
       </form>
-
+    </div>
+    
+    <div class="input-box">
       <h3>Ou envie um arquivo CSV</h3>
-      
       <div class="file-upload">
         <input type="file" id="inputCSV">
-        <button id="btnEnviarCSV">Enviar CSV</button>    
+        <button id="btnEnviarCSV">Enviar CSV</button>
       </div>
-
-      <!-- Área para mensagens de erro/sucesso -->
-      <p id="mensagemFeedback" class="hidden"></p>
     </div>
-  </section>
+  </div>
+
+  <!-- Novo bloco para escolha do Tribunal -->
+  <div class="tribunal-selection">
+    <label><input type="radio" name="tribunal" value="STJ"> STJ</label>
+    <label><input type="radio" name="tribunal" value="STF"> STF</label>
+  </div>
+
+  <!-- Área para mensagens de erro/sucesso -->
+  <p id="mensagemFeedback" class="hidden"></p>
+</section>
 
   <!-- Seção de Processos Monitorados -->
   <section id="processes-section">

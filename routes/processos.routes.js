@@ -75,13 +75,14 @@ export function createProcessosRouter(db) {
         }
 
         for (const p of processos) {
-            if (!p.numero) {
-                console.error("🔴 ERRO: Número do processo não informado.");
-                return res.status(400).json({ error: "Número do processo é obrigatório." });
-            }
+          if (!p.numero || !p.tribunal) {
+              console.error("🔴 ERRO: Número do processo e tribunal são obrigatórios.");
+              return res.status(400).json({ error: "Número do processo e tribunal são obrigatórios." });
+          }
 
             // Normaliza os campos
             p.numero = normalizeNumero(p.numero);
+            p.tribunal = p.tribunal.toUpperCase();
             p.ultima_movimentacao = normalizeText(p.ultima_movimentacao);
             p.teor_ultima_movimentacao = normalizeText(p.teor_ultima_movimentacao);
             p.ultimo_despacho = normalizeText(p.ultimo_despacho);
@@ -178,7 +179,8 @@ export function createProcessosRouter(db) {
               ultima_movimentacao: p.ultima_movimentacao !== undefined ? p.ultima_movimentacao : processoExistente?.ultima_movimentacao,
               teor_ultima_movimentacao: p.teor_ultima_movimentacao !== undefined ? p.teor_ultima_movimentacao : processoExistente?.teor_ultima_movimentacao,
               ultimo_despacho: p.ultimo_despacho !== undefined ? p.ultimo_despacho : processoExistente?.ultimo_despacho,
-              teor_ultimo_despacho: p.teor_ultimo_despacho !== undefined ? p.teor_ultimo_despacho : processoExistente?.teor_ultimo_despacho
+              teor_ultimo_despacho: p.teor_ultimo_despacho !== undefined ? p.teor_ultimo_despacho : processoExistente?.teor_ultimo_despacho,
+              tribunal: p.tribunal // 🔹 Atualiza o tribunal do processo
             };
 
             // Atualiza a última pesquisa apenas se for uma requisição manual

@@ -64,16 +64,20 @@ export async function updateNovoDespacho(numero, novoValor) {
   return response;
 }
 
-// Função para salvar um novo processo
+// Modifica a função para salvar um novo processo
 export async function salvarProcesso(processo) {
+  console.log(`📤 Enviando processo ${processo.numero} (${processo.tribunal}) para API...`);
+
   const response = await fetch(`${API_URL}/atualizar`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ processos: [processo] })
   });
+
   if (!response.ok) throw new Error("Erro ao enviar processo.");
   return response;
 }
+
 
 // Função para excluir múltiplos processos
 export async function excluirProcessos(numeros) {
